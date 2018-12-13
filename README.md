@@ -78,11 +78,11 @@ We add the `producer-id` so that we can run the producers on multiple hosts and 
 
 Command line arguments:
 
-`--id`: Producer ID. May be the hostname etc. 
-`--topics`: List of topic names to write to, separated by comas
-`--throughput`: Number of messages per second per topic
-`--message-size`: Message size, including the header section (producer-id;sequence-number;timestamp;). The minimal message size is around 30 bytes then due to a typical header length
-`--bootstrap-server`: A kafka server from which to bootstrap
+`--id`: Producer ID. May be the hostname etc.  
+`--topics`: List of topic names to write to, separated by comas  
+`--throughput`: Number of messages per second per topic  
+`--message-size`: Message size, including the header section (producer-id;sequence-number;timestamp;). The minimal message size is around 30 bytes then due to a typical header length  
+`--bootstrap-server`: A kafka server from which to bootstrap  
 
 The producer would generate messages containing the header and adding the payload for as long as needed in order to reach the `message-size` and send them to kafka.
 It will try to achieve the desired throughput (send batches and in prallel) but will not exceed it. If it is unable to achieve the desired throughput we'll emit a log warning and continue.
@@ -90,9 +90,10 @@ The throughput is measured as the numnber of messages / second / topic.
 
 ### Consumer 
 
-Command line arguments:
-`--topics`: List of topic names to read from, separated by comas
-`--bootstrap-server`: A kafka server from which to bootstrap
+Command line arguments:  
+
+`--topics`: List of topic names to read from, separated by comas  
+`--bootstrap-server`: A kafka server from which to bootstrap  
 
 The consumer would read the messages from each of the topics and calculate correctness and performance. 
 
