@@ -12,13 +12,16 @@ import (
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
+const monitoringFrequency = 5 * time.Second
+
 // The producer package is responsible for producing messages and repotring success/failure WRT
 // delivery as well as capacity (is it able to produce the required throughput)
 
 // ProduceForever will produce messages to the topic forver or until canceled by the context.
 // It will try to acheive the desired throughput and if not - will log that. It will not exceed the throughput (measured by number of messages per second)
 // throughput is limited to 1M messages per second.
-func ProduceForever(ctx context.Context,
+func ProduceForever(
+	ctx context.Context,
 	brokers types.Brokers,
 	topic types.Topic,
 	id types.ProducerID,
@@ -37,7 +40,8 @@ func ProduceForever(ctx context.Context,
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
 // adheeers tp maintaining the desired throughput.
-func producerForeverWithWriter(ctx context.Context,
+func producerForeverWithWriter(
+	ctx context.Context,
 	writer *kafka.Writer,
 	id types.ProducerID,
 	initialSequence types.SequenceNumber,
@@ -50,7 +54,7 @@ func producerForeverWithWriter(ctx context.Context,
 
 	seq := initialSequence
 
-	go monitor(ctx, writer, 5*time.Second)
+	go monitor(ctx, writer, monitoringFrequency, throughput)
 
 	errors := make(chan string)
 
@@ -67,7 +71,8 @@ func producerForeverWithWriter(ctx context.Context,
 
 // produceMessage produces a message to kafka.
 // It silently fails and report the errors to the channel.
-func produceMessage(ctx context.Context,
+func produceMessage(
+	ctx context.Context,
 	errors chan string,
 	writer *kafka.Writer,
 	id types.ProducerID,
@@ -92,12 +97,17 @@ func produceMessage(ctx context.Context,
 
 // periodically monitors the kafka writer.
 // Blocks forever or until canceled.
-func monitor(ctx context.Context, writer *kafka.Writer, frequency time.Duration) {
+func monitor(
+	ctx context.Context,
+	writer *kafka.Writer,
+	frequency time.Duration,
+	desiredThroughput types.Throughput,
+) {
 	ticker := time.Tick(frequency)
 	for {
 		select {
 		case <-ticker:
-			printWriterStats(writer)
+			printWriterStats(writer, frequency, desiredThroughput)
 		case <-ctx.Done():
 			log.Infof("Monitor done. %s", ctx.Err())
 			return
@@ -106,7 +116,7 @@ func monitor(ctx context.Context, writer *kafka.Writer, frequency time.Duration)
 }
 
 // Prints some runtime stats such as errors, throughputs etc
-func printWriterStats(writer *kafka.Writer) {
+func printWriterStats(writer *kafka.Writer, frequency time.Duration, desiredThroughput types.Throughput) {
 	stats := writer.Stats()
 	log.Infof(`Recent stats:
 	Writes: %d
@@ -120,4 +130,14 @@ func printWriterStats(writer *kafka.Writer) {
 	`,
 		stats.Writes, stats.Messages, stats.Bytes, stats.Retries.Max,
 		stats.BatchSize.Avg, stats.QueueLength, stats.Errors)
+
+	frequencySec := frequency / time.Second
+	actualThroughput := stats.Messages / int64(frequencySec)
+
+	// How much slack we're willing to take if throughput is lower than desired
+	const slack = .9
+
+	if float32(actualThroughput) < float32(desiredThroughput)*slack {
+		log.Warnf("Actual throughput is < desired throughput. %d < %d", actualThroughput, desiredThroughput)
+	}
 }
