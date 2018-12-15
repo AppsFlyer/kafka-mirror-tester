@@ -41,5 +41,12 @@ func TestParse(t *testing.T) {
 	assert.Equal(types.ProducerID("1"), parsed.ProducerID, "ProducerID should be 1")
 	assert.Equal(types.SequenceNumber(0), parsed.Sequence, "Sequence should be 0")
 	assert.True(parsed.Timestamp.Before(time.Now().UTC()), "At least one millisecond should have passed")
+}
 
+// from fib_test.go
+func BenchmarkFormat(b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		Format("xx", 5, 1000)
+	}
 }
