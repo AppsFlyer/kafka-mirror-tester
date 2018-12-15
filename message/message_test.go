@@ -20,6 +20,10 @@ func TestFormat(t *testing.T) {
 	// Check minimal length
 	msg = Format("1", 0, 1)
 	assert.True(len(msg) > 1, "Length should be > 1")
+
+	// Check very long messages
+	msg = Format("1", 0, 1e4)
+	assert.Equal(int(1e4), len(msg), "Length should be 1e3")
 }
 
 func TestParse(t *testing.T) {

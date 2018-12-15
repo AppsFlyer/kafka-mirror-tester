@@ -80,13 +80,12 @@ func produceMessage(
 	messageSize types.MessageSize,
 ) {
 	go func() {
-
 		key := fmt.Sprintf("%s.%d", id, seq)
 		m := kafka.Message{
 			Key:   []byte(key),
 			Value: []byte(message.Format(id, seq, messageSize)),
 		}
-		log.Trace("writing ", key, time.Now())
+		log.Trace("writing ", key)
 		err := writer.WriteMessages(ctx, m)
 		if err != nil {
 			log.Errorf("ERROR: %s", err)
@@ -118,21 +117,24 @@ func monitor(
 // Prints some runtime stats such as errors, throughputs etc
 func printWriterStats(writer *kafka.Writer, frequency time.Duration, desiredThroughput types.Throughput) {
 	stats := writer.Stats()
+	frequencySec := int64(frequency / time.Second)
+	actualThroughput := stats.Messages / frequencySec
 	log.Infof(`Recent stats:
-	Writes: %d
-	Messages: %d
-	Bytes: %d
+	Writes: %d / sec
+	Messages: %d / sec
+	Bytes: %d / sec
 	Max Retries: %d
 	Average Batch Size: %d
 	Queue Length: %d
 
 	Errors: %d
-	`,
-		stats.Writes, stats.Messages, stats.Bytes, stats.Retries.Max,
-		stats.BatchSize.Avg, stats.QueueLength, stats.Errors)
-
-	frequencySec := frequency / time.Second
-	actualThroughput := stats.Messages / int64(frequencySec)
+	`, stats.Writes/frequencySec,
+		actualThroughput,
+		stats.Bytes/frequencySec,
+		stats.Retries.Max,
+		stats.BatchSize.Avg,
+		stats.QueueLength,
+		stats.Errors)
 
 	// How much slack we're willing to take if throughput is lower than desired
 	const slack = .9
