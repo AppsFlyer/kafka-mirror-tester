@@ -9,12 +9,13 @@ import (
 )
 
 func main() {
+
 	ctx, cancel := context.WithCancel(context.Background())
 
-	brokers := types.Brokers{"localhost:9093"}
+	brokers := types.Brokers("localhost:9093")
 	topic := types.Topic("topic")
 	id := types.ProducerID("1")
-	throughput := types.Throughput(40000)
+	throughput := types.Throughput(400000)
 	messageSize := types.MessageSize(10)
 	initialSequence := types.SequenceNumber(0)
 

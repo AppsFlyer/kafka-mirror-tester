@@ -2,8 +2,8 @@ package types
 
 // Common type definitions for this project
 
-// Brokers identify a slice of  host:port tuple of a kafka broker
-type Brokers []string
+// Brokers is a coma seperated string of host:port
+type Brokers string
 
 // Throughput describes a message send throughput measured by number of messages per second
 type Throughput uint
@@ -18,4 +18,4 @@ type ProducerID string
 type Topic string
 
 // SequenceNumber represents a sequence number in a message used for testing the order of the message
-type SequenceNumber uint
+type SequenceNumber uint64

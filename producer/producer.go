@@ -1,21 +1,27 @@
 package producer
 
+// The producer package is responsible for producing messages and repotring success/failure WRT
+// delivery as well as capacity (is it able to produce the required throughput)
+
 import (
 	"context"
-	"fmt"
-	"time"
 
-	kafka "github.com/segmentio/kafka-go"
+	"golang.org/x/time/rate"
+
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/paulbellamy/ratecounter"
 	log "github.com/sirupsen/logrus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
-const monitoringFrequency = 5 * time.Second
-
-// The producer package is responsible for producing messages and repotring success/failure WRT
-// delivery as well as capacity (is it able to produce the required throughput)
+const (
+	// How much burst we allow for the rate limiter.
+	// We provide a 0.1 burst ratio which means that at times the rate might go up to 10% or the desired rate (but not for log)
+	// This is done in order to conpersate for slow starts.
+	burstRatio = 0.1
+)
 
 // ProduceForever will produce messages to the topic forver or until canceled by the context.
 // It will try to acheive the desired throughput and if not - will log that. It will not exceed the throughput (measured by number of messages per second)
@@ -29,117 +35,96 @@ func ProduceForever(
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 ) {
-	w := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  brokers,
-		Topic:    string(topic),
-		Balancer: &kafka.LeastBytes{},
-	})
-	defer w.Close()
-	producerForeverWithWriter(ctx, w, id, initialSequence, throughput, messageSize)
+	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
+	if err != nil {
+		log.Fatalf("Failed to create producer: %s\n", err)
+	}
+	defer p.Close()
+	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize)
 }
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
-// adheeers tp maintaining the desired throughput.
-func producerForeverWithWriter(
+// adheeers to maintaining the desired throughput.
+func producerForeverWithProducer(
 	ctx context.Context,
-	writer *kafka.Writer,
+	p *kafka.Producer,
+	topic types.Topic,
 	id types.ProducerID,
 	initialSequence types.SequenceNumber,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 ) {
-	// the rate limiter is responsible for regulating the traffic by limiting its throughput (messages/sec)
-	rateMicroseconds := time.Duration(1e6 / throughput)
-	limiter := time.Tick(rateMicroseconds * time.Microsecond)
+	// the rate limiter regulates the producer by limiting its throughput (messages/sec)
+	limiter := rate.NewLimiter(rate.Limit(throughput), int(float32(throughput)*burstRatio))
 
+	// messageCounter is used in order to observe the actual throughput
+	messageCounter := ratecounter.NewRateCounter(monitoringFrequency)
+	// bytesCounter measures the actual throughput in bytes
+	bytesCounter := ratecounter.NewRateCounter(monitoringFrequency)
+
+	// Sequence number per message
 	seq := initialSequence
 
-	go monitor(ctx, writer, monitoringFrequency, throughput)
+	// Count the total number of errors on this topic
+	errorCounter := uint(0)
 
-	errors := make(chan string)
+	go monitor(ctx, messageCounter, bytesCounter, &errorCounter, monitoringFrequency, throughput)
 
+	go eventsProcessor(p, messageCounter, bytesCounter, &errorCounter)
+
+	topicString := string(topic)
+	tp := kafka.TopicPartition{Topic: &topicString, Partition: kafka.PartitionAny}
 	for ; ; seq++ {
-		select {
-		case <-limiter:
-			produceMessage(ctx, errors, writer, id, seq, messageSize)
-		case <-ctx.Done():
-			log.Infof("Main producer look done. %s", ctx.Err())
-			return
+		err := limiter.Wait(ctx)
+		if err != nil {
+			log.Errorf("Error waiting %+v", err)
+			continue
 		}
+		produceMessage(ctx, p, tp, id, seq, messageSize)
 	}
 }
 
-// produceMessage produces a message to kafka.
-// It silently fails and report the errors to the channel.
+// produceMessage produces a single message to kafka.
+// message production is asyncrounous on the ProducerChannel
 func produceMessage(
 	ctx context.Context,
-	errors chan string,
-	writer *kafka.Writer,
+	p *kafka.Producer,
+	topicPartition kafka.TopicPartition,
 	id types.ProducerID,
 	seq types.SequenceNumber,
 	messageSize types.MessageSize,
 ) {
-	go func() {
-		key := fmt.Sprintf("%s.%d", id, seq)
-		m := kafka.Message{
-			Key:   []byte(key),
-			Value: []byte(message.Format(id, seq, messageSize)),
-		}
-		log.Trace("writing ", key)
-		err := writer.WriteMessages(ctx, m)
-		if err != nil {
-			log.Errorf("ERROR: %s", err)
-			errors <- err.Error()
-		}
-	}()
-}
-
-// periodically monitors the kafka writer.
-// Blocks forever or until canceled.
-func monitor(
-	ctx context.Context,
-	writer *kafka.Writer,
-	frequency time.Duration,
-	desiredThroughput types.Throughput,
-) {
-	ticker := time.Tick(frequency)
-	for {
-		select {
-		case <-ticker:
-			printWriterStats(writer, frequency, desiredThroughput)
-		case <-ctx.Done():
-			log.Infof("Monitor done. %s", ctx.Err())
-			return
-		}
+	value := message.Format(id, seq, messageSize)
+	p.ProduceChannel() <- &kafka.Message{
+		TopicPartition: topicPartition,
+		Value:          []byte(value),
+	}
+	if log.GetLevel() >= log.TraceLevel {
+		log.Tracef("Producing %s...", value[:20])
 	}
 }
 
-// Prints some runtime stats such as errors, throughputs etc
-func printWriterStats(writer *kafka.Writer, frequency time.Duration, desiredThroughput types.Throughput) {
-	stats := writer.Stats()
-	frequencySec := int64(frequency / time.Second)
-	actualThroughput := stats.Messages / frequencySec
-	log.Infof(`Recent stats:
-	Writes: %d / sec
-	Messages: %d / sec
-	Bytes: %d / sec
-	Max Retries: %d
-	Average Batch Size: %d
-	Queue Length: %d
-
-	Errors: %d
-	`, stats.Writes/frequencySec,
-		actualThroughput,
-		stats.Bytes/frequencySec,
-		stats.Retries.Max,
-		stats.BatchSize.Avg,
-		stats.QueueLength,
-		stats.Errors)
-
-	// How much slack we're willing to take if throughput is lower than desired
-	const slack = .9
-
-	if float32(actualThroughput) < float32(desiredThroughput)*slack {
-		log.Warnf("Actual throughput is < desired throughput. %d < %d", actualThroughput, desiredThroughput)
+// eventsProcessor processes the events emited by the producer p.
+// It then logs errors and increased the passed-by-reference errors counter and updates the throughput counter
+func eventsProcessor(
+	p *kafka.Producer,
+	messageCounter *ratecounter.RateCounter,
+	bytesCounter *ratecounter.RateCounter,
+	errorCounter *uint,
+) {
+	for e := range p.Events() {
+		switch ev := e.(type) {
+		case *kafka.Message:
+			m := ev
+			if m.TopicPartition.Error != nil {
+				log.Errorf("Delivery failed: %v", m.TopicPartition.Error)
+				*errorCounter++
+			} else {
+				messageCounter.Incr(1)
+				bytesCounter.Incr(int64(len(m.Value)))
+			}
+		default:
+			log.Infof("Ignored event: %s", ev)
+		}
 	}
 }
