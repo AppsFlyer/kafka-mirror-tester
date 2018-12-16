@@ -94,15 +94,12 @@ func produceMessage(
 	seq types.SequenceNumber,
 	messageSize types.MessageSize,
 ) {
-	value := message.Format(id, seq, messageSize)
-	p.ProduceChannel() <- &kafka.Message{
-		TopicPartition: topicPartition,
-		Value:          []byte(value),
-	}
-	if log.GetLevel() >= log.TraceLevel {
-		log.Tracef("Producing %s...", value[:20])
-	}
+	m := message.Create(id, seq, messageSize)
+	m.TopicPartition = topicPartition
+	p.ProduceChannel() <- m
+	log.Tracef("Producing %s...", m)
 }
+
 
 // eventsProcessor processes the events emited by the producer p.
 // It then logs errors and increased the passed-by-reference errors counter and updates the throughput counter

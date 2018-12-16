@@ -18,4 +18,4 @@ type ProducerID string
 type Topic string
 
 // SequenceNumber represents a sequence number in a message used for testing the order of the message
-type SequenceNumber uint64
+type SequenceNumber int64

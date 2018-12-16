@@ -9,44 +9,17 @@ import (
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
-func TestFormat(t *testing.T) {
+func TestCreateAndExtract(t *testing.T) {
+	msg := Create("1", 5, 100)
+	require.NotNil(t, msg, "Message should not be nil")
 
-	assert := assert.New(t)
-
-	// Check length
-	msg := Format("1", 0, 100)
-	assert.Equal(100, len(msg), "Length should be 100")
-
-	// Check minimal length
-	msg = Format("1", 0, 1)
-	assert.True(len(msg) > 1, "Length should be > 1")
-
-	// Check very long messages
-	msg = Format("1", 0, 1e4)
-	assert.Equal(int(1e4), len(msg), "Length should be 1e3")
-}
-
-func TestParse(t *testing.T) {
-
-	assert := assert.New(t)
-
-	// Create a message
-	msg := Format("1", 0, 100)
 	// Make sure at least one ms passed before parsing it
 	time.Sleep(1 * time.Millisecond)
-	parsed, err := Parse(msg)
+	data := Extract(msg)
+	require.NotNil(t, data, "Data should not be nil")
 
-	require.Nil(t, err, "There should not be an error")
-
-	assert.Equal(types.ProducerID("1"), parsed.ProducerID, "ProducerID should be 1")
-	assert.Equal(types.SequenceNumber(0), parsed.Sequence, "Sequence should be 0")
-	assert.True(parsed.Timestamp.Before(time.Now().UTC()), "At least one millisecond should have passed")
-}
-
-// from fib_test.go
-func BenchmarkFormat(b *testing.B) {
-	// run the Fib function b.N times
-	for n := 0; n < b.N; n++ {
-		Format("xx", 5, 1000)
-	}
+	assert := assert.New(t)
+	assert.Equal(types.ProducerID("1"), data.ProducerID, "ProducerID should be 1")
+	assert.Equal(types.SequenceNumber(5), data.Sequence, "Sequence number should be 5")
+	assert.True(data.Latency > 1, "Latency should be > 1")
 }

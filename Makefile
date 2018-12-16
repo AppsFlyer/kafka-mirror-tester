@@ -5,14 +5,11 @@ setup:
 dep-ensure:
 	dep ensure
 
-generate:
-	go generate ./...
-
-build: dep-ensure generate
+build: dep-ensure
 	go build ./...
 
-run: dep-ensure generate
+run: dep-ensure
 	go run main.go
 
-test: dep-ensure generate
+test: dep-ensure
 	go test ./...

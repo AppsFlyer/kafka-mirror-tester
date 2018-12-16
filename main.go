@@ -16,7 +16,7 @@ func main() {
 	topic := types.Topic("topic")
 	id := types.ProducerID("1")
 	throughput := types.Throughput(400000)
-	messageSize := types.MessageSize(100)
+	messageSize := types.MessageSize(1000)
 	initialSequence := types.SequenceNumber(0)
 
 	time.AfterFunc(100*time.Second, func() {

@@ -1,78 +1,90 @@
 package message
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	log "github.com/sirupsen/logrus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
+const (
+	// KeySequence identifies the sequence number header
+	KeySequence = "seq"
+
+	// KeyProducerID identifies the producer ID header
+	KeyProducerID = "id"
+)
+
 // Data represent the data sent in a message.
 type Data struct {
-	ProducerID types.ProducerID
-	Sequence   types.SequenceNumber
-	Timestamp  time.Time
-	Payload    string
+	ProducerID        types.ProducerID
+	Sequence          types.SequenceNumber
+	ProducerTimestamp time.Time
+	ConsumerTimestamp time.Time
+	Latency           time.Duration
+	Payload           []byte
 }
 
-//go:generate go run ../code-gen.go
-
-// Format a message based on the parameters
-func Format(
+// Create a mew message with headers, timestamp and size.
+// Does not set TopicPartition.
+func Create(
 	id types.ProducerID,
 	seq types.SequenceNumber,
-	messageSize types.MessageSize,
-) string {
-	ts := time.Now().UTC().UnixNano()
-	var b strings.Builder
-	// build the header first
-	fmt.Fprintf(&b, "%s;%d;%d;", id, seq, ts)
-
-	// See how much space left for payload and add chars based on the space left
-	left := int(messageSize) - b.Len()
-	if left > 0 {
-		fmt.Fprintf(&b, payload[:left])
+	size types.MessageSize,
+) *kafka.Message {
+	payload := make([]byte, size)
+	return &kafka.Message{
+		Value:         payload,
+		Timestamp:     time.Now().UTC(),
+		TimestampType: kafka.TimestampCreateTime,
+		Headers: []kafka.Header{
+			{
+				Key:   KeyProducerID,
+				Value: []byte(id),
+			},
+			{
+				Key:   KeySequence,
+				Value: []byte(strconv.FormatInt(int64(seq), 10)),
+			},
+		},
 	}
-	return b.String()
 }
 
-// Parse parses the string message into the Data structure.
-func Parse(msg string) (data Data, err error) {
-	parts := strings.Split(msg, ";")
-	if len(parts) != 4 {
-		err = errors.Errorf("msg should contain 4 parts but it doesn't. %s...", msg[:30])
-		return
+// Extract the data from the message and set timestamp and latencies
+func Extract(msg *kafka.Message) *Data {
+	now := time.Now().UTC()
+	return &Data{
+		ProducerID:        getProducerID(msg),
+		Sequence:          getSequence(msg),
+		ProducerTimestamp: msg.Timestamp,
+		ConsumerTimestamp: now,
+		Latency:           now.Sub(msg.Timestamp),
+		Payload:           msg.Value,
 	}
-
-	data.ProducerID = types.ProducerID(parts[0])
-	sq, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil {
-		err = errors.WithStack(err)
-		return
-	}
-	data.Sequence = types.SequenceNumber(sq)
-	ts, err := parseTs(parts[2])
-	if err != nil {
-		err = errors.WithStack(err)
-		return
-	}
-	data.Timestamp = ts
-	data.Payload = parts[3]
-	return
 }
 
-func parseTs(ts string) (time.Time, error) {
-	i, err := strconv.ParseInt(ts, 10, 64)
-	if err != nil {
-		panic(err)
-	}
-	nano := i % 1e9
-	sec := i / 1e9
+func getProducerID(msg *kafka.Message) types.ProducerID {
+	return types.ProducerID(getHeader(msg, KeyProducerID))
+}
 
-	t := time.Unix(sec, nano).UTC()
-	return t, nil
+func getSequence(msg *kafka.Message) types.SequenceNumber {
+	str := string(getHeader(msg, KeySequence))
+	i, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
+		log.Fatalf("Malformed Sequence Number %s. %+v", str, err)
+	}
+	return types.SequenceNumber(i)
+}
+
+func getHeader(msg *kafka.Message, key string) []byte {
+	for _, h := range msg.Headers {
+		if h.Key == key {
+			return h.Value
+		}
+	}
+	// header not found
+	return nil
 }
