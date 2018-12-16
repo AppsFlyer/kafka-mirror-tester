@@ -17,5 +17,11 @@ type ProducerID string
 // Topic describes a name of a kafka topic
 type Topic string
 
+// Topics is just an array of topics
+type Topics []string
+
 // SequenceNumber represents a sequence number in a message used for testing the order of the message
 type SequenceNumber int64
+
+// ConsumerGroup for kafka
+type ConsumerGroup string
