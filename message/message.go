@@ -18,16 +18,6 @@ const (
 	KeyProducerID = "id"
 )
 
-// Data represent the data sent in a message.
-type Data struct {
-	ProducerID        types.ProducerID
-	Sequence          types.SequenceNumber
-	ProducerTimestamp time.Time
-	ConsumerTimestamp time.Time
-	Latency           time.Duration
-	Payload           []byte
-}
-
 // Create a mew message with headers, timestamp and size.
 // Does not set TopicPartition.
 func Create(
@@ -62,6 +52,7 @@ func Extract(msg *kafka.Message) *Data {
 		ProducerTimestamp: msg.Timestamp,
 		ConsumerTimestamp: now,
 		Latency:           now.Sub(msg.Timestamp),
+		Topic:             types.Topic(*msg.TopicPartition.Topic),
 		Payload:           msg.Value,
 	}
 }

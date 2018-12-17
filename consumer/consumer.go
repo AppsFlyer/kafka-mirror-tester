@@ -5,21 +5,32 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
 const (
+
+	// kafka consumer session timeout
 	sessionTimeoutMs = 6000
-	autoOffsetReset  = "earliest"
+
+	// For the purpose of performance monitoring we always want to start with the latest messages
+	autoOffsetReset = "latest"
 )
 
+// clientID is a friendly name for the client so that monitoring tool know who we are.
 var clientID string
 
 func init() {
+
+	//log.SetLevel(log.TraceLevel)
+
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatalf("Can't get hostname %+v", err)
@@ -27,8 +38,8 @@ func init() {
 	clientID = fmt.Sprintf("kafka-mirror-tester-%s", hostname)
 }
 
-// ConsumeAndAnalyze consumes messages from the kafka toipc and analyzes their correctness and performance.
-// The function blocks forever (or until the context is cancled)
+// ConsumeAndAnalyze consumes messages from the kafka topic and analyzes their correctness and performance.
+// The function blocks forever (or until the context is cancled, or until a signal is sent)
 func ConsumeAndAnalyze(
 	ctx context.Context,
 	brokers types.Brokers,
@@ -60,21 +71,32 @@ func ConsumeAndAnalyze(
 		log.Fatalf("Failed to subscribe to topics %s: %s\n", topics, err)
 	}
 
+	serveConsumerUI()
+
 	consumeForever(ctx, c, initialSequence)
 }
 
+// loops through the kafka consumer channel and consumes all events
+// The loop runs forever until the context is cancled or a signal is sent (SIGINT or SIGTERM)
 func consumeForever(
 	ctx context.Context,
 	c *kafka.Consumer,
 	initialSequence types.SequenceNumber,
 ) {
-	log.SetLevel(log.TraceLevel)
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+
 	for {
 		select {
+		case sig := <-sigchan:
+			log.Infof("Caught signal %v: terminating", sig)
+			return
 		case <-ctx.Done():
 			log.Infof("Done. %s", ctx.Err())
 			return
 		case ev := <-c.Events():
+			// Most events are typically juse messages, still we are also interested in
+			// Partition changes, EOF and Errors
 			switch e := ev.(type) {
 			case kafka.AssignedPartitions:
 				log.Debugf("AssignedPartitions %v", e)
@@ -83,14 +105,21 @@ func consumeForever(
 				log.Debugf("RevokedPartitions %v", e)
 				c.Unassign()
 			case *kafka.Message:
-				// TODO
-				log.Tracef("Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+				processMessage(e)
 			case kafka.PartitionEOF:
-				log.Debugf("PartitionEOF Reached %v\n", e)
+				log.Debugf("PartitionEOF Reached %v", e)
 			case kafka.Error:
 				// Errors should generally be considered as informational, the client will try to automatically recover
-				log.Errorf("Error: %v\n", e)
+				log.Errorf("Error: %+v", e)
 			}
 		}
 	}
+}
+
+// Process a single message, keeping track of latency data and sequence numbers.
+func processMessage(msg *kafka.Message) {
+	data := message.Extract(msg)
+	log.Tracef("Data: %s", data)
+	validateSequence(data)
+	collectLatencyStats(data)
 }

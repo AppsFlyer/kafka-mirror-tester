@@ -100,7 +100,6 @@ func produceMessage(
 	log.Tracef("Producing %s...", m)
 }
 
-
 // eventsProcessor processes the events emited by the producer p.
 // It then logs errors and increased the passed-by-reference errors counter and updates the throughput counter
 func eventsProcessor(
