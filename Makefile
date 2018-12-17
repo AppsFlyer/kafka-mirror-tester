@@ -8,8 +8,9 @@ dep-ensure:
 build: dep-ensure
 	go build ./...
 
-run: dep-ensure
+run-producer: dep-ensure
 	go run main.go
+	go run main.go produce --bootstrap-server localhost:9093 --id $(hostname) --message-size 100 --throughput 10 --topics topic
 
 test: dep-ensure
 	go test ./...

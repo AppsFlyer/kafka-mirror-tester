@@ -35,6 +35,8 @@ func ProduceForever(
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 ) {
+	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
+		brokers, topic, id, throughput, messageSize, initialSequence)
 	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)
