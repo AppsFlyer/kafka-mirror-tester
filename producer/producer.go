@@ -70,7 +70,7 @@ func producerForeverWithProducer(
 	// Count the total number of errors on this topic
 	errorCounter := uint(0)
 
-	go monitor(ctx, messageCounter, bytesCounter, &errorCounter, monitoringFrequency, throughput)
+	go monitor(ctx, messageCounter, bytesCounter, &errorCounter, monitoringFrequency, throughput, id, topic)
 
 	go eventsProcessor(p, messageCounter, bytesCounter, &errorCounter)
 

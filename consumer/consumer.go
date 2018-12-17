@@ -47,6 +47,8 @@ func ConsumeAndAnalyze(
 	group types.ConsumerGroup,
 	initialSequence types.SequenceNumber,
 ) {
+	log.Infof("Starting the consumer. brokers=%s, topics=%s group=%s initialSequence=%d",
+		brokers, topics, group, initialSequence)
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":               string(brokers),
 		"group.id":                        string(group),
