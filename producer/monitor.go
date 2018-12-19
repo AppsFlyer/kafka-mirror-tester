@@ -22,12 +22,14 @@ func monitor(
 	errorCounter *uint,
 	frequency time.Duration,
 	desiredThroughput types.Throughput,
+	id types.ProducerID,
+	topic types.Topic,
 ) {
 	ticker := time.Tick(frequency)
 	for {
 		select {
 		case <-ticker:
-			printStats(messageCounter, bytesCounter, errorCounter, frequency, desiredThroughput)
+			printStats(messageCounter, bytesCounter, errorCounter, frequency, desiredThroughput, id, topic)
 		case <-ctx.Done():
 			log.Infof("Monitor done. %s", ctx.Err())
 			return
@@ -42,15 +44,17 @@ func printStats(
 	errorCounter *uint,
 	frequency time.Duration,
 	desiredThroughput types.Throughput,
+	id types.ProducerID,
+	topic types.Topic,
 ) {
 	frequencySeconds := int64(frequency / time.Second)
 	messageThroughput := messageCounter.Rate() / frequencySeconds
 	bytesThroughput := uint64(bytesCounter.Rate() / frequencySeconds)
-	log.Infof(`Recent stats:
+	log.Infof(`Recent stats for %s:%s
 	Throughput: %d messages / sec
 	Throughput: %s / sec
 	Total errors: %d
-	`, messageThroughput, humanize.Bytes(bytesThroughput), *errorCounter)
+	`, id, topic, messageThroughput, humanize.Bytes(bytesThroughput), *errorCounter)
 
 	// How much slack we're willing to take if throughput is lower than desired
 	const slack = .9
