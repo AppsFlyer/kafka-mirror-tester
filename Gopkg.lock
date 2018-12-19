@@ -26,6 +26,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:818ec60ee6e7fbcba8acb052b9009ea798695ffc6bc5a668b8d414a17b3e5776"
+  name = "github.com/jamiealquiza/tachymeter"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "648c1d0993ac51f0da5166710106f4c373423e13"
+  version = "v1.1.2"
+
+[[projects]]
   digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -69,6 +77,14 @@
   version = "v1.2.2"
 
 [[projects]]
+  digest = "1:57540b8248e6f20effa6c417762fb22ba81da1c488160cdddabab9fae288d616"
+  name = "github.com/zserge/metric"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0941fa223948f2050fcc7d13ee7369327faf6c11"
+  version = "v0.1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:38f553aff0273ad6f367cb0a0f8b6eecbaef8dc6cb8b50e57b6a81c1d5b1e332"
   name = "golang.org/x/crypto"
@@ -101,10 +117,12 @@
   input-imports = [
     "github.com/confluentinc/confluent-kafka-go/kafka",
     "github.com/dustin/go-humanize",
+    "github.com/jamiealquiza/tachymeter",
     "github.com/paulbellamy/ratecounter",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "github.com/zserge/metric",
     "golang.org/x/time/rate",
   ]
   solver-name = "gps-cdcl"
