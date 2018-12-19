@@ -14,6 +14,7 @@ run-producer: dep-ensure
 	go run main.go produce --bootstrap-servers localhost:9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
 
 run-consumer: dep-ensure
+	# Check out http://localhost:8000/debug/metrics
 	go run main.go consume --bootstrap-servers localhost:9093 --consumer-group group-4 --topics topic1,topic2
 
 test: dep-ensure
@@ -23,7 +24,8 @@ docker-build: dep-ensure
 	docker build . -t kafka-mirror-tester
 
 docker-run-consumer:
-	docker run kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
+	# Check out http://localhost:8000/debug/metrics
+	docker run -p 8000:8000 kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
 
 docker-run-producer:
 	docker run kafka-mirror-tester produce --bootstrap-servers $(LOCAL_IP):9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
