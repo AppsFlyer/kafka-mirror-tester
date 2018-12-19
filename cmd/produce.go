@@ -22,7 +22,7 @@ var (
 // produceCmd represents the produce command
 var produceCmd = &cobra.Command{
 	Use:   "produce",
-	Short: "Producer messages to kafka",
+	Short: "Produce messages to kafka",
 	Long: `The producer is a high-throughput kafka message producer.
 	It sends sequence numbered and timestamped messages to kafka where by the consumer reads and validates. `,
 	Run: func(cmd *cobra.Command, args []string) {
