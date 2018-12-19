@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"fmt"
+	"sync/atomic"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zserge/metric"
@@ -41,7 +42,7 @@ func init() {
 // For each message validates that the sequence numnber that corresponds to the producer and the topic
 // are in order.
 // If they are not in order, will log it and accumulate in counters.
-// The function accesses some global varialbe that aren't thread safe which makes the function not thread safe by itself.
+// The function accesses some global varialbe that aren't thread safe (receivedSequenceNumbers) which makes the function not thread safe by itself.
 func validateSequence(data *message.Data) {
 	seq := data.Sequence
 	key := createSeqnenceNumberKey(data.ProducerID, data.Topic)
@@ -64,24 +65,24 @@ func validateSequence(data *message.Data) {
 		// Same message twice? That's OK, let's just log it
 		log.Infof("Received the same message again: %s", data)
 		sameMessagesMetric.Add(1)
-		sameMessagesCount++
+		atomic.AddUint64(&sameMessagesCount, 1)
 	case seq < latestSeq:
 		// Received an old message
 		log.Infof("Received old data. Current seq=%d, but received %s", latestSeq, data)
 		oldMessagesMetric.Add(1)
-		oldMessagesCount++
+		atomic.AddUint64(&oldMessagesCount, 1)
 	case seq == latestSeq+1:
 		// That's just perfect!
 		log.Tracef("Message received in order %s", data)
 		inOrderMessagesMetric.Add(1)
-		inOrderMessagesCount++
+		atomic.AddUint64(&inOrderMessagesCount, 1)
 	case seq > latestSeq+1:
 		// skipped a few sequences :-(
 		howMany := seq - latestSeq
 		log.Warnf("Skipped a few messages (%d messages). Current seq=%d, received %s",
 			howMany, latestSeq, data)
 		skippedMessagesMetric.Add(float64(howMany))
-		skippedMessagesCount += uint64(howMany)
+		atomic.AddUint64(&skippedMessagesCount, uint64(howMany))
 	}
 	receivedSequenceNumbers[key] = seq
 }

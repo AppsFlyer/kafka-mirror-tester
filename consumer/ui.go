@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/zserge/metric"
@@ -47,7 +48,8 @@ func terminalUI() {
 	go func() {
 		for {
 			<-ticker
-			readRate := int((inOrderMessagesCount - lastRead) / uint64((terminalReportingFrequency / time.Second)))
+			inOrder := atomic.LoadUint64(&inOrderMessagesCount)
+			readRate := int((inOrder - lastRead) / uint64((terminalReportingFrequency / time.Second)))
 			metrics := tachymeterHistogram.Calc()
 			tachymeterHistogram.Reset()
 
@@ -58,8 +60,11 @@ func terminalUI() {
 			fmt.Println(metrics.String())
 			fmt.Printf("\nRead rate: %d messages/sec\n", readRate)
 			fmt.Printf("\nsameMessagesCount=%d, oldMessagesCount=%d, inOrderMessagesCount=%d, skippedMessagesCount=%d",
-				sameMessagesCount, oldMessagesCount, inOrderMessagesCount, skippedMessagesCount)
-			lastRead = inOrderMessagesCount
+				atomic.LoadUint64(&sameMessagesCount),
+				atomic.LoadUint64(&oldMessagesCount),
+				inOrder,
+				atomic.LoadUint64(&skippedMessagesCount))
+			lastRead = inOrder
 		}
 	}()
 }
