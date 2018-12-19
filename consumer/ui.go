@@ -15,7 +15,6 @@ const (
 )
 
 var (
-
 	// once is used for one-time initialization that we don't want to embed in the init function.
 	once sync.Once
 )

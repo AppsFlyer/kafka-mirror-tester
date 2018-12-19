@@ -90,6 +90,7 @@ func consumeForever(
 		select {
 		case sig := <-sigchan:
 			log.Infof("Caught signal %v: terminating", sig)
+			// TODO: Write a summary message to the console before quitting.
 			return
 		case <-ctx.Done():
 			log.Infof("Done. %s", ctx.Err())

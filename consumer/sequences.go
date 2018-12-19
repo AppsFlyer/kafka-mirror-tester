@@ -17,6 +17,7 @@ var (
 	// simply keeps count of how many such events occured.
 	// And the other is a metric.Metric instance which measures temporary values of that count
 	// (e.g. last minute, last 15 minutes etc)
+	// NOTE: The counters are not thread-safe.
 	sameMessagesMetric    metric.Metric
 	sameMessagesCount     uint64
 	oldMessagesMetric     metric.Metric
@@ -40,6 +41,7 @@ func init() {
 // For each message validates that the sequence numnber that corresponds to the producer and the topic
 // are in order.
 // If they are not in order, will log it and accumulate in counters.
+// The function accesses some global varialbe that aren't thread safe which makes the function not thread safe by itself.
 func validateSequence(data *message.Data) {
 	seq := data.Sequence
 	key := createSeqnenceNumberKey(data.ProducerID, data.Topic)
