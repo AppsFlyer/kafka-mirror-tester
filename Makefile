@@ -1,3 +1,5 @@
+LOCAL_IP := `ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -1`
+
 setup:
 	@echo For mac:  brew install librdkafka
 	@echo For linux install librdkafka-dev
@@ -16,3 +18,13 @@ run-consumer: dep-ensure
 
 test: dep-ensure
 	go test ./...
+
+docker-build: dep-ensure
+	docker build . -t kafka-mirror-tester
+
+docker-run-consumer:
+	docker run kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
+
+docker-run-producer:
+	docker run kafka-mirror-tester produce --bootstrap-servers $(LOCAL_IP):9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
+
