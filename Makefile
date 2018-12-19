@@ -21,12 +21,18 @@ test: dep-ensure
 	go test ./...
 
 docker-build: dep-ensure
-	docker build . -t kafka-mirror-tester
+	docker build . -t rantav/kafka-mirror-tester:latest
+
+docker-push: docker-build
+	# push to dockerhub
+	docker push rantav/kafka-mirror-tester
 
 docker-run-consumer:
 	# Check out http://localhost:8000/debug/metrics
-	docker run -p 8000:8000 kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
+	docker run -p 8000:8000 rantav/kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
 
 docker-run-producer:
-	docker run kafka-mirror-tester produce --bootstrap-servers $(LOCAL_IP):9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
+	docker run rantav/kafka-mirror-tester produce --bootstrap-servers $(LOCAL_IP):9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
+
+release: docker-push
 
