@@ -7,7 +7,7 @@ setup:
 dep-ensure:
 	dep ensure
 
-build: dep-ensure
+build: dep-ensure test
 	go build ./...
 
 run-producer: dep-ensure
@@ -17,10 +17,10 @@ run-consumer: dep-ensure
 	# Check out http://localhost:8000/debug/metrics
 	go run main.go consume --bootstrap-servers localhost:9093 --consumer-group group-4 --topics topic1,topic2
 
-test: dep-ensure
+test:
 	go test ./...
 
-docker-build: dep-ensure
+docker-build: dep-ensure test
 	docker build . -t rantav/kafka-mirror-tester:latest
 
 docker-push: docker-build
@@ -36,3 +36,19 @@ docker-run-producer:
 
 release: docker-push
 
+k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-ureplicator-setup
+	sleep 60 # Wait for all clusters to be set up
+	make k8s-run-tests
+
+k8s-create-clusters:
+	# TODO: set up a cluster. And then another cluster
+
+k8s-kafkas-setup:
+	kubectl apply -f k8s/kafka-source
+	kubectl apply -f k8s/kafka-destination
+
+k8s-ureplicator-setup:
+	kubectl apply -f k8s/ureplicator
+
+k8s-run-tests:
+	kubectl apply -f k8s/tester
