@@ -12,11 +12,12 @@ import (
 
 var (
 	// CLI args
-	producerID       *string
-	pTopics          *string
-	throughput       *uint
-	messageSize      *uint
-	pBootstraServers *string
+	producerID        *string
+	pTopics           *string
+	throughput        *uint
+	messageSize       *uint
+	pBootstraServers  *string
+	pUseMessageHeaders *bool
 )
 
 // produceCmd represents the produce command
@@ -37,7 +38,7 @@ var produceCmd = &cobra.Command{
 			t := types.Topic(topic)
 			wg.Add(1)
 			go func(topic types.Topic) {
-				producer.ProduceForever(ctx, brokers, t, id, initialSequence, through, size)
+				producer.ProduceForever(ctx, brokers, t, id, initialSequence, through, size, *pUseMessageHeaders)
 				wg.Done()
 			}(t)
 		}
@@ -57,4 +58,5 @@ func init() {
 	produceCmd.MarkFlagRequired("message-size")
 	pBootstraServers = produceCmd.Flags().String("bootstrap-servers", "", "List of host:port bootstrap servers (coma separated)")
 	produceCmd.MarkFlagRequired("bootstrap-servers")
+	pUseMessageHeaders = produceCmd.Flags().Bool("use-message-headers", false, "Whether to use message headers to pass metadata or use the payload instead")
 }

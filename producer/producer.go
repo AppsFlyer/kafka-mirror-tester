@@ -5,6 +5,7 @@ package producer
 
 import (
 	"context"
+	"math"
 
 	"golang.org/x/time/rate"
 
@@ -34,6 +35,7 @@ func ProduceForever(
 	initialSequence types.SequenceNumber,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
+	useMessageHeaders bool,
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
@@ -42,7 +44,7 @@ func ProduceForever(
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
 	defer p.Close()
-	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize)
+	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize, useMessageHeaders)
 }
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
@@ -55,9 +57,10 @@ func producerForeverWithProducer(
 	initialSequence types.SequenceNumber,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
+	useMessageHeaders bool,
 ) {
 	// the rate limiter regulates the producer by limiting its throughput (messages/sec)
-	limiter := rate.NewLimiter(rate.Limit(throughput), int(float32(throughput)*burstRatio))
+	limiter := rate.NewLimiter(rate.Limit(throughput), int(math.Ceil(float64(throughput)*burstRatio)))
 
 	// messageCounter is used in order to observe the actual throughput
 	messageCounter := ratecounter.NewRateCounter(monitoringFrequency)
@@ -82,7 +85,7 @@ func producerForeverWithProducer(
 			log.Errorf("Error waiting %+v", err)
 			continue
 		}
-		produceMessage(ctx, p, tp, id, seq, messageSize)
+		produceMessage(ctx, p, tp, id, seq, messageSize, useMessageHeaders)
 	}
 }
 
@@ -95,8 +98,9 @@ func produceMessage(
 	id types.ProducerID,
 	seq types.SequenceNumber,
 	messageSize types.MessageSize,
+	useMessageHeaders bool,
 ) {
-	m := message.Create(id, seq, messageSize)
+	m := message.Create(id, seq, messageSize, useMessageHeaders)
 	m.TopicPartition = topicPartition
 	p.ProduceChannel() <- m
 	log.Tracef("Producing %s...", m)

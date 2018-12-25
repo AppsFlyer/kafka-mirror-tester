@@ -7,18 +7,21 @@ setup:
 dep-ensure:
 	dep ensure
 
-build: dep-ensure test
+build: dep-ensure generate test
 	go build ./...
 
-run-producer: dep-ensure
-	go run main.go produce --bootstrap-servers localhost:9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
+run-producer:
+	go run main.go produce --bootstrap-servers localhost:9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2 --use-message-headers
 
-run-consumer: dep-ensure
+run-consumer:
 	# Check out http://localhost:8000/debug/metrics
-	go run main.go consume --bootstrap-servers localhost:9093 --consumer-group group-4 --topics topic1,topic2
+	go run main.go consume --bootstrap-servers localhost:9093 --consumer-group group-4 --topics topic1,topic2 --use-message-headers
 
 test:
 	go test ./...
+
+generate:
+	go generate ./...
 
 docker-build: dep-ensure test
 	docker build . -t rantav/kafka-mirror-tester:latest
