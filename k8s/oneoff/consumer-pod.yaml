@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-mirror-tester-consumer
+  namespace: default
+spec:
+  containers:
+  - name: consumer
+    image: rantav/kafka-mirror-tester
+    args: ["consume", "--bootstrap-servers", "cold-quokka-cp-kafka-headless:9093", "--consumer-group", "group-1", "--topics", "topic1"]

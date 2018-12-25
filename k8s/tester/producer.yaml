@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-mirror-tester-producer
+  namespace: kafka-source
+spec:
+  containers:
+  - name: producer
+    image: rantav/kafka-mirror-tester
+    env:
+    - name: ID
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "10", "--topics", "topic1"]
