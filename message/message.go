@@ -46,23 +46,36 @@ func Create(
 // Extract the data from the message and set timestamp and latencies
 func Extract(msg *kafka.Message) *Data {
 	now := time.Now().UTC()
+	var topic types.Topic
+	if msg.TopicPartition.Topic != nil {
+		topic = types.Topic(*msg.TopicPartition.Topic)
+	} else {
+		topic = types.Topic("")
+	}
 	return &Data{
 		ProducerID:        getProducerID(msg),
 		Sequence:          getSequence(msg),
 		ProducerTimestamp: msg.Timestamp,
 		ConsumerTimestamp: now,
 		Latency:           now.Sub(msg.Timestamp),
-		Topic:             types.Topic(*msg.TopicPartition.Topic),
+		Topic:             topic,
 		Payload:           msg.Value,
 	}
 }
 
 func getProducerID(msg *kafka.Message) types.ProducerID {
-	return types.ProducerID(getHeader(msg, KeyProducerID))
+	v := getHeader(msg, KeyProducerID)
+	if v == nil {
+		return types.ProducerID("")
+	}
+	return types.ProducerID(string(v))
 }
 
 func getSequence(msg *kafka.Message) types.SequenceNumber {
 	str := string(getHeader(msg, KeySequence))
+	if str == "" {
+		return -1
+	}
 	i, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		log.Fatalf("Malformed Sequence Number %s. %+v", str, err)

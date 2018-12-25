@@ -23,3 +23,27 @@ func TestCreateAndExtract(t *testing.T) {
 	assert.Equal(types.SequenceNumber(5), data.Sequence, "Sequence number should be 5")
 	assert.True(data.Latency > 1, "Latency should be > 1")
 }
+
+func TestMissingHeaderFields(t *testing.T) {
+	msg := Create("1", 5, 100)
+	require.NotNil(t, msg, "Message should not be nil")
+	msg.Headers = msg.Headers[1:]
+	data := Extract(msg)
+	require.NotNil(t, data, "Data should not be nil")
+
+	assert := assert.New(t)
+	assert.Equal(types.ProducerID(""), data.ProducerID, "ProducerID should be 1")
+	assert.Equal(types.SequenceNumber(5), data.Sequence, "Sequence number should be 5")
+}
+
+func TestMissingHeaders(t *testing.T) {
+	msg := Create("1", 5, 100)
+	require.NotNil(t, msg, "Message should not be nil")
+	msg.Headers = nil
+	data := Extract(msg)
+	require.NotNil(t, data, "Data should not be nil")
+
+	assert := assert.New(t)
+	assert.Equal(types.ProducerID(""), data.ProducerID, "ProducerID should be 1")
+	assert.Equal(types.SequenceNumber(-1), data.Sequence, "Sequence number should be 5")
+}
