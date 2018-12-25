@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	cTopics          *string
-	cBootstraServers *string
-	consumerGroup    *string
+	cTopics            *string
+	cBootstraServers   *string
+	consumerGroup      *string
+	cUseMessageHeaders *bool
 )
 
 // consumeCmd represents the consume command
@@ -27,7 +28,7 @@ Namely latency statistics and sequence number bookeeping.`,
 		ts := types.Topics(strings.Split(*cTopics, ","))
 		initialSequence := types.SequenceNumber(0)
 		cg := types.ConsumerGroup(*consumerGroup)
-		consumer.ConsumeAndAnalyze(ctx, brokers, ts, cg, initialSequence)
+		consumer.ConsumeAndAnalyze(ctx, brokers, ts, cg, initialSequence, *cUseMessageHeaders)
 	},
 }
 
@@ -40,4 +41,5 @@ func init() {
 	consumeCmd.MarkFlagRequired("bootstrap-servers")
 	consumerGroup = consumeCmd.Flags().String("consumer-group", "", "The kafka consumer group name")
 	consumeCmd.MarkFlagRequired("consumer-group")
+	cUseMessageHeaders = consumeCmd.Flags().Bool("use-message-headers", false, "Whether to use message headers to pass metadata or use the payload instead")
 }

@@ -27,3 +27,10 @@ func (d Data) String() string {
 func (d Data) LatencyMS() int64 {
 	return int64(d.Latency / 1e6)
 }
+
+// Data parsed from the payload (when headers are not used)
+type parsedData struct {
+	producerID types.ProducerID
+	sequence   types.SequenceNumber
+	payload    []byte
+}

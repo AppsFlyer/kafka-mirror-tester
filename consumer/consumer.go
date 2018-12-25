@@ -46,6 +46,7 @@ func ConsumeAndAnalyze(
 	topics types.Topics,
 	group types.ConsumerGroup,
 	initialSequence types.SequenceNumber,
+	useMessageHeaders bool,
 ) {
 	log.Infof("Starting the consumer. brokers=%s, topics=%s group=%s initialSequence=%d",
 		brokers, topics, group, initialSequence)
@@ -75,7 +76,7 @@ func ConsumeAndAnalyze(
 
 	serveConsumerUI()
 
-	consumeForever(ctx, c, initialSequence)
+	consumeForever(ctx, c, initialSequence, useMessageHeaders)
 }
 
 // loops through the kafka consumer channel and consumes all events
@@ -84,6 +85,7 @@ func consumeForever(
 	ctx context.Context,
 	c *kafka.Consumer,
 	initialSequence types.SequenceNumber,
+	useMessageHeaders bool,
 ) {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
@@ -108,7 +110,7 @@ func consumeForever(
 				log.Debugf("RevokedPartitions %v", e)
 				c.Unassign()
 			case *kafka.Message:
-				processMessage(e)
+				processMessage(e, useMessageHeaders)
 			case kafka.PartitionEOF:
 				log.Debugf("PartitionEOF Reached %v", e)
 			case kafka.Error:
@@ -120,8 +122,11 @@ func consumeForever(
 }
 
 // Process a single message, keeping track of latency data and sequence numbers.
-func processMessage(msg *kafka.Message) {
-	data := message.Extract(msg)
+func processMessage(
+	msg *kafka.Message,
+	useMessageHeaders bool,
+) {
+	data := message.Extract(msg, useMessageHeaders)
 	log.Tracef("Data: %s", data)
 	validateSequence(data)
 	collectLatencyStats(data)

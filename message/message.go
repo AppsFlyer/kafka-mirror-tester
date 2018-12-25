@@ -24,13 +24,15 @@ func Create(
 	id types.ProducerID,
 	seq types.SequenceNumber,
 	size types.MessageSize,
+	useMessageHeaders bool,
 ) *kafka.Message {
-	payload := make([]byte, size)
-	return &kafka.Message{
-		Value:         payload,
+	msg := &kafka.Message{
 		Timestamp:     time.Now().UTC(),
 		TimestampType: kafka.TimestampCreateTime,
-		Headers: []kafka.Header{
+	}
+	if useMessageHeaders {
+		msg.Value = make([]byte, size)
+		msg.Headers = []kafka.Header{
 			{
 				Key:   KeyProducerID,
 				Value: []byte(id),
@@ -39,12 +41,18 @@ func Create(
 				Key:   KeySequence,
 				Value: []byte(strconv.FormatInt(int64(seq), 10)),
 			},
-		},
+		}
+	} else {
+		msg.Value = []byte(format(id, seq, size))
 	}
+	return msg
 }
 
 // Extract the data from the message and set timestamp and latencies
-func Extract(msg *kafka.Message) *Data {
+func Extract(
+	msg *kafka.Message,
+	useMessageHeaders bool,
+) *Data {
 	now := time.Now().UTC()
 	var topic types.Topic
 	if msg.TopicPartition.Topic != nil {
@@ -52,15 +60,28 @@ func Extract(msg *kafka.Message) *Data {
 	} else {
 		topic = types.Topic("")
 	}
-	return &Data{
-		ProducerID:        getProducerID(msg),
-		Sequence:          getSequence(msg),
+	data := &Data{
 		ProducerTimestamp: msg.Timestamp,
 		ConsumerTimestamp: now,
 		Latency:           now.Sub(msg.Timestamp),
 		Topic:             topic,
 		Payload:           msg.Value,
 	}
+	if useMessageHeaders {
+		data.ProducerID = getProducerID(msg)
+		data.Sequence = getSequence(msg)
+		data.Payload = msg.Value
+	} else {
+		parsed, err := parse(string(msg.Value))
+		if err != nil {
+			log.Errorf("Error parsing message %s", string(msg.Value))
+			return data
+		}
+		data.ProducerID = parsed.producerID
+		data.Sequence = parsed.sequence
+		data.Payload = parsed.payload
+	}
+	return data
 }
 
 func getProducerID(msg *kafka.Message) types.ProducerID {
