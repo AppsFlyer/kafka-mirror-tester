@@ -39,19 +39,59 @@ docker-run-producer:
 
 release: docker-push
 
-k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-ureplicator-setup
+k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-replicator-setup
 	sleep 60 # Wait for all clusters to be set up
 	make k8s-run-tests
 
-k8s-create-clusters:
-	# TODO: set up a cluster. And then another cluster
+k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1
 
 k8s-kafkas-setup:
-	kubectl apply -f k8s/kafka-source
-	kubectl apply -f k8s/kafka-destination
+	kubectl apply -f k8s/kafka-source/00namespace.yml --context us-east-1.k8s.local
+	kubectl -f k8s/kafka-source/20pzoo-service.yml --context us-east-1.k8s.local apply
+	kubectl apply -f k8s/kafka-source/20dns.yml --context us-east-1.k8s.local
+	k8s/kafka-source/replace-external-endpoint.sh
+	kubectl apply -f k8s/kafka-source/ --context us-east-1.k8s.local
 
-k8s-ureplicator-setup:
-	kubectl apply -f k8s/ureplicator
+	#kubectl apply -f k8s/kafka-destination --context eu-west-1.k8s.local
+
+k8s-replicator-setup:
+	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
 
 k8s-run-tests:
-	kubectl apply -f k8s/tester
+	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
+	kubectl apply -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
+	# For logs run:
+	# kubectl -n kafka-source logs kafka-mirror-tester-producer --follow --context us-east-1.k8s.local
+	# kubectl -n kafka-destination logs kafka-mirror-tester-consumer --follow --context eu-west-1.k8s.local
+
+k8s-delete-all: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
+
+k8s-delete-replicator:
+	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local
+
+k8s-delete-kafkas:
+	kubectl delete -f k8s/kafka-source --context us-east-1.k8s.local
+	kubectl delete -f k8s/kafka-destination --context eu-west-1.k8s.local
+
+k8s-delete-tests:
+	kubectl delete -f k8s/tester/producer.yaml --context us-east-1.k8s.local
+	kubectl delete -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
+
+
+k8s-create-cluster-us-east-1:
+	#aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f --node-count 3 --node-size m4.large --master-size t2.small --master-zones us-east-1a --networking amazon-vpc-routed-eni  --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
+k8s-delete-cluster-us-east-1:
+	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
+k8s-wait-for-cluster-us-east-1:
+	kops validate cluster --name us-east-1.k8s.local --state s3://us-east-1.k8s.local; if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-cluster-us-east-1; fi
+
+k8s-create-cluster-eu-west-1:
+	#aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 3 --node-size m4.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
+k8s-delete-cluster-eu-west-1:
+	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
+k8s-wait-for-cluster-eu-west-1:
+	kops validate cluster --name eu-west-1.k8s.local --state s3://eu-west-1.k8s.local; if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-cluster-eu-west-1; fi
+
+

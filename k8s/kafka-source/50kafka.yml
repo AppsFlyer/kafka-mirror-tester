@@ -49,10 +49,10 @@ spec:
         - name: JMX_PORT
           value: "5555"
         ports:
-        - name: inside
+        - name: broker-internal
           containerPort: 9092
-        # - name: outside
-        #   containerPort: 9094
+        - name: broker-external
+          containerPort: 9093
         - name: jmx
           containerPort: 5555
         command:
@@ -108,8 +108,6 @@ spec:
       - name: jmx-config
         configMap:
           name: jmx-config
-      #- name: data
-        #emptyDir: {}
       #nodeSelector:
         #kafka-source: "true"
   volumeClaimTemplates:

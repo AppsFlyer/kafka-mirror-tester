@@ -1,4 +1,4 @@
-# A headless service to create DNS records
+# A headless service to create DNS records. This is required for the inter-node communcation
 ---
 apiVersion: v1
 kind: Service
@@ -8,7 +8,24 @@ metadata:
 spec:
   ports:
   - port: 9092
-  # [podname].broker.kafka.svc.cluster.local
+    name: internal
   clusterIP: None
   selector:
     app: kafka-source
+
+---
+# And external serivce to be able to access kafka from outside the k8s cluster, using a load balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-broker-external
+  namespace: kafka-source
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9093
+    name: broker-external
+    protocol: TCP
+  selector:
+      app: kafka-source
+
