@@ -9,3 +9,17 @@ spec:
     name: client
   selector:
     app: zookeeper
+
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+  #name: zookeeper-external
+  #namespace: kafka-source
+#spec:
+  #type: LoadBalancer
+  #ports:
+  #- port: 2181
+    #name: client
+  #selector:
+    #app: zookeeper

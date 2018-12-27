@@ -53,6 +53,8 @@ k8s-kafkas-setup:
 	kubectl apply -f k8s/kafka-source/ --context us-east-1.k8s.local
 	# Punch a hole in the security group so that we can access Kafka from the outside
 	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 9093 --cidr 0.0.0.0/0 --region us-east-1
+	# Punch another hole to zookeeper
+	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 2181 --cidr 0.0.0.0/0 --region us-east-1
 	# validate
 	k8s/kafka-source/test.sh
 
