@@ -10,6 +10,8 @@ data:
 
     KAFKA_BROKER_ID=${HOSTNAME##*-}
     sed "s/#init#broker.id=#init#/broker.id=$KAFKA_BROKER_ID/" /etc/kafka/server.properties > /etc/kafka-writable/server.properties
+    sed -i "s/__EXTERNAL_IP__/$(kubectl get node $NODE_NAME -o jsonpath='{.status.addresses[?(@.type=="ExternalIP")].address}')/" /etc/kafka-writable/server.properties
+    sed -i "s/__POD_IP__/$POD_IP/" /etc/kafka-writable/server.properties
 
     hash kubectl 2>/dev/null || {
       sed -i "s/#init#broker.rack=#init#/#init#broker.rack=# kubectl not found in path/"  /etc/kafka-writable/server.properties
@@ -65,8 +67,7 @@ data:
     # Hostname and port the broker will advertise to producers and consumers. If not set,
     # it uses the value for "listeners" if configured.  Otherwise, it will use the value
     # returned from java.net.InetAddress.getCanonicalHostName().
-    # advertised.listeners=INTERNAL_PLAINTEXT://broker:9092,EXTERNAL_PLAINTEXT://ae72321d708f611e9b4f112247e3b14f-997372129.us-east-1.elb.amazonaws.com:9093
-    advertised.listeners=INTERNAL_PLAINTEXT://broker:9092,EXTERNAL_PLAINTEXT://a984de55c090b11e9b4f112247e3b14f-331982013.us-east-1.elb.amazonaws.com:9093
+    advertised.listeners=INTERNAL_PLAINTEXT://__POD_IP__:9092,EXTERNAL_PLAINTEXT://__EXTERNAL_IP__:9093
 
     # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
     listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL,INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
