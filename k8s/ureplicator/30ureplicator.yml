@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2 # for versions before 1.8.0 use apps/v1beta1
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   namespace: ureplicator
@@ -25,30 +25,49 @@ spec:
         command:
           - /bin/sh
           - -c
-          - 'until [ "imok" = "$(echo ruok | nc -w 1 zookeeper.ureplicator.svc.cluster.local 2181)" ] ; do echo waiting ; sleep 1 ; done'
+          - 'until [ "imok" = "$(echo ruok | nc -w 1 $HELIX_ZK_ADDRESS $HELIX_ZK_PORT)" ] ; do echo waiting ; sleep 1 ; done'
         env:
         - name: SERVICE_TYPE
           value: "init"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
       containers:
       - name: ureplicator-controller
-        image: danielcoman/ureplicator:latest
+        image: rantav/ureplicator:3dae087
         imagePullPolicy: Always
         env:
         - name: SERVICE_CMD
           value: "start-controller.sh"
         - name: SERVICE_TYPE
           value: "controller"
-        - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-          value: "123"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
+        ports:
+        - name: api-port
+          containerPort: 9000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: api-port
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: api-port
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
         resources:
           requests:
-            cpu: 100m
-            memory: 200Mi
+            cpu: 1000m
+            memory: 3000Mi
           limits:
-            cpu: 500m
-            memory: 1000Mi
+            cpu: 1000m
+            memory: 3000Mi
 ---
-apiVersion: apps/v1beta2 # for versions before 1.8.0 use apps/v1beta1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   namespace: ureplicator
@@ -57,7 +76,7 @@ metadata:
     app: ureplicator
     component: worker
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: ureplicator
@@ -75,32 +94,48 @@ spec:
         command:
           - /bin/sh
           - -c
-          - 'until [ "imok" = "$(echo ruok | nc -w 1 zookeeper.ureplicator.svc.cluster.local 2181)" ] ; do echo waiting ; sleep 10 ; done'
+          - 'until [ "imok" = "$(echo ruok | nc -w 1 $HELIX_ZK_ADDRESS $HELIX_ZK_PORT)" ] ; do echo waiting ; sleep 10 ; done'
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
       containers:
       - name: ureplicator-worker
-        imagePullPolicy: Always
-        image: danielcoman/ureplicator:latest
+        image: rantav/ureplicator:3dae087
         env:
         - name: SERVICE_TYPE
           value: "worker"
         - name: SERVICE_CMD
           value: "start-worker.sh"
-        - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-          value: "123"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
         resources:
           requests:
-            cpu: 100m
-            memory: 1000Mi
+            cpu: 1000m
+            memory: 3000Mi
           limits:
             cpu: 1000m
-            memory: 2000Mi
-        volumeMounts:
-          - name: test-conf-volume
-            mountPath: /uReplicator/config/test.conf
-            subPath: test.conf
-      volumes:
-        - name: test-conf-volume
-          configMap:
-            name: test-conf-volume
-      #nodeSelector:
-        #worker: "true"
+            memory: 3000Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-destination
+            namespaces:
+            - kafka-destination
+            topologyKey: "kubernetes.io/hostname"
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - ureplicator
+              - key: component
+                operator: In
+                values:
+                - worker
+            topologyKey: "kubernetes.io/hostname"

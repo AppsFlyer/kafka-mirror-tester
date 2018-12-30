@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ureplicator-envs
+  namespace: ureplicator
+data:
+  SRC_ZK_CONNECT: __SRC_ZK_CONNECT__
+  CONSUMER_GROUP_ID: ureplicator
+  HELIX_CLUSTER_NAME: ureplicator
+  HELIX_ENV: dev
+  HELIX_ZK_CONNECT: zookeeper.ureplicator.svc.cluster.local:2181
+  HELIX_ZK_ADDRESS: zookeeper.ureplicator.svc.cluster.local
+  HELIX_ZK_PORT: '2181'
+  DST_ZK_CONNECT: zookeeper.kafka-destination.svc.cluster.local:2181
+  DST_BOOTSTRAP_SERVERS: broker.kafka-destination.svc.cluster.local:9092
+  #TOPICS: topic1,topic2,topic3
+  #PARTITIONS: '1,2,2'
+  WORKER_ABORT_ON_SEND_FAILURE: 'true'

@@ -1,5 +1,9 @@
 LOCAL_IP := `ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -1`
+REV := `git rev-parse --short HEAD`
 
+###########################
+# Build, test, run
+###########################
 setup:
 	@echo For mac:  brew install librdkafka
 	@echo For linux install librdkafka-dev
@@ -23,8 +27,11 @@ test:
 generate:
 	go generate ./...
 
+#########################
+# Docker
+#########################
 docker-build: dep-ensure test
-	docker build . -t rantav/kafka-mirror-tester:latest
+	docker build . -t rantav/kafka-mirror-tester:$(REV)
 
 docker-push: docker-build
 	# push to dockerhub
@@ -39,6 +46,9 @@ docker-run-producer:
 
 release: docker-push
 
+#######################
+# Kubernetes
+#######################
 k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-replicator-setup
 	sleep 60 # Wait for all clusters to be set up
 	make k8s-run-tests
@@ -49,19 +59,25 @@ k8s-allow-kubectl-node-access:
 	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context us-east-1.k8s.local
 	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context eu-west-1.k8s.local
 
-k8s-kafkas-setup:
+k8s-kafkas-setup: k8s-kafkas-setup-source k8s-kafkas-setup-destination
+
+k8s-kafkas-setup-source:
 	kubectl apply -f k8s/kafka-source/ --context us-east-1.k8s.local
 	# Punch a hole in the security group so that we can access Kafka from the outside
-	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 9093 --cidr 0.0.0.0/0 --region us-east-1
+	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 9093 --cidr 0.0.0.0/0 --region us-east-1 || echo already exists?
 	# Punch another hole to zookeeper
-	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 2181 --cidr 0.0.0.0/0 --region us-east-1
+	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 2181 --cidr 0.0.0.0/0 --region us-east-1 || echo already exists?
 	# validate
 	k8s/kafka-source/test.sh
 
+k8s-kafkas-setup-destination:
 	kubectl apply -f k8s/kafka-destination --context eu-west-1.k8s.local
+	k8s/kafka-destination/test.sh
 
 k8s-replicator-setup:
+	k8s/ureplicator/template.sh
 	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
+	k8s/ureplicator/test.sh
 
 k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
@@ -94,10 +110,34 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	#aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 3 --node-size m4.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 6 --node-size m4.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:
 	kops validate cluster --name eu-west-1.k8s.local --state s3://eu-west-1.k8s.local; if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-cluster-eu-west-1; fi
 
 
+####################
+# uReplicator docker
+####################
+U_HOME := ureplicator
+U_WORK_DIR := $(U_HOME)/tmp
+U_BIN := ureplicator
+U_IMAGE := rantav/$(U_BIN)
+
+ureplicator-all: ureplicator-clean ureplicator-build ureplicator-image ureplicator-deploy
+
+ureplicator-build:
+	mkdir -p $(U_WORK_DIR)
+	curl -sL https://github.com/uber/uReplicator/archive/master.tar.gz | tar xz -C $(U_WORK_DIR)
+	cd $(U_WORK_DIR)/uReplicator-master && mvn package -DskipTests
+	chmod u+x $(U_WORK_DIR)/uReplicator-master/bin/pkg/*.sh
+
+ureplicator-image:
+	cd $(U_HOME); docker build -t $(U_IMAGE):$(REV) .
+
+ureplicator-deploy: ureplicator-image
+	docker push $(U_IMAGE):$(REV)
+
+ureplicator-clean:
+	@/bin/rm -rf $(U_WORK_DIR)
