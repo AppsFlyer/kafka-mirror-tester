@@ -1,3 +1,4 @@
 vendor
 kafka-mirror-tester
 ureplicator/tmp
+k8s/ureplicator/25env-config.yml
