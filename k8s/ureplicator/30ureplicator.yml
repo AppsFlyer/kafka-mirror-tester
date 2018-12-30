@@ -1,0 +1,141 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  namespace: ureplicator
+  name: ureplicator-controller
+  labels:
+    app: ureplicator
+    component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ureplicator
+      component: controller
+  template:
+    metadata:
+      labels:
+        app: ureplicator
+        component: controller
+    spec:
+      terminationGracePeriodSeconds: 10
+      initContainers:
+      - name: init-zk
+        image: busybox
+        command:
+          - /bin/sh
+          - -c
+          - 'until [ "imok" = "$(echo ruok | nc -w 1 $HELIX_ZK_ADDRESS $HELIX_ZK_PORT)" ] ; do echo waiting ; sleep 1 ; done'
+        env:
+        - name: SERVICE_TYPE
+          value: "init"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
+      containers:
+      - name: ureplicator-controller
+        image: rantav/ureplicator:3dae087
+        imagePullPolicy: Always
+        env:
+        - name: SERVICE_CMD
+          value: "start-controller.sh"
+        - name: SERVICE_TYPE
+          value: "controller"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
+        ports:
+        - name: api-port
+          containerPort: 9000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: api-port
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: api-port
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 3000Mi
+          limits:
+            cpu: 1000m
+            memory: 3000Mi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: ureplicator
+  name: ureplicator-worker
+  labels:
+    app: ureplicator
+    component: worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ureplicator
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: ureplicator
+        component: worker
+    spec:
+      terminationGracePeriodSeconds: 10
+      initContainers:
+      - name: init-zk
+        image: busybox
+        command:
+          - /bin/sh
+          - -c
+          - 'until [ "imok" = "$(echo ruok | nc -w 1 $HELIX_ZK_ADDRESS $HELIX_ZK_PORT)" ] ; do echo waiting ; sleep 10 ; done'
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
+      containers:
+      - name: ureplicator-worker
+        image: rantav/ureplicator:3dae087
+        env:
+        - name: SERVICE_TYPE
+          value: "worker"
+        - name: SERVICE_CMD
+          value: "start-worker.sh"
+        envFrom:
+        - configMapRef:
+            name: ureplicator-envs
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 3000Mi
+          limits:
+            cpu: 1000m
+            memory: 3000Mi
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-destination
+            namespaces:
+            - kafka-destination
+            topologyKey: "kubernetes.io/hostname"
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - ureplicator
+              - key: component
+                operator: In
+                values:
+                - worker
+            topologyKey: "kubernetes.io/hostname"

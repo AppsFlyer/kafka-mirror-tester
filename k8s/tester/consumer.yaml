@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-mirror-tester-consumer
+  namespace: kafka-destination
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    name: debug-metrics
+  selector:
+    app: kafka-mirror-tester-consumer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: kafka-destination
+  name: kafka-mirror-tester-consumer
+  labels:
+    app: kafka-mirror-tester-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-mirror-tester-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-mirror-tester-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: rantav/kafka-mirror-tester
+        args: ["consume", "--bootstrap-servers", "broker.kafka-destination.svc.cluster.local:9092", "--consumer-group", "group-1", "--topics", "topic1"]
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-destination
+            namespaces:
+            - kafka-destination
+            topologyKey: "kubernetes.io/hostname"
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - ureplicator
+              - key: component
+                operator: In
+                values:
+                - worker
+            namespaces:
+            - ureplicator
+            topologyKey: "kubernetes.io/hostname"
