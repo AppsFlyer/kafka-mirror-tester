@@ -1,15 +1,38 @@
-apiVersion: v1
-kind: Pod
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: kafka-mirror-tester-producer
   namespace: kafka-source
+  name: kafka-mirror-tester-producer
+  labels:
+    app: kafka-mirror-tester-producer
 spec:
-  containers:
-  - name: producer
-    image: rantav/kafka-mirror-tester
-    env:
-    - name: ID
-      valueFrom:
-        fieldRef:
-          fieldPath: status.podIP
-    args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "10", "--topics", "topic1"]
+  replicas: 4
+  selector:
+    matchLabels:
+      app: kafka-mirror-tester-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-mirror-tester-producer
+    spec:
+      containers:
+      - name: producer
+        image: rantav/kafka-mirror-tester
+        env:
+        - name: ID
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "50000", "--topics", "topic1"]
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-source
+            namespaces:
+            - kafka-source
+            topologyKey: "kubernetes.io/hostname"

@@ -54,4 +54,6 @@ spec:
                 operator: In
                 values:
                 - worker
+            namespaces:
+            - ureplicator
             topologyKey: "kubernetes.io/hostname"

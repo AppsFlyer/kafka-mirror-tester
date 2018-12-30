@@ -56,8 +56,8 @@ k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-replicator-setup
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
 
 k8s-allow-kubectl-node-access:
-	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context us-east-1.k8s.local
-	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context eu-west-1.k8s.local
+	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context us-east-1.k8s.local || echo cluster binding alre exists?
+	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context eu-west-1.k8s.local || echo cluster binding alre exists?
 
 k8s-kafkas-setup: k8s-kafkas-setup-source k8s-kafkas-setup-destination
 
@@ -83,10 +83,13 @@ k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
 	kubectl apply -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
 	# For logs run:
-	# kubectl -n kafka-source logs kafka-mirror-tester-producer --follow --context us-east-1.k8s.local
-	# kubectl -n kafka-destination logs kafka-mirror-tester-consumer --follow --context eu-west-1.k8s.local
+	# kail -n kafka-source -lapp=kafka-mirror-tester-producer --context us-east-1.k8s.local
+	# kubectl -n kafka-destination logs $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get po | grep kafka-mirror-tester-consumer| head -1 | cut -f1 -d' ') --follow --context eu-west-1.k8s.local
+	#
+	# View metrics online:
+	# open "http://$$(kubectl --context eu-west-1.k8s.local -n kafka-destination get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
 
-k8s-delete-all: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
+k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 
 k8s-delete-replicator:
 	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local
@@ -102,7 +105,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	#aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f --node-count 3 --node-size m4.large --master-size t2.small --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1e,us-east-1f --node-count 3 --node-size m4.large --master-size t2.small --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:
@@ -110,7 +113,7 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	#aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 6 --node-size m4.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 6 --node-size m4.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:
