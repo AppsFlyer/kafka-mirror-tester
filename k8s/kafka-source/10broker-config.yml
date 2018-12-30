@@ -62,12 +62,12 @@ data:
     #     listeners = listener_name://host_name:port
     #   EXAMPLE:
     #     listeners = PLAINTEXT://your.host.name:9092
-    listeners=INTERNAL_PLAINTEXT://0.0.0.0:9092,EXTERNAL_PLAINTEXT://0.0.0.0:9093
+    listeners=EXTERNAL_PLAINTEXT://0.0.0.0:9093,INTERNAL_PLAINTEXT://0.0.0.0:9092
 
     # Hostname and port the broker will advertise to producers and consumers. If not set,
     # it uses the value for "listeners" if configured.  Otherwise, it will use the value
     # returned from java.net.InetAddress.getCanonicalHostName().
-    advertised.listeners=INTERNAL_PLAINTEXT://__POD_IP__:9092,EXTERNAL_PLAINTEXT://__EXTERNAL_IP__:9093
+    advertised.listeners=EXTERNAL_PLAINTEXT://__EXTERNAL_IP__:9093,INTERNAL_PLAINTEXT://__POD_IP__:9092
 
     # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
     listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL,INTERNAL_PLAINTEXT:PLAINTEXT,EXTERNAL_PLAINTEXT:PLAINTEXT
