@@ -64,8 +64,12 @@ The producer is capable of throttling it's throughput.
 ### Message format
 We aim for a simple, low overhead message format utilizing Kafka's built in header fields
 
-Message format: (for simplicity, we use a json format but of course in Kafka it's all binary)
-```json
+Message format:
+There are two variants of message formats, one that uses kafka headers and the otehr that does not. 
+We implement two formats because while headers are nicer and easier to use, uReplicator does not currently support them. 
+
+Message format with headers: (for simplicity, we use a json format but of course in Kafka it's all binary)
+```
 {
     value: payload, // Payload size is determined by the user.
     timestamp: produceTime, // The producer embeds a timestamp in UTC
@@ -75,6 +79,14 @@ Message format: (for simplicity, we use a json format but of course in Kafka it'
     }
 }
 ```
+
+Message format without headers: 
+```
++-------------------------------------------------+
+| producer-id;sequence-number;timestamp;payload...|
++-------------------------------------------------+
+```
+
 We add the `producer-id` so that we can run the producers on multiple hosts and still be able to make sure that all messages arrived.
 
 ### Producer
@@ -91,6 +103,7 @@ Command line arguments:
 
 `--bootstrap-server`: A kafka server from which to bootstrap
 
+`--use-message-headers`: Whether to use message headers to encode metadata (or encode it within the payload)
 
 The producer would generate messages containing the header and adding the payload for as long as needed in order to reach the `message-size` and send them to kafka.
 It will try to achieve the desired throughput (send batches and in prallel) but will not exceed it. If it is unable to achieve the desired throughput we'll emit a log warning and continue.
@@ -104,6 +117,7 @@ Command line arguments:
 
 `--bootstrap-server`: A kafka server from which to bootstrap
 
+`--use-message-headers`: Whether to use message headers to encode metadata (or encode it within the payload)
 
 The consumer would read the messages from each of the topics and calculate correctness and performance.
 
