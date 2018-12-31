@@ -26,11 +26,11 @@ func Create(
 	size types.MessageSize,
 	useMessageHeaders bool,
 ) *kafka.Message {
-	msg := &kafka.Message{
-		Timestamp:     time.Now().UTC(),
-		TimestampType: kafka.TimestampCreateTime,
-	}
+	ts := time.Now().UTC()
+	msg := &kafka.Message{}
 	if useMessageHeaders {
+		msg.Timestamp = time.Now().UTC()
+		msg.TimestampType = kafka.TimestampCreateTime
 		msg.Value = make([]byte, size)
 		msg.Headers = []kafka.Header{
 			{
@@ -43,7 +43,7 @@ func Create(
 			},
 		}
 	} else {
-		msg.Value = []byte(format(id, seq, size))
+		msg.Value = []byte(format(id, seq, ts, size))
 	}
 	return msg
 }
@@ -61,15 +61,13 @@ func Extract(
 		topic = types.Topic("")
 	}
 	data := &Data{
-		ProducerTimestamp: msg.Timestamp,
 		ConsumerTimestamp: now,
-		Latency:           now.Sub(msg.Timestamp),
 		Topic:             topic,
-		Payload:           msg.Value,
 	}
 	if useMessageHeaders {
 		data.ProducerID = getProducerID(msg)
 		data.Sequence = getSequence(msg)
+		data.ProducerTimestamp = msg.Timestamp
 		data.Payload = msg.Value
 	} else {
 		parsed, err := parse(string(msg.Value))
@@ -80,7 +78,9 @@ func Extract(
 		data.ProducerID = parsed.producerID
 		data.Sequence = parsed.sequence
 		data.Payload = parsed.payload
+		data.ProducerTimestamp = parsed.timestamp
 	}
+	data.Latency = data.ConsumerTimestamp.Sub(data.ProducerTimestamp)
 	return data
 }
 
