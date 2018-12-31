@@ -83,11 +83,11 @@ k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
 	kubectl apply -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
 	# For logs run:
-	# kail -n kafka-source -lapp=kafka-mirror-tester-producer --context us-east-1.k8s.local
-	# kubectl -n kafka-destination logs $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get po | grep kafka-mirror-tester-consumer| head -1 | cut -f1 -d' ') --follow --context eu-west-1.k8s.local
+	# kail -lapp=kafka-mirror-tester-producer --context us-east-1.k8s.local
+	# kubectl logs $$(kubectl --context eu-west-1.k8s.local get po | grep kafka-mirror-tester-consumer| head -1 | cut -f1 -d' ') --follow --context eu-west-1.k8s.local
 	#
 	# View metrics online:
-	# open "http://$$(kubectl --context eu-west-1.k8s.local -n kafka-destination get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
+	# open "http://$$(kubectl --context eu-west-1.k8s.local get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
 
 k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 

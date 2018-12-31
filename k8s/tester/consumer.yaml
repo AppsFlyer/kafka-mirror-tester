@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kafka-mirror-tester-consumer
-  namespace: kafka-destination
 spec:
   type: LoadBalancer
   ports:
@@ -14,7 +13,6 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: kafka-destination
   name: kafka-mirror-tester-consumer
   labels:
     app: kafka-mirror-tester-consumer
