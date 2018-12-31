@@ -50,6 +50,7 @@ release: docker-push
 # Kubernetes
 #######################
 k8s-all: k8s-create-clusters k8s-kafkas-setup k8s-replicator-setup
+	cd ../domain-stack; make monitoring-create monitoring-create-dashboard # This is kind of temporary hack...
 	sleep 60 # Wait for all clusters to be set up
 	make k8s-run-tests
 
@@ -88,6 +89,8 @@ k8s-run-tests:
 	#
 	# View metrics online:
 	# open "http://$$(kubectl --context eu-west-1.k8s.local get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
+
+k8s-redeploy-tests: k8s-delete-tests k8s-run-tests
 
 k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 

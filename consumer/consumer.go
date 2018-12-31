@@ -129,5 +129,6 @@ func processMessage(
 	data := message.Extract(msg, useMessageHeaders)
 	log.Tracef("Data: %s", data)
 	validateSequence(data)
+	collectThroughput(data)
 	collectLatencyStats(data)
 }

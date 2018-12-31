@@ -13,23 +13,32 @@ import (
 
 const monitoringFrequency = 5 * time.Second
 
+var (
+	// messageCounter is used in order to observe the actual throughput
+	messageCounter *ratecounter.RateCounter
+	// bytesCounter measures the actual throughput in bytes
+	bytesCounter *ratecounter.RateCounter
+)
+
+func init() {
+	messageCounter = ratecounter.NewRateCounter(monitoringFrequency)
+	bytesCounter = ratecounter.NewRateCounter(monitoringFrequency)
+}
+
 // periodically monitors the kafka writer.
 // Blocks forever or until canceled.
 func monitor(
 	ctx context.Context,
-	messageCounter *ratecounter.RateCounter,
-	bytesCounter *ratecounter.RateCounter,
 	errorCounter *uint,
 	frequency time.Duration,
 	desiredThroughput types.Throughput,
 	id types.ProducerID,
-	topic types.Topic,
 ) {
 	ticker := time.Tick(frequency)
 	for {
 		select {
 		case <-ticker:
-			printStats(messageCounter, bytesCounter, errorCounter, frequency, desiredThroughput, id, topic)
+			printStats(errorCounter, frequency, desiredThroughput, id)
 		case <-ctx.Done():
 			log.Infof("Monitor done. %s", ctx.Err())
 			return
@@ -39,22 +48,19 @@ func monitor(
 
 // Prints some runtime stats such as errors, throughputs etc
 func printStats(
-	messageCounter *ratecounter.RateCounter,
-	bytesCounter *ratecounter.RateCounter,
 	errorCounter *uint,
 	frequency time.Duration,
 	desiredThroughput types.Throughput,
 	id types.ProducerID,
-	topic types.Topic,
 ) {
 	frequencySeconds := int64(frequency / time.Second)
 	messageThroughput := messageCounter.Rate() / frequencySeconds
 	bytesThroughput := uint64(bytesCounter.Rate() / frequencySeconds)
-	log.Infof(`Recent stats for %s:%s
+	log.Infof(`Recent stats for %s:
 	Throughput: %d messages / sec
 	Throughput: %s / sec
 	Total errors: %d
-	`, id, topic, messageThroughput, humanize.Bytes(bytesThroughput), *errorCounter)
+	`, id, messageThroughput, humanize.Bytes(bytesThroughput), *errorCounter)
 
 	// How much slack we're willing to take if throughput is lower than desired
 	const slack = .9

@@ -18,7 +18,6 @@ var (
 	// simply keeps count of how many such events occured.
 	// And the other is a metric.Metric instance which measures temporary values of that count
 	// (e.g. last minute, last 15 minutes etc)
-	// NOTE: The counters are not thread-safe.
 	sameMessagesMetric    metric.Metric
 	sameMessagesCount     uint64
 	oldMessagesMetric     metric.Metric
@@ -27,6 +26,8 @@ var (
 	inOrderMessagesCount  uint64
 	skippedMessagesMetric metric.Metric
 	skippedMessagesCount  uint64
+	bytesReceivedMetric   metric.Metric
+	bytesReceivedCount    uint64
 
 	measurementIntervals = []string{"1m1s", "15m10s", "1h1m"}
 )
@@ -37,6 +38,7 @@ func init() {
 	oldMessagesMetric = metric.NewCounter(measurementIntervals...)
 	inOrderMessagesMetric = metric.NewCounter(measurementIntervals...)
 	skippedMessagesMetric = metric.NewCounter(measurementIntervals...)
+	bytesReceivedMetric = metric.NewCounter(measurementIntervals...)
 }
 
 // For each message validates that the sequence numnber that corresponds to the producer and the topic
@@ -90,4 +92,11 @@ func validateSequence(data *message.Data) {
 // create a key for the sequence number map
 func createSeqnenceNumberKey(pid types.ProducerID, topic types.Topic) string {
 	return fmt.Sprintf("%s:%s", pid, topic)
+}
+
+// Count the total throughput
+func collectThroughput(data *message.Data) {
+	bytes := uint64(len(data.Payload))
+	bytesReceivedMetric.Add(float64(bytes))
+	atomic.AddUint64(&bytesReceivedCount, bytes)
 }

@@ -6,11 +6,11 @@ package producer
 import (
 	"context"
 	"math"
+	"sync"
 
 	"golang.org/x/time/rate"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/paulbellamy/ratecounter"
 	log "github.com/sirupsen/logrus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
@@ -23,6 +23,8 @@ const (
 	// This is done in order to conpersate for slow starts.
 	burstRatio = 0.1
 )
+
+var once sync.Once
 
 // ProduceForever will produce messages to the topic forver or until canceled by the context.
 // It will try to acheive the desired throughput and if not - will log that. It will not exceed the throughput (measured by number of messages per second)
@@ -62,20 +64,17 @@ func producerForeverWithProducer(
 	// the rate limiter regulates the producer by limiting its throughput (messages/sec)
 	limiter := rate.NewLimiter(rate.Limit(throughput), int(math.Ceil(float64(throughput)*burstRatio)))
 
-	// messageCounter is used in order to observe the actual throughput
-	messageCounter := ratecounter.NewRateCounter(monitoringFrequency)
-	// bytesCounter measures the actual throughput in bytes
-	bytesCounter := ratecounter.NewRateCounter(monitoringFrequency)
-
 	// Sequence number per message
 	seq := initialSequence
 
 	// Count the total number of errors on this topic
 	errorCounter := uint(0)
 
-	go monitor(ctx, messageCounter, bytesCounter, &errorCounter, monitoringFrequency, throughput, id, topic)
+	once.Do(func() {
+		go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id)
+	})
 
-	go eventsProcessor(p, messageCounter, bytesCounter, &errorCounter)
+	go eventsProcessor(p, &errorCounter)
 
 	topicString := string(topic)
 	tp := kafka.TopicPartition{Topic: &topicString, Partition: kafka.PartitionAny}
@@ -110,8 +109,6 @@ func produceMessage(
 // It then logs errors and increased the passed-by-reference errors counter and updates the throughput counter
 func eventsProcessor(
 	p *kafka.Producer,
-	messageCounter *ratecounter.RateCounter,
-	bytesCounter *ratecounter.RateCounter,
 	errorCounter *uint,
 ) {
 	for e := range p.Events() {

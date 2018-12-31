@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"github.com/zserge/metric"
 )
 
@@ -31,6 +32,7 @@ func serveConsumerUI() {
 // Create an endpoint which serves HTML UI.
 func htmlUI() {
 	expvar.Publish("Message received latency", metricHistogram)
+	expvar.Publish("bytes received", bytesReceivedMetric)
 	expvar.Publish("same message as current sequence", sameMessagesMetric)
 	expvar.Publish("old message (old sequence nunmber)", oldMessagesMetric)
 	expvar.Publish("correct message in order", inOrderMessagesMetric)
@@ -45,11 +47,14 @@ func terminalUI() {
 	ticker := time.Tick(terminalReportingFrequency)
 	const terminalWidth = 50
 	lastRead := uint64(0)
+	lastBytes := uint64(0)
 	go func() {
 		for {
 			<-ticker
 			inOrder := atomic.LoadUint64(&inOrderMessagesCount)
+			bytesTotal := atomic.LoadUint64(&bytesReceivedCount)
 			readRate := int((inOrder - lastRead) / uint64((terminalReportingFrequency / time.Second)))
+			bytesRate := uint64((bytesTotal - lastBytes) / uint64((terminalReportingFrequency / time.Second)))
 			metrics := tachymeterHistogram.Calc()
 			tachymeterHistogram.Reset()
 
@@ -58,13 +63,14 @@ func terminalUI() {
 			fmt.Println(metrics.Histogram.String(terminalWidth))
 			// print statistics about latencies
 			fmt.Println(metrics.String())
-			fmt.Printf("\nRead rate: %d messages/sec\n", readRate)
+			fmt.Printf("\nRead rate: %d messages/sec \t Byte rate: %s/sec \n", readRate, humanize.Bytes(bytesRate))
 			fmt.Printf("\nsameMessagesCount=%d, oldMessagesCount=%d, inOrderMessagesCount=%d, skippedMessagesCount=%d",
 				atomic.LoadUint64(&sameMessagesCount),
 				atomic.LoadUint64(&oldMessagesCount),
 				inOrder,
 				atomic.LoadUint64(&skippedMessagesCount))
 			lastRead = inOrder
+			lastBytes = bytesTotal
 		}
 	}()
 }

@@ -28,8 +28,15 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: rantav/kafka-mirror-tester:ab1d6b1
-        args: ["consume", "--bootstrap-servers", "broker.kafka-destination.svc.cluster.local:9092", "--consumer-group", "group-1", "--topics", "topic2"]
+        image: rantav/kafka-mirror-tester:4c8aab5
+        args:
+        - consume
+        - --bootstrap-servers
+        - broker.kafka-destination.svc.cluster.local:9092
+        - --consumer-group
+        - group-1
+        - --topics
+        - topic1,topic2,topic3,topic4,topic5,topic6
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
