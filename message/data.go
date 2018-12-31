@@ -32,5 +32,6 @@ func (d Data) LatencyMS() int64 {
 type parsedData struct {
 	producerID types.ProducerID
 	sequence   types.SequenceNumber
+	timestamp  time.Time
 	payload    []byte
 }
