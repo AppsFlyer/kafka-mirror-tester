@@ -6,7 +6,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
       - name: producer
-        image: rantav/kafka-mirror-tester
+        image: rantav/kafka-mirror-tester:ab1d6b1
         env:
         - name: ID
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "50000", "--topics", "topic1"]
+        args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "100000", "--topics", "topic2"]
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
