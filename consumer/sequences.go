@@ -63,12 +63,12 @@ func validateSequence(data *message.Data) {
 	switch {
 	case seq == latestSeq:
 		// Same message twice? That's OK, let's just log it
-		log.Infof("Received the same message again: %s", data)
+		log.Debugf("Received the same message again: %s", data)
 		sameMessagesMetric.Add(1)
 		atomic.AddUint64(&sameMessagesCount, 1)
 	case seq < latestSeq:
 		// Received an old message
-		log.Infof("Received old data. Current seq=%d, but received %s", latestSeq, data)
+		log.Debugf("Received old data. Current seq=%d, but received %s", latestSeq, data)
 		oldMessagesMetric.Add(1)
 		atomic.AddUint64(&oldMessagesCount, 1)
 	case seq == latestSeq+1:
@@ -79,7 +79,7 @@ func validateSequence(data *message.Data) {
 	case seq > latestSeq+1:
 		// skipped a few sequences :-(
 		howMany := seq - latestSeq
-		log.Warnf("Skipped a few messages (%d messages). Current seq=%d, received %s",
+		log.Debugf("Skipped a few messages (%d messages). Current seq=%d, received %s",
 			howMany, latestSeq, data)
 		skippedMessagesMetric.Add(float64(howMany))
 		atomic.AddUint64(&skippedMessagesCount, uint64(howMany))
