@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-source
   serviceName: "broker"
-  replicas: 3
+  replicas: 1
   updateStrategy:
     type: OnDelete
   template:
