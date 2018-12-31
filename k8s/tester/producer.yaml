@@ -1,7 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: kafka-source
   name: kafka-mirror-tester-producer
   labels:
     app: kafka-mirror-tester-producer
