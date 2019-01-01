@@ -26,8 +26,6 @@ var (
 	inOrderMessagesCount  uint64
 	skippedMessagesMetric metric.Metric
 	skippedMessagesCount  uint64
-	bytesReceivedMetric   metric.Metric
-	bytesReceivedCount    uint64
 
 	measurementIntervals = []string{"1m1s", "15m10s", "1h1m"}
 )
@@ -38,7 +36,6 @@ func init() {
 	oldMessagesMetric = metric.NewCounter(measurementIntervals...)
 	inOrderMessagesMetric = metric.NewCounter(measurementIntervals...)
 	skippedMessagesMetric = metric.NewCounter(measurementIntervals...)
-	bytesReceivedMetric = metric.NewCounter(measurementIntervals...)
 }
 
 // For each message validates that the sequence numnber that corresponds to the producer and the topic
@@ -58,7 +55,7 @@ func validateSequence(data *message.Data) {
 		receivedSequenceNumbers[key] = seq
 		log.Tracef("Message received first of it's producer-topic: %s", data)
 		inOrderMessagesMetric.Add(1)
-		inOrderMessagesCount++
+		atomic.AddUint64(&inOrderMessagesCount, 1)
 		return
 	}
 
@@ -92,11 +89,4 @@ func validateSequence(data *message.Data) {
 // create a key for the sequence number map
 func createSeqnenceNumberKey(pid types.ProducerID, topic types.Topic) string {
 	return fmt.Sprintf("%s:%s", pid, topic)
-}
-
-// Count the total throughput
-func collectThroughput(data *message.Data) {
-	bytes := uint64(len(data.Payload))
-	bytesReceivedMetric.Add(float64(bytes))
-	atomic.AddUint64(&bytesReceivedCount, bytes)
 }

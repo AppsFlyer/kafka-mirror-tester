@@ -15,7 +15,10 @@ type Data struct {
 	ConsumerTimestamp time.Time
 	Latency           time.Duration // In nanoseconds
 	Topic             types.Topic
+	// The actual payload (without metadata)
 	Payload           []byte
+	// The total payload lenght, including metadata sent inside the payload
+	TotalPayloadLength uint64
 }
 
 func (d Data) String() string {

@@ -104,10 +104,10 @@ func consumeForever(
 			// Partition changes, EOF and Errors
 			switch e := ev.(type) {
 			case kafka.AssignedPartitions:
-				log.Debugf("AssignedPartitions %v", e)
+				log.Infof("AssignedPartitions %v", e)
 				c.Assign(e.Partitions)
 			case kafka.RevokedPartitions:
-				log.Debugf("RevokedPartitions %v", e)
+				log.Infof("RevokedPartitions %v", e)
 				c.Unassign()
 			case *kafka.Message:
 				processMessage(e, useMessageHeaders)
