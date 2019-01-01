@@ -6,18 +6,21 @@ import (
 	"sync"
 
 	"github.com/spf13/cobra"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/admin"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/producer"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
 
 var (
 	// CLI args
-	producerID        *string
-	pTopics           *string
-	throughput        *uint
-	messageSize       *uint
-	pBootstraServers  *string
+	producerID         *string
+	pTopics            *string
+	throughput         *uint
+	messageSize        *uint
+	pBootstraServers   *string
 	pUseMessageHeaders *bool
+	pNumPartitions     *int
+	pNumReplicas       *int
 )
 
 // produceCmd represents the produce command
@@ -37,10 +40,11 @@ var produceCmd = &cobra.Command{
 		for _, topic := range strings.Split(*pTopics, ",") {
 			t := types.Topic(topic)
 			wg.Add(1)
-			go func(topic types.Topic) {
+			go func(topic types.Topic, partitions, replicas int) {
+				admin.MustCreateTopic(ctx, brokers, t, partitions, replicas)
 				producer.ProduceForever(ctx, brokers, t, id, initialSequence, through, size, *pUseMessageHeaders)
 				wg.Done()
-			}(t)
+			}(t, *pNumPartitions, *pNumReplicas)
 		}
 		wg.Wait()
 	},
@@ -59,4 +63,6 @@ func init() {
 	pBootstraServers = produceCmd.Flags().String("bootstrap-servers", "", "List of host:port bootstrap servers (coma separated)")
 	produceCmd.MarkFlagRequired("bootstrap-servers")
 	pUseMessageHeaders = produceCmd.Flags().Bool("use-message-headers", false, "Whether to use message headers to pass metadata or use the payload instead")
+	pNumPartitions = produceCmd.Flags().Int("num-partitions", 1, "Number of partitions to create per each topic (if the topics are new)")
+	pNumReplicas = produceCmd.Flags().Int("num-replicas", 1, "Number of replicas to create per each topic (if the topics are new)")
 }

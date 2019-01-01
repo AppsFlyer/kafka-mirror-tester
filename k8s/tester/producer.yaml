@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: producer
-        image: rantav/kafka-mirror-tester:4c8aab5
+        image: rantav/kafka-mirror-tester:latest
         env:
         - name: ID
           valueFrom:
@@ -29,11 +29,13 @@ spec:
         - --id
         - $(ID)
         - --message-size
-        - "1000"
+        - "100"
         - --throughput
         - "100000"
         - --topics
-        - topic1,topic2,topic3,topic4,topic5,topic6
+        - topic3
+        - --num-partitions
+        - "2"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

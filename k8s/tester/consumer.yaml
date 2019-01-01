@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: rantav/kafka-mirror-tester:4c8aab5
+        image: rantav/kafka-mirror-tester:latest
         args:
         - consume
         - --bootstrap-servers
@@ -36,7 +36,9 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic1,topic2,topic3,topic4,topic5,topic6
+        - topic3
+        - --num-partitions
+        - "2"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
