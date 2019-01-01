@@ -79,13 +79,15 @@ k8s-replicator-setup:
 	k8s/ureplicator/template.sh
 	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
 	k8s/ureplicator/test.sh
+	# View logs:
+	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
 
 k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
 	kubectl apply -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
 	# For logs run:
-	# kail -lapp=kafka-mirror-tester-producer --context us-east-1.k8s.local
-	# kubectl logs $$(kubectl --context eu-west-1.k8s.local get po | grep kafka-mirror-tester-consumer| head -1 | cut -f1 -d' ') --follow --context eu-west-1.k8s.local
+	# stern -l app=kafka-mirror-tester-producer --context us-east-1.k8s.local
+	# stern -l app=kafka-mirror-tester-consumer --context eu-west-1.k8s.local
 	#
 	# View metrics online:
 	# open "http://$$(kubectl --context eu-west-1.k8s.local get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
@@ -101,9 +103,12 @@ k8s-kafka-shell-destination:
 k8s-kafka-shell-source:
 	# And now you can:
 	# unset JMX_PORT
-	# ./bin/kafka-topics.sh --zookeeper  zookeeper:2181 --list
-	# ./bin/kafka-topics.sh --zookeeper  zookeeper:2181 --describe
-	# ./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test_topic_1
+	# bin/kafka-topics.sh --zookeeper  zookeeper:2181 --list
+	# bin/kafka-topics.sh --zookeeper  zookeeper:2181 --describe
+	# bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test_topic_1
+	#
+	# Purge messages in topic:
+	# bin/kafka-configs.sh --zookeeper zookeeper:2181 --entity-type topics --alter --add-config retention.ms=1000 --entity-name topic1
 	kubectl --context us-east-1.k8s.local -n kafka-source exec  kafka-source-0 -it /bin/bash
 
 k8s-redeploy-tests: k8s-delete-tests k8s-run-tests
