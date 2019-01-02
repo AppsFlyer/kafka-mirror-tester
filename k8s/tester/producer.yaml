@@ -16,13 +16,26 @@ spec:
     spec:
       containers:
       - name: producer
-        image: rantav/kafka-mirror-tester:ab1d6b1
+        image: rantav/kafka-mirror-tester:latest
         env:
         - name: ID
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        args: ["produce", "--bootstrap-servers", "broker.kafka-source.svc.cluster.local:9092", "--id", "$(ID)", "--message-size", "100", "--throughput", "100000", "--topics", "topic2"]
+        args:
+        - produce
+        - --bootstrap-servers
+        - broker.kafka-source.svc.cluster.local:9092
+        - --id
+        - $(ID)
+        - --message-size
+        - "1000"
+        - --throughput
+        - "100000"
+        - --topics
+        - topic1
+        - --num-partitions
+        - "1"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

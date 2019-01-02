@@ -75,7 +75,7 @@ data:
     inter.broker.listener.name=INTERNAL_PLAINTEXT
 
     # The number of threads that the server uses for receiving requests from the network and sending responses to the network
-    num.network.threads=3
+    num.network.threads=8
 
     # The number of threads that the server uses for processing requests, which may include disk I/O
     num.io.threads=8

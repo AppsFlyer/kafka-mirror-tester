@@ -61,8 +61,9 @@ func Extract(
 		topic = types.Topic("")
 	}
 	data := &Data{
-		ConsumerTimestamp: now,
-		Topic:             topic,
+		ConsumerTimestamp:  now,
+		Topic:              topic,
+		TotalPayloadLength: uint64(len(msg.Value)),
 	}
 	if useMessageHeaders {
 		data.ProducerID = getProducerID(msg)

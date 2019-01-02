@@ -18,7 +18,6 @@ var (
 	// simply keeps count of how many such events occured.
 	// And the other is a metric.Metric instance which measures temporary values of that count
 	// (e.g. last minute, last 15 minutes etc)
-	// NOTE: The counters are not thread-safe.
 	sameMessagesMetric    metric.Metric
 	sameMessagesCount     uint64
 	oldMessagesMetric     metric.Metric
@@ -56,19 +55,19 @@ func validateSequence(data *message.Data) {
 		receivedSequenceNumbers[key] = seq
 		log.Tracef("Message received first of it's producer-topic: %s", data)
 		inOrderMessagesMetric.Add(1)
-		inOrderMessagesCount++
+		atomic.AddUint64(&inOrderMessagesCount, 1)
 		return
 	}
 
 	switch {
 	case seq == latestSeq:
 		// Same message twice? That's OK, let's just log it
-		log.Infof("Received the same message again: %s", data)
+		log.Debugf("Received the same message again: %s", data)
 		sameMessagesMetric.Add(1)
 		atomic.AddUint64(&sameMessagesCount, 1)
 	case seq < latestSeq:
 		// Received an old message
-		log.Infof("Received old data. Current seq=%d, but received %s", latestSeq, data)
+		log.Debugf("Received old data. Current seq=%d, but received %s", latestSeq, data)
 		oldMessagesMetric.Add(1)
 		atomic.AddUint64(&oldMessagesCount, 1)
 	case seq == latestSeq+1:
@@ -79,7 +78,7 @@ func validateSequence(data *message.Data) {
 	case seq > latestSeq+1:
 		// skipped a few sequences :-(
 		howMany := seq - latestSeq
-		log.Warnf("Skipped a few messages (%d messages). Current seq=%d, received %s",
+		log.Debugf("Skipped a few messages (%d messages). Current seq=%d, received %s",
 			howMany, latestSeq, data)
 		skippedMessagesMetric.Add(float64(howMany))
 		atomic.AddUint64(&skippedMessagesCount, uint64(howMany))
