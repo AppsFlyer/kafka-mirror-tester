@@ -29,13 +29,13 @@ spec:
         - --id
         - $(ID)
         - --message-size
-        - "100"
+        - "1000"
         - --throughput
         - "100000"
         - --topics
-        - topic3
+        - topic1
         - --num-partitions
-        - "2"
+        - "1"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

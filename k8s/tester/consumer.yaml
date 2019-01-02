@@ -36,9 +36,9 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic3
+        - topic1
         - --num-partitions
-        - "2"
+        - "1"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
