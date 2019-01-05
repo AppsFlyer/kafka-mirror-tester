@@ -16,6 +16,9 @@ spec:
       labels:
         app: kafka-destination
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5556"
+        prometheus.io/scheme: http
     spec:
       terminationGracePeriodSeconds: 30
       initContainers:
