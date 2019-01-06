@@ -49,11 +49,20 @@ release: docker-push
 #######################
 # Kubernetes
 #######################
-k8s-all: k8s-create-clusters
-	cd ../domain-stack; make monitoring-create monitoring-create-dashboard # This is kind of temporary hack...
-	make k8s-monitoring-graphite-exporter k8s-kafkas-setup k8s-replicator-setup
+k8s-all: k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup
 	sleep 60 # Wait for all clusters to be set up
 	make k8s-run-tests
+
+k8s-monitoring:
+	# This is a hack to get monitoring set up in both clusters
+
+	kubectl config set current-context eu-west-1.k8s.local
+	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
+	make k8s-monitoring-graphite-exporter
+
+	kubectl config set current-context us-east-1.k8s.local
+	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
+	kubectl config set current-context eu-west-1.k8s.local
 
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
 
@@ -85,7 +94,7 @@ k8s-replicator-setup:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
 
 k8s-monitoring-graphite-exporter:
-	#kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
+	kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
 	kubectl apply -f k8s/monitoring/graphite-exporter --context eu-west-1.k8s.local
 
 k8s-run-tests:

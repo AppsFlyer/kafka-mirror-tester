@@ -1,21 +1,21 @@
-#apiVersion: monitoring.coreos.com/v1
-#kind: ServiceMonitor
-#metadata:
-  #labels:
-    #k8s-app: kafka
-  #name: kafka
-  #namespace: monitoring
-#spec:
-  #endpoints:
-  #- port: prometheus
-  #jobLabel: k8s-app
-  #namespaceSelector:
-    #matchNames:
-    #- kafka-source
-  #selector:
-    #matchLabels:
-      #app: kafka-source
-#---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: kafka
+  name: kafka
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: prometheus
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - kafka-source
+  selector:
+    matchLabels:
+      app: kafka-source
+---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
