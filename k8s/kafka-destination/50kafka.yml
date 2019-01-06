@@ -15,10 +15,10 @@ spec:
     metadata:
       labels:
         app: kafka-destination
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "5556"
-        prometheus.io/scheme: http
+      #annotations:
+        #prometheus.io/scrape: "true"
+        #prometheus.io/port: "5556"
+        #prometheus.io/scheme: http
     spec:
       terminationGracePeriodSeconds: 30
       initContainers:
@@ -92,7 +92,8 @@ spec:
         - "5556"
         - /etc/jmx-kafka/jmx-kafka-prometheus.yml
         ports:
-        - containerPort: 5556
+        - name: prometheus
+          containerPort: 5556
         resources:
           requests:
             cpu: 10m
