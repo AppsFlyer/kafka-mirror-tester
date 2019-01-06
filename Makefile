@@ -51,7 +51,7 @@ release: docker-push
 #######################
 k8s-all: k8s-create-clusters
 	cd ../domain-stack; make monitoring-create monitoring-create-dashboard # This is kind of temporary hack...
-	make k8s-kafkas-setup k8s-replicator-setup
+	make k8s-monitoring-graphite-exporter k8s-kafkas-setup k8s-replicator-setup
 	sleep 60 # Wait for all clusters to be set up
 	make k8s-run-tests
 
@@ -83,6 +83,10 @@ k8s-replicator-setup:
 	k8s/ureplicator/test.sh
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
+
+k8s-monitoring-graphite-exporter:
+	#kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
+	kubectl apply -f k8s/monitoring/graphite-exporter --context eu-west-1.k8s.local
 
 k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
@@ -154,7 +158,7 @@ U_WORK_DIR := $(U_HOME)/tmp
 U_BIN := ureplicator
 U_IMAGE := rantav/$(U_BIN)
 
-ureplicator-all: ureplicator-clean ureplicator-build ureplicator-image ureplicator-deploy
+ureplicator-all: ureplicator-clean ureplicator-build ureplicator-image ureplicator-deploy ureplicator-clean
 
 ureplicator-build:
 	mkdir -p $(U_WORK_DIR)

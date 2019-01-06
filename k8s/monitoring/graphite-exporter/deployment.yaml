@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-graphite-exporter
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: graphite-exporter
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: prometheus-graphite-exporter
+      labels:
+        app: prometheus
+        component: graphite-exporter
+    spec:
+      serviceAccountName: prometheus-k8s
+      containers:
+      - name: prometheus-graphite-exporter
+        image: prom/graphite-exporter:master
+        args:
+          - '--graphite.mapping-config=/tmp/graphite-mapping.conf'
+        ports:
+        - name: importer
+          containerPort: 9109
+        - name: exporter
+          containerPort: 9108
+        resources:
+          requests:
+            cpu: 50m
+            memory: 250Mi
+        volumeMounts:
+        - name: graphite-mapping-volume
+          mountPath: /tmp/graphite-mapping.conf
+          subPath: graphite-mapping.conf
+      volumes:
+      - name: graphite-mapping-volume
+        configMap:
+          name: graphite-mapping

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: graphite-mapping
+  namespace: monitoring
+data:
+  graphite-mapping.conf: |
