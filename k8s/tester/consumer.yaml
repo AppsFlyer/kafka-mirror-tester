@@ -29,6 +29,7 @@ spec:
       containers:
       - name: consumer
         image: rantav/kafka-mirror-tester:latest
+        imagePullPolicy: Always
         args:
         - consume
         - --bootstrap-servers
@@ -36,9 +37,9 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic1
+        - topic2
         - --num-partitions
-        - "1"
+        - "2"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

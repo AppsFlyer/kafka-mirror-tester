@@ -17,6 +17,7 @@ spec:
       containers:
       - name: producer
         image: rantav/kafka-mirror-tester:latest
+        imagePullPolicy: Always
         env:
         - name: ID
           valueFrom:
@@ -31,11 +32,11 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "100000"
+        - "20000"
         - --topics
-        - topic1
+        - topic2
         - --num-partitions
-        - "1"
+        - "2"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
