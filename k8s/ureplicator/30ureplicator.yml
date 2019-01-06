@@ -34,8 +34,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-controller
-        image: rantav/ureplicator:3dae087
-        imagePullPolicy: Always
+        image: rantav/ureplicator:4790496
         env:
         - name: SERVICE_CMD
           value: "start-controller.sh"
@@ -66,6 +65,12 @@ spec:
           limits:
             cpu: 1000m
             memory: 3000Mi
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp/uReplicator-controller
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -100,7 +105,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-worker
-        image: rantav/ureplicator:3dae087
+        image: rantav/ureplicator:4790496
         env:
         - name: SERVICE_TYPE
           value: "worker"
