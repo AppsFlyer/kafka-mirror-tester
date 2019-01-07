@@ -56,13 +56,12 @@ k8s-all: k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setu
 k8s-monitoring:
 	# This is a hack to get monitoring set up in both clusters
 
+	kubectl config set current-context us-east-1.k8s.local
+	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
+
 	kubectl config set current-context eu-west-1.k8s.local
 	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
 	make k8s-monitoring-graphite-exporter
-
-	kubectl config set current-context us-east-1.k8s.local
-	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
-	kubectl config set current-context eu-west-1.k8s.local
 
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
 
