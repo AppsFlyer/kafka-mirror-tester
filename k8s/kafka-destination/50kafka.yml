@@ -15,10 +15,6 @@ spec:
     metadata:
       labels:
         app: kafka-destination
-      #annotations:
-        #prometheus.io/scrape: "true"
-        #prometheus.io/port: "5556"
-        #prometheus.io/scheme: http
     spec:
       terminationGracePeriodSeconds: 30
       initContainers:
@@ -54,8 +50,6 @@ spec:
         ports:
         - name: inside
           containerPort: 9092
-        # - name: outside
-        #   containerPort: 9094
         - name: jmx
           containerPort: 5555
         command:
@@ -63,11 +57,11 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 250m
-            memory: 4000Mi
-          # limits:
-          #   cpu: 1000m
-          #   memory: 3000Mi
+            cpu: 1200m
+            memory: 6Gi
+          limits:
+            cpu: 1200m
+            memory: 6Gi
         readinessProbe:
           tcpSocket:
             port: 9092
