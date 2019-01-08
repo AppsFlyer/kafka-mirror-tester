@@ -51,7 +51,7 @@ release: docker-push
 #######################
 k8s-all: k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup
 	sleep 60 # Wait for all clusters to be set up
-	make k8s-run-tests
+	make k8s-run-tests k8s-help-monitoring
 
 k8s-monitoring:
 	# This is a hack to get monitoring set up in both clusters
@@ -96,6 +96,24 @@ k8s-monitoring-graphite-exporter:
 	kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
 	kubectl apply -f k8s/monitoring/graphite-exporter --context eu-west-1.k8s.local
 
+k8s-help-monitoring:
+	@echo
+	@echo ">>> Admin for us-east-1:"
+	@kubectl --context us-east-1.k8s.local -n kube-system describe secret $$(kubectl --context us-east-1.k8s.local -n kube-system get secret | grep eks-admin | awk '{print $$1}')
+	@echo "	Now run: kubectl --context us-east-1.k8s.local proxy"
+	@echo "	And then open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
+	@echo "	✅ Prometheus us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
+
+	@echo
+	@echo
+	@echo ">>> Admin for eu-west-1:"
+	@kubectl --context eu-west-1.k8s.local -n kube-system describe secret $$(kubectl --context eu-west-1.k8s.local -n kube-system get secret | grep eks-admin | awk '{print $$1}')
+	@echo "	Now run: kubectl --context eu-west-1.k8s.local proxy --port 8002"
+	@echo "	And then open http://127.0.0.1:8002/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
+	@echo "	✅ Prometheus eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
+	@echo "	✅ Grafana (user/pass: admin/admin): http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.spec.ports[0].port}")"
+
+
 k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
 	kubectl apply -f k8s/tester/consumer.yaml --context eu-west-1.k8s.local
@@ -133,8 +151,8 @@ k8s-delete-replicator:
 	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local || echo already deleted?
 
 k8s-delete-kafkas:
-	kubectl delete -f k8s/kafka-source --context us-east-1.k8s.local
-	kubectl delete -f k8s/kafka-destination --context eu-west-1.k8s.local
+	kubectl delete -f k8s/kafka-source --context us-east-1.k8s.local || echo already deleted?
+	kubectl delete -f k8s/kafka-destination --context eu-west-1.k8s.local || echo already deleted?
 
 k8s-delete-tests:
 	kubectl delete -f k8s/tester/producer.yaml --context us-east-1.k8s.local || echo already deleted?
