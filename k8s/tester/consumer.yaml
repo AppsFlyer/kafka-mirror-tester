@@ -37,12 +37,19 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic2
+        - topic3
         - --num-partitions
-        - "2"
+        - "4"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-mirror-tester-consumer
+            topologyKey: "kubernetes.io/hostname"
           - labelSelector:
               matchExpressions:
               - key: app

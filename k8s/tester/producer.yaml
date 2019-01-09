@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -32,14 +32,21 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "20000"
+        - "100000"
         - --topics
-        - topic2
+        - topic3
         - --num-partitions
-        - "2"
+        - "4"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-mirror-tester-producer
+            topologyKey: "kubernetes.io/hostname"
           - labelSelector:
               matchExpressions:
               - key: app
