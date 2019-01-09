@@ -150,6 +150,8 @@ k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 k8s-delete-replicator:
 	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local || echo already deleted?
 
+k8s-redeploy-replicator: k8s-delete-replicator k8s-replicator-setup
+
 k8s-delete-kafkas:
 	kubectl delete -f k8s/kafka-source --context us-east-1.k8s.local || echo already deleted?
 	kubectl delete -f k8s/kafka-destination --context eu-west-1.k8s.local || echo already deleted?
