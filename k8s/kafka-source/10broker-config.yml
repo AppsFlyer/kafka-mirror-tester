@@ -81,7 +81,7 @@ data:
     num.io.threads=8
 
     # The send buffer (SO_SNDBUF) used by the socket server
-    socket.send.buffer.bytes=102400
+    socket.send.buffer.bytes=104857600
 
     # The receive buffer (SO_RCVBUF) used by the socket server
     socket.receive.buffer.bytes=102400

@@ -34,8 +34,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-controller
-        image: rantav/ureplicator:3dae087
-        imagePullPolicy: Always
+        image: rantav/ureplicator:ccf6892
         env:
         - name: SERVICE_CMD
           value: "start-controller.sh"
@@ -66,6 +65,12 @@ spec:
           limits:
             cpu: 1000m
             memory: 3000Mi
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp/uReplicator-controller
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -76,7 +81,7 @@ metadata:
     app: ureplicator
     component: worker
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: ureplicator
@@ -100,7 +105,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-worker
-        image: rantav/ureplicator:3dae087
+        image: rantav/ureplicator:ccf6892
         env:
         - name: SERVICE_TYPE
           value: "worker"
@@ -111,11 +116,11 @@ spec:
             name: ureplicator-envs
         resources:
           requests:
-            cpu: 1000m
-            memory: 3000Mi
+            cpu: 3000m
+            memory: 3Gi
           limits:
-            cpu: 1000m
-            memory: 3000Mi
+            cpu: 3000m
+            memory: 13Gi
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

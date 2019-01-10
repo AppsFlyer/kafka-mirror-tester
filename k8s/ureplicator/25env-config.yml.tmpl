@@ -7,10 +7,16 @@ data:
   SRC_ZK_CONNECT: __SRC_ZK_CONNECT__
   CONSUMER_GROUP_ID: ureplicator
   HELIX_CLUSTER_NAME: ureplicator
-  HELIX_ENV: dev
+  HELIX_ENV: test.eu1
   HELIX_ZK_CONNECT: zookeeper.ureplicator.svc.cluster.local:2181
   HELIX_ZK_ADDRESS: zookeeper.ureplicator.svc.cluster.local
   HELIX_ZK_PORT: '2181'
   DST_ZK_CONNECT: zookeeper.kafka-destination.svc.cluster.local:2181
   DST_BOOTSTRAP_SERVERS: broker.kafka-destination.svc.cluster.local:9092
   WORKER_ABORT_ON_SEND_FAILURE: 'true'
+  GRAPHITE_HOST: prometheus-graphite-exporter.monitoring.svc.cluster.local
+  GRAPHITE_PORT: "9109"
+  FETCH_MESSAGE_MAX_BYTES: "404857600"
+  SOCKER_RECEIVE_BUFFER_BYTES: "404857600"
+  NUM_CONSUMER_FETCHERS: "1"
+

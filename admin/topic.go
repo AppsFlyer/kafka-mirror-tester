@@ -4,6 +4,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
@@ -13,7 +14,13 @@ import (
 // MustCreateTopic creates a new topic with the specified number of partitions.
 // If the topic already exists, fails silently
 // On error - simply panics
-func MustCreateTopic(ctx context.Context, brokers types.Brokers, topic types.Topic, partitions, replicas int) {
+func MustCreateTopic(
+	ctx context.Context,
+	brokers types.Brokers,
+	topic types.Topic,
+	partitions,
+	replicas,
+	retentionMs uint) {
 	a, err := kafka.NewAdminClient(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
 	if err != nil {
 		log.Fatalf("%+v", err)
@@ -26,8 +33,11 @@ func MustCreateTopic(ctx context.Context, brokers types.Brokers, topic types.Top
 		[]kafka.TopicSpecification{
 			{
 				Topic:             string(topic),
-				NumPartitions:     partitions,
-				ReplicationFactor: replicas,
+				NumPartitions:     int(partitions),
+				ReplicationFactor: int(replicas),
+				Config: map[string]string{
+					"retention.ms": fmt.Sprintf("%d", retentionMs),
+				},
 			},
 		})
 	if err != nil {

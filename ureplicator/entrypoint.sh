@@ -25,6 +25,8 @@ if [ "${SERVICE_TYPE}" == "controller" ] ; then
     -destKafkaZkPath "${DST_ZK_CONNECT}" \
     -initWaitTimeInSeconds 10 \
     -refreshTimeInSeconds 20 \
+    -graphiteHost "${GRAPHITE_HOST}" \
+    -graphitePort "${GRAPHITE_PORT}" \
     -env "${HELIX_ENV}"
 
   until [[ "OK" == "$(curl --silent http://localhost:9000/health)" ]]; do

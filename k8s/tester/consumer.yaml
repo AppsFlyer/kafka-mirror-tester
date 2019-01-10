@@ -1,15 +1,3 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: kafka-mirror-tester-consumer
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 8000
-    name: debug-metrics
-  selector:
-    app: kafka-mirror-tester-consumer
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -29,6 +17,7 @@ spec:
       containers:
       - name: consumer
         image: rantav/kafka-mirror-tester:latest
+        imagePullPolicy: Always
         args:
         - consume
         - --bootstrap-servers
@@ -39,9 +28,19 @@ spec:
         - topic1
         - --num-partitions
         - "1"
+        ports:
+        - name: metrics
+          containerPort: 8000
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-mirror-tester-consumer
+            topologyKey: "kubernetes.io/hostname"
           - labelSelector:
               matchExpressions:
               - key: app
@@ -64,3 +63,36 @@ spec:
             namespaces:
             - ureplicator
             topologyKey: "kubernetes.io/hostname"
+---
+# Headless service just for the sake of exposing the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-mirror-tester-consumer
+  labels:
+    app: kafka-mirror-tester-consumer
+spec:
+  ports:
+  - name: metrics
+    port: 8000
+  clusterIP: None
+  selector:
+    app: kafka-mirror-tester-consumer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: kafka-mirror-tester-consumer
+  name: kafka-mirror-tester-consumer
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: kafka-mirror-tester-consumer

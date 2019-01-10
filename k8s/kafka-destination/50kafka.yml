@@ -8,14 +8,13 @@ spec:
     matchLabels:
       app: kafka-destination
   serviceName: "broker"
-  replicas: 1
+  replicas: 2
   updateStrategy:
     type: OnDelete
   template:
     metadata:
       labels:
         app: kafka-destination
-      annotations:
     spec:
       terminationGracePeriodSeconds: 30
       initContainers:
@@ -51,8 +50,6 @@ spec:
         ports:
         - name: inside
           containerPort: 9092
-        # - name: outside
-        #   containerPort: 9094
         - name: jmx
           containerPort: 5555
         command:
@@ -60,11 +57,11 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 250m
-            memory: 4000Mi
-          # limits:
-          #   cpu: 1000m
-          #   memory: 3000Mi
+            cpu: 1500m
+            memory: 10Gi
+          limits:
+            cpu: 3000m
+            memory: 13Gi
         readinessProbe:
           tcpSocket:
             port: 9092
@@ -89,7 +86,8 @@ spec:
         - "5556"
         - /etc/jmx-kafka/jmx-kafka-prometheus.yml
         ports:
-        - containerPort: 5556
+        - name: prometheus
+          containerPort: 5556
         resources:
           requests:
             cpu: 10m
@@ -105,6 +103,8 @@ spec:
           name: broker-config
       - name: config-writable
         emptyDir: {}
+      - name: data
+        emptyDir: {}
       - name: jmx-config
         configMap:
           name: jmx-config
@@ -118,11 +118,3 @@ spec:
                 values:
                 - kafka-destination
             topologyKey: "kubernetes.io/hostname"
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 20Gi

@@ -5,10 +5,14 @@ kind: Service
 metadata:
   name: broker
   namespace: kafka-source
+  labels:
+    app: kafka-source
 spec:
   ports:
-  - port: 9092
-    name: internal
+  - name: internal
+    port: 9092
+  - name: prometheus
+    port: 5556
   clusterIP: None
   selector:
     app: kafka-source

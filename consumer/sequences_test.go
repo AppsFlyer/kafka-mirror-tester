@@ -8,6 +8,7 @@ import (
 )
 
 func TestValidateSequence(t *testing.T) {
+	initPrometheus()
 	assert := assert.New(t)
 
 	// validate initial state
