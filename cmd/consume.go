@@ -26,13 +26,14 @@ var consumeCmd = &cobra.Command{
 	Long: `Consumes messages from kafka and collects statistics about them.
 Namely latency statistics and sequence number bookeeping.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		const retentionMs = 300000 // 5 minutes is enough for testing
 		ctx := context.Background()
 		brokers := types.Brokers(*cBootstraServers)
 		ts := types.Topics(strings.Split(*cTopics, ","))
 		initialSequence := types.SequenceNumber(0)
 		cg := types.ConsumerGroup(*consumerGroup)
 		for _, t := range ts {
-			admin.MustCreateTopic(ctx, brokers, types.Topic(t), *cNumPartitions, *cNumReplicas)
+			admin.MustCreateTopic(ctx, brokers, types.Topic(t), *cNumPartitions, *cNumReplicas, retentionMs)
 		}
 		consumer.ConsumeAndAnalyze(ctx, brokers, ts, cg, initialSequence, *cUseMessageHeaders)
 	},

@@ -30,6 +30,7 @@ var produceCmd = &cobra.Command{
 	Long: `The producer is a high-throughput kafka message producer.
 	It sends sequence numbered and timestamped messages to kafka where by the consumer reads and validates. `,
 	Run: func(cmd *cobra.Command, args []string) {
+		const retentionMs = 300000 // 5 minutes is enough for testing
 		ctx := context.Background()
 		brokers := types.Brokers(*pBootstraServers)
 		id := types.ProducerID(*producerID)
@@ -41,7 +42,7 @@ var produceCmd = &cobra.Command{
 			t := types.Topic(topic)
 			wg.Add(1)
 			go func(topic types.Topic, partitions, replicas int) {
-				admin.MustCreateTopic(ctx, brokers, t, partitions, replicas)
+				admin.MustCreateTopic(ctx, brokers, t, partitions, replicas, retentionMs)
 				producer.ProduceForever(ctx, brokers, t, id, initialSequence, through, size, *pUseMessageHeaders)
 				wg.Done()
 			}(t, *pNumPartitions, *pNumReplicas)
