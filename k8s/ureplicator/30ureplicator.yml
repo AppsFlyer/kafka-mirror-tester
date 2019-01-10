@@ -81,7 +81,7 @@ metadata:
     app: ureplicator
     component: worker
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: ureplicator
@@ -117,10 +117,10 @@ spec:
         resources:
           requests:
             cpu: 1000m
-            memory: 3000Mi
+            memory: 3Mi
           limits:
-            cpu: 1000m
-            memory: 3000Mi
+            cpu: 1200m
+            memory: 6Gi
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
