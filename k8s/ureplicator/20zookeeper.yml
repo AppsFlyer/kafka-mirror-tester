@@ -122,16 +122,11 @@ spec:
           initialDelaySeconds: 10
           timeoutSeconds: 5
         volumeMounts:
-        - name: datadir
+        - name: data
           mountPath: /var/lib/zookeeper
+      volumes:
+      - name: data
+        emptyDir: {}
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
-  volumeClaimTemplates:
-  - metadata:
-      name: datadir
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 0.2Gi

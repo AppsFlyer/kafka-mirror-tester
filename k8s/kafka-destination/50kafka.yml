@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-destination
   serviceName: "broker"
-  replicas: 1
+  replicas: 2
   updateStrategy:
     type: OnDelete
   template:
@@ -57,11 +57,11 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 1200m
-            memory: 6Gi
+            cpu: 1500m
+            memory: 10Gi
           limits:
-            cpu: 1200m
-            memory: 6Gi
+            cpu: 3000m
+            memory: 13Gi
         readinessProbe:
           tcpSocket:
             port: 9092
@@ -103,6 +103,8 @@ spec:
           name: broker-config
       - name: config-writable
         emptyDir: {}
+      - name: data
+        emptyDir: {}
       - name: jmx-config
         configMap:
           name: jmx-config
@@ -116,11 +118,3 @@ spec:
                 values:
                 - kafka-destination
             topologyKey: "kubernetes.io/hostname"
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 20Gi

@@ -70,11 +70,5 @@ spec:
           name: zookeeper-config
       - name: config-writable
         emptyDir: {}
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+      - name: data
+        emptyDir: {}

@@ -71,6 +71,8 @@ spec:
           name: zookeeper-config
       - name: config-writable
         emptyDir: {}
+      - name: data
+        emptyDir: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -81,11 +83,3 @@ spec:
                 values:
                 - zookeeper
             topologyKey: "kubernetes.io/hostname"
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
