@@ -6,13 +6,16 @@ package producer
 import (
 	"context"
 	"math"
+	"strings"
 	"sync"
+	"sync/atomic"
 
 	"golang.org/x/time/rate"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/admin"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
 )
@@ -24,7 +27,37 @@ const (
 	burstRatio = 0.1
 )
 
-var once sync.Once
+// ProduceToTopics spawms multiple producer threads and produces to all topics
+func ProduceToTopics(
+	brokers types.Brokers,
+	id types.ProducerID,
+	throughput types.Throughput,
+	size types.MessageSize,
+	initialSequence types.SequenceNumber,
+	topicsString string,
+	numPartitions, numReplicas uint,
+	useMessageHeaders bool,
+) {
+	// Count the total number of errors on this topic
+	errorCounter := uint64(0)
+	topics := strings.Split(topicsString, ",")
+
+	ctx := context.Background()
+	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions)
+
+	const retentionMs = 300000 // 5 minutes is enough for testing
+	var wg sync.WaitGroup
+	for _, topic := range topics {
+		t := types.Topic(topic)
+		wg.Add(1)
+		go func(topic types.Topic, partitions, replicas uint) {
+			admin.MustCreateTopic(ctx, brokers, t, partitions, replicas, retentionMs)
+			ProduceForever(ctx, brokers, t, id, initialSequence, throughput, size, useMessageHeaders, &errorCounter)
+			wg.Done()
+		}(t, numPartitions, numReplicas)
+	}
+	wg.Wait()
+}
 
 // ProduceForever will produce messages to the topic forver or until canceled by the context.
 // It will try to acheive the desired throughput and if not - will log that. It will not exceed the throughput (measured by number of messages per second)
@@ -38,6 +71,7 @@ func ProduceForever(
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
+	errorCounter *uint64,
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
@@ -46,7 +80,7 @@ func ProduceForever(
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
 	defer p.Close()
-	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize, useMessageHeaders)
+	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize, useMessageHeaders, errorCounter)
 }
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
@@ -60,6 +94,7 @@ func producerForeverWithProducer(
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
+	errorCounter *uint64,
 ) {
 	// the rate limiter regulates the producer by limiting its throughput (messages/sec)
 	limiter := rate.NewLimiter(rate.Limit(throughput), int(math.Ceil(float64(throughput)*burstRatio)))
@@ -67,14 +102,7 @@ func producerForeverWithProducer(
 	// Sequence number per message
 	seq := initialSequence
 
-	// Count the total number of errors on this topic
-	errorCounter := uint(0)
-
-	once.Do(func() {
-		go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id)
-	})
-
-	go eventsProcessor(p, &errorCounter)
+	go eventsProcessor(p, errorCounter)
 
 	topicString := string(topic)
 	tp := kafka.TopicPartition{Topic: &topicString, Partition: kafka.PartitionAny}
@@ -109,7 +137,7 @@ func produceMessage(
 // It then logs errors and increased the passed-by-reference errors counter and updates the throughput counter
 func eventsProcessor(
 	p *kafka.Producer,
-	errorCounter *uint,
+	errorCounter *uint64,
 ) {
 	for e := range p.Events() {
 		switch ev := e.(type) {
@@ -117,7 +145,7 @@ func eventsProcessor(
 			m := ev
 			if m.TopicPartition.Error != nil {
 				log.Errorf("Delivery failed: %v", m.TopicPartition.Error)
-				*errorCounter++
+				atomic.AddUint64(errorCounter, 1)
 			} else {
 				reportMessageSent(m)
 			}

@@ -20,7 +20,7 @@ func MustCreateTopic(
 	topic types.Topic,
 	partitions,
 	replicas,
-	retentionMs int) {
+	retentionMs uint) {
 	a, err := kafka.NewAdminClient(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
 	if err != nil {
 		log.Fatalf("%+v", err)
@@ -33,8 +33,8 @@ func MustCreateTopic(
 		[]kafka.TopicSpecification{
 			{
 				Topic:             string(topic),
-				NumPartitions:     partitions,
-				ReplicationFactor: replicas,
+				NumPartitions:     int(partitions),
+				ReplicationFactor: int(replicas),
 				Config: map[string]string{
 					"retention.ms": fmt.Sprintf("%d", retentionMs),
 				},

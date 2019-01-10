@@ -15,8 +15,8 @@ var (
 	cBootstraServers   *string
 	consumerGroup      *string
 	cUseMessageHeaders *bool
-	cNumPartitions     *int
-	cNumReplicas       *int
+	cNumPartitions     *uint
+	cNumReplicas       *uint
 )
 
 // consumeCmd represents the consume command
@@ -49,6 +49,6 @@ func init() {
 	consumerGroup = consumeCmd.Flags().String("consumer-group", "", "The kafka consumer group name")
 	consumeCmd.MarkFlagRequired("consumer-group")
 	cUseMessageHeaders = consumeCmd.Flags().Bool("use-message-headers", false, "Whether to use message headers to pass metadata or use the payload instead")
-	cNumPartitions = consumeCmd.Flags().Int("num-partitions", 1, "Number of partitions to create per each topic (if the topics are new)")
-	cNumReplicas = consumeCmd.Flags().Int("num-replicas", 1, "Number of replicas to create per each topic (if the topics are new)")
+	cNumPartitions = consumeCmd.Flags().Uint("num-partitions", 1, "Number of partitions to create per each topic (if the topics are new)")
+	cNumReplicas = consumeCmd.Flags().Uint("num-replicas", 1, "Number of replicas to create per each topic (if the topics are new)")
 }
