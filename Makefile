@@ -15,10 +15,11 @@ build: dep-ensure generate test
 	go build ./...
 
 run-producer:
+	# Check out http://localhost:8001/metrics
 	go run main.go produce --bootstrap-servers localhost:9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2 --use-message-headers
 
 run-consumer:
-	# Check out http://localhost:8000/debug/metrics
+	# Check out http://localhost:8000/metrics
 	go run main.go consume --bootstrap-servers localhost:9093 --consumer-group group-4 --topics topic1,topic2 --use-message-headers
 
 test:
@@ -38,10 +39,11 @@ docker-push: docker-build
 	docker push rantav/kafka-mirror-tester
 
 docker-run-consumer:
-	# Check out http://localhost:8000/debug/metrics
+	# Check out http://localhost:8000/metrics
 	docker run -p 8000:8000 rantav/kafka-mirror-tester consume --bootstrap-servers $(LOCAL_IP):9093 --consumer-group group-4 --topics topic1,topic2
 
 docker-run-producer:
+	# Check out http://localhost:8001/metrics
 	docker run rantav/kafka-mirror-tester produce --bootstrap-servers $(LOCAL_IP):9093 --id $$(hostname) --message-size 100 --throughput 10 --topics topic1,topic2
 
 release: docker-push

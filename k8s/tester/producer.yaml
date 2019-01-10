@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -34,9 +34,12 @@ spec:
         - --throughput
         - "100000"
         - --topics
-        - topic3
+        - topic1
         - --num-partitions
-        - "4"
+        - "1"
+        ports:
+        - name: metrics
+          containerPort: 8001
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -56,3 +59,36 @@ spec:
             namespaces:
             - kafka-source
             topologyKey: "kubernetes.io/hostname"
+---
+# Headless service just for the sake of exposing the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-mirror-tester-producer
+  labels:
+    app: kafka-mirror-tester-producer
+spec:
+  ports:
+  - name: metrics
+    port: 8001
+  clusterIP: None
+  selector:
+    app: kafka-mirror-tester-producer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: kafka-mirror-tester-producer
+  name: kafka-mirror-tester-producer
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: kafka-mirror-tester-producer

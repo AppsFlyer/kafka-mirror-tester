@@ -119,8 +119,7 @@ func eventsProcessor(
 				log.Errorf("Delivery failed: %v", m.TopicPartition.Error)
 				*errorCounter++
 			} else {
-				messageCounter.Incr(1)
-				bytesCounter.Incr(int64(len(m.Value)))
+				reportMessageSent(m)
 			}
 		default:
 			log.Infof("Ignored event: %s", ev)

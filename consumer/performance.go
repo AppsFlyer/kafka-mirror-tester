@@ -2,7 +2,7 @@ package consumer
 
 import (
 	"github.com/jamiealquiza/tachymeter"
-	"github.com/zserge/metric"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
 )
@@ -18,7 +18,7 @@ var (
 	// it's web interface and the other is useful as a CLI interface.
 
 	// This one has a nice web UI
-	metricHistogram metric.Metric
+	latencySummary prometheus.Summary
 
 	// And this one has a mice text UI.
 	tachymeterHistogram *tachymeter.Tachymeter
@@ -30,12 +30,11 @@ var (
 )
 
 func init() {
-	metricHistogram = metric.NewHistogram(tachymeterMeasurementWindows...)
 	tachymeterHistogram = tachymeter.New(&tachymeter.Config{Size: tachymeterSampleSize})
 }
 
 // Collect the latency stats from the data into the various counters.
 func collectLatencyStats(data *message.Data) {
-	metricHistogram.Add(float64(data.LatencyMS()))
+	latencySummary.Observe(float64(data.LatencyMS()))
 	tachymeterHistogram.AddTime(data.Latency)
 }
