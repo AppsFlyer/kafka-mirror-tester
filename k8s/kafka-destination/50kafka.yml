@@ -57,11 +57,11 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 1500m
-            memory: 10Gi
+            cpu: 1200m
+            memory: 6Gi
           limits:
-            cpu: 3000m
-            memory: 13Gi
+            cpu: 1200m
+            memory: 6Gi
         readinessProbe:
           tcpSocket:
             port: 9092

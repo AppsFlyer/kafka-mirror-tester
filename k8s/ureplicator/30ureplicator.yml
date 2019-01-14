@@ -116,11 +116,11 @@ spec:
             name: ureplicator-envs
         resources:
           requests:
-            cpu: 3000m
-            memory: 3Gi
+            cpu: 1200m
+            memory: 6Gi
           limits:
-            cpu: 3000m
-            memory: 13Gi
+            cpu: 1200m
+            memory: 6Gi
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
