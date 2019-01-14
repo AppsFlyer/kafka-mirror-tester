@@ -32,7 +32,7 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "100000"
+        - "7000"
         - --topics
         - topic1
         - --num-partitions
