@@ -64,6 +64,8 @@ k8s-monitoring:
 	kubectl config set current-context eu-west-1.k8s.local
 	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
 	make k8s-monitoring-graphite-exporter
+	make k8s-grafana-configure
+
 
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
 
@@ -97,6 +99,15 @@ k8s-replicator-setup:
 k8s-monitoring-graphite-exporter:
 	kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
 	kubectl apply -f k8s/monitoring/graphite-exporter --context eu-west-1.k8s.local
+
+k8s-grafana-configure:
+	k8s/monitoring/patch/template.sh
+	kubectl --context eu-west-1.k8s.local -n monitoring patch configmap grafana-datasources --record=true -p "$$(cat ./k8s/monitoring/patch/grafana-datasources.yaml)"
+	kubectl --context eu-west-1.k8s.local -n monitoring patch configmap grafana-dashboard-definitions --record=true -p "$$(cat ./k8s/monitoring/patch/grafana-dashboard-definitions.yaml)"
+	# Reload configuration by scaling down then up:
+	kubectl --context eu-west-1.k8s.local -n monitoring scale replicasets $$(kubectl --context eu-west-1.k8s.local -n monitoring get replicasets | ag grafana | cut -d' ' -f1) --replicas 0
+	sleep 10
+	kubectl --context eu-west-1.k8s.local -n monitoring scale replicasets $$(kubectl --context eu-west-1.k8s.local -n monitoring get replicasets | ag grafana | cut -d' ' -f1) --replicas 1
 
 k8s-help-monitoring:
 	@echo

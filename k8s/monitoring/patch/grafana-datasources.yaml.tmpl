@@ -1,0 +1,33 @@
+data:
+  prometheus.yaml: |-
+    {
+        "datasources": [
+            {
+                "access": "proxy",
+                "etitable": false,
+                "name": "prometheus",
+                "org_id": 1,
+                "type": "prometheus",
+                "url": "http://prometheus-k8s.monitoring.svc:9090",
+                "version": 1
+            },
+            {
+                "access": "proxy",
+                "etitable": false,
+                "name": "us-east-1 source",
+                "org_id": 1,
+                "type": "prometheus",
+                "url": "__US_EAST_1_PROMETHEUS__",
+                "version": 1
+            },
+            {
+                "access": "proxy",
+                "etitable": false,
+                "name": "eu-west-1 destination",
+                "org_id": 1,
+                "type": "prometheus",
+                "url": "http://prometheus-k8s.monitoring.svc:9090",
+                "version": 1
+            }
+        ]
+    }
