@@ -2,3 +2,4 @@ vendor
 kafka-mirror-tester
 ureplicator/tmp
 k8s/ureplicator/25env-config.yml
+k8s/monitoring/patch/grafana-datasources.yaml
