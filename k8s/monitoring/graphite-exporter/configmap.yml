@@ -1,8 +1,94 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
   name: graphite-mapping
   namespace: monitoring
 data:
-  graphite-mapping.conf: |
+  graphite-mapping.conf: |-
+    mappings:
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.worker.rebalance.*.*
+      name: ureplicator_worker_rebalance
+      labels:
+        region: $1
+        instance: $2
+        nevermind1: $3
+        nevermind2: $4
+        metric: $5
+        metric_type: $6
+        component: worker
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.*.*.*.totalNumber.count
+      name: ureplicator_worker
+      labels:
+        region: $1
+        instance: $2
+        perspective: $3
+        metric: $4
+        worker_instance: $5
+        component: worker
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.*.*.*
+      name: ureplicator_controller
+      labels:
+        region: $1
+        instance: $2
+        module: $3
+        metric: $4
+        metric_type: $5
+        component: controller
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.KafkaBrokerTopicObserver.*.*.*
+      name: ureplicator_topic_observer
+      labels:
+        region: $1
+        instance: $2
+        unit: $3
+        direction: $4
+        metric: $5
+        metric_type: $6
+        component: controller
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.topic.partitions.*.count
+      name: ureplicator_topic_partitions
+      labels:
+        region: $1
+        instance: $2
+        nevermind1: $3
+        nevermind2: $4
+        metric: $5
+        metric_type: count
+        component: controller
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.AutoTopicWhitelistManager.*.*
+      name: ureplicator_topic_whitelist_manager
+      labels:
+        region: $1
+        instance: $2
+        nevermind1: $3
+        metric: $4
+        metric_type: $5
+        component: controller
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.leader.counter.count
+      name: ureplicator_leader_count
+      labels:
+        region: $1
+        instance: $2
+        component: controller
+        metric_type: count
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.topic.errorNumber.count
+      name: ureplicator_topic_errors
+      labels:
+        region: $1
+        instance: $2
+        component: controller
+        metric_type: count
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.topic.totalNumber.count
+      name: ureplicator_topic_counts
+      labels:
+        region: $1
+        instance: $2
+        component: controller
+    - match: stats.test.counter.kafka-mirror-maker-controller.*.*.worker.*.count
+      name: ureplicator_worker_instances
+      labels:
+        region: $1
+        instance: $2
+        __nevermind: $3
+        metric: $4
+        metric_type: count
+        component: worker
