@@ -135,6 +135,11 @@ k8s-help-monitoring:
 	@echo "	✅ Prometheus eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
 	@echo "	✅ Grafana (user/pass: admin/admin): http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.spec.ports[0].port}")"
 
+k8s-resize-cluster-us-east-1:
+	kops edit ig --name us-east-1.k8s.local --state s3://us-east-1.k8s.local nodes && kops update cluster --name us-east-1.k8s.local --state s3://us-east-1.k8s.local --yes
+
+k8s-resize-cluster-eu-west-1:
+	kops edit ig --name eu-west-1.k8s.local --state s3://eu-west-1.k8s.local nodes && kops update cluster --name eu-west-1.k8s.local --state s3://eu-west-1.k8s.local --yes
 
 k8s-run-tests:
 	kubectl apply -f k8s/tester/producer.yaml --context us-east-1.k8s.local
@@ -185,7 +190,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1 || echo Bucket already exists?
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 15 --node-size i3.large --master-size t2.small --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 20 --node-size i3.large --master-size t2.small --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:
