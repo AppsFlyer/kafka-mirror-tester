@@ -16,6 +16,7 @@ var (
 	pUseMessageHeaders *bool
 	pNumPartitions     *uint
 	pNumReplicas       *uint
+	pRetention         *uint
 )
 
 // produceCmd represents the produce command
@@ -30,7 +31,7 @@ var produceCmd = &cobra.Command{
 		through := types.Throughput(*throughput)
 		size := types.MessageSize(*messageSize)
 		initialSequence := types.SequenceNumber(0)
-		producer.ProduceToTopics(brokers, id, through, size, initialSequence, *pTopics, *pNumPartitions, *pNumReplicas, *pUseMessageHeaders)
+		producer.ProduceToTopics(brokers, id, through, size, initialSequence, *pTopics, *pNumPartitions, *pNumReplicas, *pUseMessageHeaders, *pRetention)
 	},
 }
 
@@ -49,4 +50,5 @@ func init() {
 	pUseMessageHeaders = produceCmd.Flags().Bool("use-message-headers", false, "Whether to use message headers to pass metadata or use the payload instead")
 	pNumPartitions = produceCmd.Flags().Uint("num-partitions", 1, "Number of partitions to create per each topic (if the topics are new)")
 	pNumReplicas = produceCmd.Flags().Uint("num-replicas", 1, "Number of replicas to create per each topic (if the topics are new)")
+	pRetention = produceCmd.Flags().Uint("retention", 30000, "Data retention for the created topics. In ms.")
 }
