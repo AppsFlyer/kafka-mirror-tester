@@ -118,6 +118,9 @@ k8s-help-monitoring:
 	@echo "	Now run: kubectl --context us-east-1.k8s.local proxy"
 	@echo "	And then open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
 	@echo "	✅ Prometheus us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
+	@echo
+	@echo "Monitor low level cluster events:"
+	@echo "	kubectl --context us-east-1.k8s.local get events --watch --all-namespaces -o wide"
 
 	@echo
 	@echo
@@ -125,6 +128,10 @@ k8s-help-monitoring:
 	@kubectl --context eu-west-1.k8s.local -n kube-system describe secret $$(kubectl --context eu-west-1.k8s.local -n kube-system get secret | grep eks-admin | awk '{print $$1}')
 	@echo "	Now run: kubectl --context eu-west-1.k8s.local proxy --port 8002"
 	@echo "	And then open http://127.0.0.1:8002/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
+	@echo
+	@echo "Monitor low level cluster events:"
+	@echo "	kubectl --context eu-west-1.k8s.local get events --watch --all-namespaces -o wide"
+	@echo
 	@echo "	✅ Prometheus eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
 	@echo "	✅ Grafana (user/pass: admin/admin): http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.spec.ports[0].port}")"
 
