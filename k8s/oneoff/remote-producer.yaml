@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kafka-mirror-tester-producer
+  labels:
+    app: kafka-mirror-tester-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-mirror-tester-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-mirror-tester-producer
+    spec:
+      containers:
+      - name: producer
+        image: rantav/kafka-mirror-tester:latest
+        env:
+        - name: ID
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        args:
+        - produce
+        - --bootstrap-servers
+        - 18.207.184.105:9093
+        - --id
+        - $(ID)
+        - --message-size
+        - "1000"
+        - --throughput
+        - "100000"
+        - --topics
+        - topic1,topic2,topic3,topic4,topic5,topic6,topic7,topic8,topic9,topic10,topic11,topic12,topic13,topic14,topic15,topic16
+        - --num-partitions
+        - "1"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-source
+            namespaces:
+            - kafka-source
+            topologyKey: "kubernetes.io/hostname"
