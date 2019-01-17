@@ -4,22 +4,46 @@ data:
       "annotations": {
         "list": [
           {
-            "$$hashKey": "object:189",
             "builtIn": 1,
             "datasource": "-- Grafana --",
             "enable": true,
             "hide": true,
             "iconColor": "rgba(0, 211, 255, 1)",
+            "limit": 100,
             "name": "Annotations & Alerts",
+            "showIn": 0,
             "type": "dashboard"
+          },
+          {
+            "datasource": "eu-west-1 destination",
+            "enable": true,
+            "expr": "abs(time() - kube_pod_start_time) < BOOL 60",
+            "hide": true,
+            "iconColor": "rgba(255, 96, 96, 1)",
+            "name": "kube_pod_start_time eu",
+            "showIn": 0,
+            "tagKeys": "eu",
+            "textFormat": "restart {{pod}}.{{namespace}}.eu",
+            "titleFormat": ""
+          },
+          {
+            "datasource": "us-east-1 source",
+            "enable": true,
+            "expr": "abs(time() - kube_pod_start_time) < BOOL 60",
+            "hide": true,
+            "iconColor": "#e0f9d7",
+            "name": "kube_pod_start_time us",
+            "showIn": 0,
+            "tagKeys": "restart {{pod}}.{{namespace}}",
+            "textFormat": "restart {{pod}}.{{namespace}}.us",
+            "titleFormat": ""
           }
         ]
       },
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "id": 2,
-      "iteration": 1547545399075,
+      "iteration": 1547647393733,
       "links": [],
       "panels": [
         {
@@ -72,16 +96,14 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:238",
               "datasource": "eu-west-1 destination",
               "expr": "sum(kafka_server_brokertopicmetrics_oneminuterate{topic=~\"${topic}\", name=~\"BytesInPerSec|BytesOutPerSec\"}) by (topic, name)",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "source  {{topic}} {{name}}",
+              "legendFormat": "destination  {{topic}} {{name}}",
               "refId": "D"
             },
             {
-              "$$hashKey": "object:339",
               "datasource": "us-east-1 source",
               "expr": "sum(kafka_server_brokertopicmetrics_oneminuterate{topic=~\"${topic}\", name=~\"BytesInPerSec|BytesOutPerSec\"}) by (topic, name)",
               "format": "time_series",
@@ -167,52 +189,46 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:647",
               "datasource": "eu-west-1 destination",
-              "expr": "count(kube_pod_info{pod=~\"kafka-mirror-tester-consumer-.+\"})",
+              "expr": "count(kube_pod_info{pod=~\"kafka-mirror-tester-consumer-.+\", node!=\"\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "cousumers",
               "refId": "B"
             },
             {
-              "$$hashKey": "object:648",
               "datasource": "eu-west-1 destination",
-              "expr": "count(kube_pod_info{pod=~\"kafka-destination-.+\"})",
+              "expr": "count(kube_pod_info{pod=~\"kafka-destination-.+\", node!=\"\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "kafka brokers destination",
               "refId": "A"
             },
             {
-              "$$hashKey": "object:649",
               "datasource": "eu-west-1 destination",
-              "expr": "count(kube_pod_info{pod=~\"ureplicator-worker-.+\"})",
+              "expr": "count(kube_pod_info{pod=~\"ureplicator-worker-.+\", node!=\"\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "ureplicator workers",
               "refId": "C"
             },
             {
-              "$$hashKey": "object:838",
               "datasource": "us-east-1 source",
-              "expr": "count(kube_pod_info{pod=~\"kafka-source-.+\"})",
+              "expr": "count(kube_pod_info{pod=~\"kafka-source-.+\", node!=\"\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "kafka brokers source",
               "refId": "G"
             },
             {
-              "$$hashKey": "object:877",
               "datasource": "us-east-1 source",
-              "expr": "count(kube_pod_info{pod=~\"kafka-mirror-tester-producer-.+\"})",
+              "expr": "count(kube_pod_info{pod=~\"kafka-mirror-tester-producer-.+\", node!=\"\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "producers",
               "refId": "D"
             },
             {
-              "$$hashKey": "object:916",
               "datasource": "us-east-1 source",
               "expr": "sum(producer_number_of_topics * producer_number_of_partitions)",
               "format": "time_series",
@@ -298,7 +314,6 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:256",
               "datasource": "eu-west-1 destination",
               "expr": "sum(rate(bytes_consumed[1m]))",
               "format": "time_series",
@@ -307,7 +322,6 @@ data:
               "refId": "B"
             },
             {
-              "$$hashKey": "object:349",
               "datasource": "us-east-1 source",
               "expr": "sum(rate(bytes_produced[1m]))",
               "format": "time_series",
@@ -365,7 +379,7 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 12,
+            "w": 7,
             "x": 12,
             "y": 13
           },
@@ -393,8 +407,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:477",
-              "expr": "avg(message_arrival_latency_ms{quantile=\"0.99\"})",
+              "expr": "max(message_arrival_latency_ms{quantile=\"0.99\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "latency quantile=\"0.99\"",
@@ -442,6 +455,86 @@ data:
           }
         },
         {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": "eu-west-1 destination",
+          "format": "ms",
+          "gauge": {
+            "maxValue": 240000,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 5,
+            "x": 19,
+            "y": 13
+          },
+          "id": 67,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": true,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "max(message_arrival_latency_ms{quantile=\"0.99\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "30000,60000",
+          "title": "Latency",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
@@ -478,16 +571,14 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:525",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_KafkaBrokerTopicObserver_destKafkaCluster_kafkaTopicsCounter_count",
+              "expr": "ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Destination topics count",
               "refId": "A"
             },
             {
-              "$$hashKey": "object:526",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_KafkaBrokerTopicObserver_srcKafkaCluster_kafkaTopicsCounter_count",
+              "expr": "ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Source topics count",
@@ -571,27 +662,24 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:563",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_KafkaBrokerTopicObserver_srcKafkaCluster_refreshLatency_p95",
+              "expr": "max(ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"refreshLatency\"})",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Source refresh latency 95%ile",
+              "legendFormat": "Source refresh latency ",
               "refId": "A"
             },
             {
-              "$$hashKey": "object:564",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_KafkaBrokerTopicObserver_destKafkaCluster_refreshLatency_p95",
+              "expr": "max(ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"refreshLatency\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Destination refresh latency 95%ile",
               "refId": "B"
             },
             {
-              "$$hashKey": "object:565",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_worker_rebalance_timer_p95",
+              "expr": "max(ureplicator_worker_rebalance)",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Worker rebalance latency 95%ile",
+              "legendFormat": "Worker rebalance latency",
               "refId": "C"
             }
           ],
@@ -672,27 +760,18 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:605",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_topic_errorNumber_count",
+              "expr": "ureplicator_topic_errors{component=\"controller\",metric_type=\"count\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "topic_errorNumber",
+              "legendFormat": "topic errors",
               "refId": "A"
             },
             {
-              "$$hashKey": "object:606",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_topic_partitions_errorNumber_count",
+              "expr": "ureplicator_topic_whitelist_manager{metric=\"numErrorTopics\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "partitions_errorNumber",
+              "legendFormat": "whitelist manager numErrorTopics",
               "refId": "B"
-            },
-            {
-              "$$hashKey": "object:607",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_topic_partitions_offlineNumber_count",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "refId": "C"
             }
           ],
           "thresholds": [],
@@ -779,7 +858,6 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:307",
               "expr": "avg(kube_pod_container_resource_requests_memory_bytes{container=~\"ureplicator-.+\"}) by (container)",
               "format": "time_series",
               "hide": true,
@@ -789,7 +867,6 @@ data:
               "refId": "C"
             },
             {
-              "$$hashKey": "object:308",
               "expr": "avg(kube_pod_container_resource_limits_memory_bytes{container=~\"ureplicator-.+\"}) by (container)",
               "format": "time_series",
               "hide": false,
@@ -799,7 +876,6 @@ data:
               "refId": "B"
             },
             {
-              "$$hashKey": "object:309",
               "expr": "container_memory_usage_bytes{pod_name=~\"ureplicator-(worker|controller)-.+\"}",
               "format": "time_series",
               "hide": false,
@@ -810,7 +886,6 @@ data:
               "step": 10
             },
             {
-              "$$hashKey": "object:310",
               "expr": "rate(container_memory_failcnt{pod_name=~\"ureplicator-.+\"}[5m]) > 0",
               "format": "time_series",
               "intervalFactor": 1,
@@ -901,27 +976,24 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:557",
-              "expr": "kube_pod_container_resource_requests_cpu_cores{pod_name=~\"ureplicator-worker-.+\"}",
+              "expr": "avg(kube_pod_container_resource_requests_cpu_cores{pod=~\"ureplicator-worker-.+\"})",
               "format": "time_series",
-              "hide": false,
+              "hide": true,
               "instant": false,
               "intervalFactor": 1,
-              "legendFormat": "requests {{pod}}",
+              "legendFormat": "requests",
               "refId": "B"
             },
             {
-              "$$hashKey": "object:558",
-              "expr": "kube_pod_container_resource_limits_cpu_cores{pod_name=~\"ureplicator-worker-.+\"}",
+              "expr": "avg(kube_pod_container_resource_limits_cpu_cores{pod=~\"ureplicator-worker-.+\"})",
               "format": "time_series",
-              "hide": false,
+              "hide": true,
               "intervalFactor": 1,
-              "legendFormat": "limits {{pod}}",
+              "legendFormat": "limits",
               "refId": "C"
             },
             {
-              "$$hashKey": "object:559",
-              "expr": "sum(irate(container_cpu_usage_seconds_total{pod_name=~\"ureplicator-(worker|controller)-.+\"}[1m])) by (container_name)",
+              "expr": "sum(irate(container_cpu_usage_seconds_total{pod=~\"ureplicator-(worker|controller)-.+\"}[1m])) by (container_name)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -1008,7 +1080,6 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:361",
               "expr": "sum(container_fs_usage_bytes{pod_name=~\"ureplicator-.+\"}) by (pod_name)",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1093,19 +1164,19 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:413",
-              "expr": "sum(rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (pod_name)",
+              "expr": "sum(rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "{{pod_name}} incoming",
+              "legendFormat": "incoming",
               "refId": "A"
             },
             {
-              "$$hashKey": "object:414",
-              "expr": "sum(rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (pod_name)",
+              "expr": "sum(rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "{{pod_name}} outgoing",
+              "legendFormat": "outgoing",
               "refId": "B"
             }
           ],
@@ -1186,19 +1257,11 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "$$hashKey": "object:487",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_worker_rebalance_timer_m1_rate",
+              "expr": "max(ureplicator_worker_rebalance)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "rebalance time",
               "refId": "A"
-            },
-            {
-              "$$hashKey": "object:488",
-              "expr": "stats_test_counter_kafka_mirror_maker_controller_eu1_ureplicator_controller_${uReplicator}_worker_rebalance_rate_m1_rate",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "refId": "B"
             }
           ],
           "thresholds": [],
@@ -1220,7 +1283,7 @@ data:
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "ms",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -1242,7 +1305,7 @@ data:
           }
         },
         {
-          "collapsed": false,
+          "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
@@ -1250,1385 +1313,1385 @@ data:
             "y": 56
           },
           "id": 18,
-          "panels": [],
+          "panels": [
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 57
+              },
+              "id": 25,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "minSpan": 11,
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "repeat": null,
+              "repeatDirection": "v",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [
+                {
+                  "alias": "/(requests|limit|java heap) .+/",
+                  "stack": false
+                }
+              ],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "kube_pod_container_resource_requests_memory_bytes{pod=~\"kafka-.+-.+\", container=\"broker\"}",
+                  "format": "time_series",
+                  "hide": true,
+                  "instant": false,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod}} requests",
+                  "refId": "C"
+                },
+                {
+                  "expr": "kube_pod_container_resource_limits_memory_bytes{pod=~\"kafka-.+-.+\"}",
+                  "format": "time_series",
+                  "hide": true,
+                  "instant": false,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod}} limit",
+                  "refId": "B"
+                },
+                {
+                  "expr": "container_memory_usage_bytes{pod_name=~\"kafka-.+-.+\", container_name=\"broker\"}",
+                  "format": "time_series",
+                  "hide": false,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{container_name}} {{pod_name}} memory_usage",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                },
+                {
+                  "expr": "java_lang_memory_heapmemoryusage_used{pod=~\"kafka-.+-.+\",service=\"broker\"}\t",
+                  "format": "time_series",
+                  "hide": true,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod}} java heap",
+                  "refId": "D"
+                },
+                {
+                  "expr": "java_lang_operatingsystem_freephysicalmemorysize{pod=~\"kafka-.+\", service=\"broker\"}",
+                  "format": "time_series",
+                  "hide": true,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod}} freephysicalmemorysize",
+                  "refId": "E"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Kafka Pods Memory Usage",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "transparent": false,
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 57
+              },
+              "id": 45,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [
+                {
+                  "alias": "/requests|limits .+/",
+                  "stack": false
+                }
+              ],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "kube_pod_container_resource_requests_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"}",
+                  "format": "time_series",
+                  "hide": true,
+                  "instant": false,
+                  "intervalFactor": 1,
+                  "legendFormat": "requests {{pod}}",
+                  "refId": "B"
+                },
+                {
+                  "expr": "kube_pod_container_resource_limits_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"}",
+                  "format": "time_series",
+                  "hide": true,
+                  "intervalFactor": 1,
+                  "legendFormat": "limits {{pod}}",
+                  "refId": "C"
+                },
+                {
+                  "expr": "sum(irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-.+-[0-9]+\"}[1m])) by (container_name)",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{container_name}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Kafka Pods CPU Usage (cores)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 64
+              },
+              "id": 49,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "sum(container_fs_usage_bytes{pod_name=~\"kafka-.+\", container_name=\"broker\"}) by (pod_name)",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Kafka file system usage",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "decbytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 64
+              },
+              "id": 47,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "container_memory_failcnt",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 73
+              },
+              "id": 22,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "kafka_controller_kafkacontroller_value{name=\"GlobalPartitionCount\",pod=~\"kafka-.+-.+\",service=\"broker\"}",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{name}} {{pod}}",
+                  "refId": "A"
+                },
+                {
+                  "expr": "kafka_controller_kafkacontroller_value{name=\"GlobalTopicCount\",pod=~\"kafka-.+-.+\",service=\"broker\"}",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{name}} {{pod}}",
+                  "refId": "B"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Kafka partition and topic counts",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 73
+              },
+              "id": 24,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "kafka_server_controller_channel_metrics_connection_count{pod=~\"kafka-.+-.+\",service=\"broker\"}\t",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "connection count",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Kafka connections",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 82
+              },
+              "id": 29,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_cpu_utilisation:avg1m",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "CPU Utilisation",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "percentunit",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 82
+              },
+              "id": 31,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_cpu_saturation_load1:",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "CPU Saturation (Load1)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "percentunit",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 89
+              },
+              "id": 35,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_disk_utilisation:avg_irate",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Disk IO Utilisation",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "percentunit",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 89
+              },
+              "id": 39,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_disk_saturation:avg_irate",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Disk IO Saturation",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "percentunit",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 96
+              },
+              "id": 37,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_net_utilisation:sum_irate",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Net Utilisation (Transmitted)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "Bps",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 96
+              },
+              "id": 41,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_net_saturation:sum_irate",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Net Saturation (Dropped)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "Bps",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 103
+              },
+              "id": 33,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_memory_utilisation:",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Memory Utilisation",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "percentunit",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "$cluster",
+              "fill": 1,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 103
+              },
+              "id": 43,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "node:node_memory_swap_io_bytes:sum_rate",
+                  "format": "time_series",
+                  "intervalFactor": 2,
+                  "legendFormat": "{{node}}",
+                  "legendLink": null,
+                  "refId": "A",
+                  "step": 10
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Memory Saturation (Swap I/O)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "Bps",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            }
+          ],
           "repeat": "cluster",
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "title": "${cluster} cluster",
           "type": "row"
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 57
-          },
-          "id": 25,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "minSpan": 11,
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "repeatDirection": "v",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [
-            {
-              "alias": "/(requests|limit|java heap) .+/",
-              "stack": false
-            }
-          ],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "kube_pod_container_resource_requests_memory_bytes{pod=~\"kafka-.+-.+\", container=\"broker\"}",
-              "format": "time_series",
-              "hide": true,
-              "instant": false,
-              "intervalFactor": 1,
-              "legendFormat": "{{pod}} requests",
-              "refId": "C"
-            },
-            {
-              "expr": "kube_pod_container_resource_limits_memory_bytes{pod=~\"kafka-.+-.+\"}",
-              "format": "time_series",
-              "hide": true,
-              "instant": false,
-              "intervalFactor": 1,
-              "legendFormat": "{{pod}} limit",
-              "refId": "B"
-            },
-            {
-              "expr": "container_memory_usage_bytes{pod_name=~\"kafka-.+-.+\", container_name=\"broker\"}",
-              "format": "time_series",
-              "hide": false,
-              "intervalFactor": 1,
-              "legendFormat": "{{container_name}} {{pod_name}} memory_usage",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            },
-            {
-              "expr": "java_lang_memory_heapmemoryusage_used{pod=~\"kafka-.+-.+\",service=\"broker\"}\t",
-              "format": "time_series",
-              "hide": true,
-              "intervalFactor": 1,
-              "legendFormat": "{{pod}} java heap",
-              "refId": "D"
-            },
-            {
-              "expr": "java_lang_operatingsystem_freephysicalmemorysize{pod=~\"kafka-.+\", service=\"broker\"}",
-              "format": "time_series",
-              "hide": true,
-              "intervalFactor": 1,
-              "legendFormat": "{{pod}} freephysicalmemorysize",
-              "refId": "E"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Kafka Pods Memory Usage",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "transparent": false,
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 57
-          },
-          "id": 45,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [
-            {
-              "alias": "/requests|limits .+/",
-              "stack": false
-            }
-          ],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "kube_pod_container_resource_requests_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"}",
-              "format": "time_series",
-              "hide": true,
-              "instant": false,
-              "intervalFactor": 1,
-              "legendFormat": "requests {{pod}}",
-              "refId": "B"
-            },
-            {
-              "expr": "kube_pod_container_resource_limits_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"}",
-              "format": "time_series",
-              "hide": true,
-              "intervalFactor": 1,
-              "legendFormat": "limits {{pod}}",
-              "refId": "C"
-            },
-            {
-              "expr": "sum(irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-.+-[0-9]+\"}[1m])) by (container_name)",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{container_name}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Kafka Pods CPU Usage (cores)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 0,
-            "y": 64
-          },
-          "id": 49,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "sum(container_fs_usage_bytes{pod_name=~\"kafka-.+\", container_name=\"broker\"}) by (pod_name)",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Kafka file system usage",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "decbytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 64
-          },
-          "id": 47,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "container_memory_failcnt",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 0,
-            "y": 73
-          },
-          "id": 22,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "kafka_controller_kafkacontroller_value{name=\"GlobalPartitionCount\",pod=~\"kafka-.+-.+\",service=\"broker\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{name}}",
-              "refId": "A"
-            },
-            {
-              "expr": "kafka_controller_kafkacontroller_value{name=\"GlobalTopicCount\",pod=~\"kafka-.+-.+\",service=\"broker\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{name}}",
-              "refId": "B"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Kafka partition and topic counts",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 73
-          },
-          "id": 24,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "$$hashKey": "object:255",
-              "expr": "kafka_server_controller_channel_metrics_connection_count{pod=~\"kafka-.+-.+\",service=\"broker\"}\t",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "connection count",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Kafka connections",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 82
-          },
-          "id": 29,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_cpu_utilisation:avg1m",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "CPU Utilisation",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 82
-          },
-          "id": 31,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_cpu_saturation_load1:",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "CPU Saturation (Load1)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 89
-          },
-          "id": 35,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_disk_utilisation:avg_irate",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Disk IO Utilisation",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 89
-          },
-          "id": 39,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_disk_saturation:avg_irate",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Disk IO Saturation",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 96
-          },
-          "id": 37,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_net_utilisation:sum_irate",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Net Utilisation (Transmitted)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 96
-          },
-          "id": 41,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_net_saturation:sum_irate",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Net Saturation (Dropped)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 103
-          },
-          "id": 33,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_memory_utilisation:",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Memory Utilisation",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "percentunit",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 103
-          },
-          "id": 43,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "node:node_memory_swap_io_bytes:sum_rate",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{node}}",
-              "legendLink": null,
-              "refId": "A",
-              "step": 10
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Memory Saturation (Swap I/O)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
         }
       ],
       "refresh": false,
@@ -2640,32 +2703,10 @@ data:
           {
             "allValue": null,
             "current": {
-              "tags": [],
-              "text": "85db97ffd_xkbjc",
-              "value": "85db97ffd_xkbjc"
-            },
-            "datasource": "eu-west-1 destination",
-            "hide": 0,
-            "includeAll": false,
-            "label": null,
-            "multi": false,
-            "name": "uReplicator",
-            "options": [],
-            "query": "{__name__=~\".+_kafka_mirror_maker_controller_.+\"}",
-            "refresh": 1,
-            "regex": ".+_kafka_mirror_maker_controller_.+ureplicator_controller_([^_]+_[^_]+)_.+",
-            "sort": 0,
-            "tagValuesQuery": "",
-            "tags": [],
-            "tagsQuery": "",
-            "type": "query",
-            "useTags": false
-          },
-          {
-            "allValue": null,
-            "current": {
               "text": "All",
-              "value": "$__all"
+              "value": [
+                "$__all"
+              ]
             },
             "datasource": "us-east-1 source",
             "hide": 0,
@@ -2676,7 +2717,7 @@ data:
             "options": [],
             "query": "label_values(kafka_server_brokertopicmetrics_oneminuterate{name=\"BytesInPerSec\"}, topic)",
             "refresh": 1,
-            "regex": "",
+            "regex": "/^[^_].+$/",
             "sort": 0,
             "tagValuesQuery": "",
             "tags": [],
@@ -2686,8 +2727,9 @@ data:
           },
           {
             "current": {
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "tags": [],
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             },
             "hide": 0,
             "label": null,
@@ -2701,7 +2743,7 @@ data:
         ]
       },
       "time": {
-        "from": "now-3h",
+        "from": "now-1h",
         "to": "now"
       },
       "timepicker": {
