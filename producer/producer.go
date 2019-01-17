@@ -37,6 +37,7 @@ func ProduceToTopics(
 	topicsString string,
 	numPartitions, numReplicas uint,
 	useMessageHeaders bool,
+	retentionMs uint,
 ) {
 	// Count the total number of errors on this topic
 	errorCounter := uint64(0)
@@ -45,7 +46,6 @@ func ProduceToTopics(
 	ctx := context.Background()
 	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions)
 
-	const retentionMs = 300000 // 5 minutes is enough for testing
 	var wg sync.WaitGroup
 	for _, topic := range topics {
 		t := types.Topic(topic)
