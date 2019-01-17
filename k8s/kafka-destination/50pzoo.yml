@@ -49,8 +49,9 @@ spec:
           name: leader-election
         resources:
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 20m
+            memory: 200Mi
+            ephemeral-storage: "2Gi"
         readinessProbe:
           exec:
             command:
@@ -72,3 +73,13 @@ spec:
         emptyDir: {}
       - name: data
         emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - zookeeper
+            topologyKey: "kubernetes.io/hostname"

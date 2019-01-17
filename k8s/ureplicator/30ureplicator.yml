@@ -81,7 +81,7 @@ metadata:
     app: ureplicator
     component: worker
 spec:
-  replicas: 2
+  replicas: 8
   selector:
     matchLabels:
       app: ureplicator

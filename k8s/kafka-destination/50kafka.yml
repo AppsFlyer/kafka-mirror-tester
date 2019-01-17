@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-destination
   serviceName: "broker"
-  replicas: 2
+  replicas: 8
   updateStrategy:
     type: OnDelete
   template:
@@ -58,10 +58,11 @@ spec:
         resources:
           requests:
             cpu: 1200m
-            memory: 6Gi
+            memory: 12Gi
+            ephemeral-storage: "20Gi"
           limits:
             cpu: 1200m
-            memory: 6Gi
+            memory: 12Gi
         readinessProbe:
           tcpSocket:
             port: 9092
@@ -90,10 +91,10 @@ spec:
           containerPort: 5556
         resources:
           requests:
-            cpu: 10m
-            memory: 100Mi
-          limits:
-            memory: 200Mi
+            cpu: 100m
+            memory: 500Mi
+          #limits:
+            #memory: 200Mi
         volumeMounts:
         - name: jmx-config
           mountPath: /etc/jmx-kafka
@@ -103,11 +104,11 @@ spec:
           name: broker-config
       - name: config-writable
         emptyDir: {}
-      - name: data
-        emptyDir: {}
       - name: jmx-config
         configMap:
           name: jmx-config
+      - name: data
+        emptyDir: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

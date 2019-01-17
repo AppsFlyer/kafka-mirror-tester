@@ -36,7 +36,7 @@ spec:
         - --topics
         - topic1
         - --retention
-        - "60000"
+        - "300000"
         - --num-partitions
         - "8"
         - --num-replicas
