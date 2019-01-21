@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 2
+  replicas: 6
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -32,37 +32,37 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "28000"
+        - "25000"
         - --topics
         - topic1
         - --retention
-        - "300000"
+        - "60000"
         - --num-partitions
-        - "8"
+        - "32"
         - --num-replicas
-        - "2"
+        - "3"
         ports:
         - name: metrics
           containerPort: 8001
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - kafka-mirror-tester-producer
-            topologyKey: "kubernetes.io/hostname"
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - kafka-source
-            namespaces:
-            - kafka-source
-            topologyKey: "kubernetes.io/hostname"
+      #affinity:
+        #podAntiAffinity:
+          #requiredDuringSchedulingIgnoredDuringExecution:
+          #- labelSelector:
+              #matchExpressions:
+              #- key: app
+                #operator: In
+                #values:
+                #- kafka-mirror-tester-producer
+            #topologyKey: "kubernetes.io/hostname"
+          #- labelSelector:
+              #matchExpressions:
+              #- key: app
+                #operator: In
+                #values:
+                #- kafka-source
+            #namespaces:
+            #- kafka-source
+            #topologyKey: "kubernetes.io/hostname"
 ---
 # Headless service just for the sake of exposing the metrics
 apiVersion: v1

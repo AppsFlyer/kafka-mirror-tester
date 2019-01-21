@@ -86,15 +86,18 @@ k8s-kafkas-setup-source:
 	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 2181 --cidr 0.0.0.0/0 --region us-east-1 || echo already exists?
 	# validate
 	k8s/kafka-source/test.sh
+	kubectl --context us-east-1.k8s.local -n kafka-source get po -o wide
 
 k8s-kafkas-setup-destination:
 	kubectl apply -f k8s/kafka-destination --context eu-west-1.k8s.local
 	k8s/kafka-destination/test.sh
+	kubectl --context eu-west-1.k8s.local -n kafka-destination get po -o wide
 
 k8s-replicator-setup:
 	k8s/ureplicator/template.sh
 	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
 	k8s/ureplicator/test.sh
+	kubectl --context eu-west-1.k8s.local -n ureplicator get po -o wide
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
 
@@ -147,9 +150,6 @@ k8s-run-tests:
 	# For logs run:
 	# stern -l app=kafka-mirror-tester-producer --context us-east-1.k8s.local
 	# stern -l app=kafka-mirror-tester-consumer --context eu-west-1.k8s.local
-	#
-	# View metrics online:
-	# open "http://$$(kubectl --context eu-west-1.k8s.local get svc kafka-mirror-tester-consumer -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'):8000/debug/metrics"
 
 k8s-kafka-shell-destination:
 	# And now you can:
@@ -190,7 +190,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1 || echo Bucket already exists?
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 20 --node-size i3.large --master-size t2.small --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 40 --node-size i3.large --master-size i3.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:
@@ -198,7 +198,7 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1 || echo Bucket already exists?
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 20 --node-size i3.large --master-size t2.small --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 24 --node-size i3.large --master-size i3.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:

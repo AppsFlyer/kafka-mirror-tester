@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-destination
   serviceName: "broker"
-  replicas: 8
+  replicas: 16
   updateStrategy:
     type: OnDelete
   template:
@@ -59,7 +59,7 @@ spec:
           requests:
             cpu: 1200m
             memory: 12Gi
-            ephemeral-storage: "20Gi"
+            ephemeral-storage: "40Gi"
           limits:
             cpu: 1200m
             memory: 12Gi
