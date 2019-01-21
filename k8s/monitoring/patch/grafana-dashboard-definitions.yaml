@@ -16,7 +16,7 @@ data:
           },
           {
             "datasource": "eu-west-1 destination",
-            "enable": true,
+            "enable": false,
             "expr": "abs(time() - kube_pod_start_time) < BOOL 60",
             "hide": true,
             "iconColor": "rgba(255, 96, 96, 1)",
@@ -28,7 +28,7 @@ data:
           },
           {
             "datasource": "us-east-1 source",
-            "enable": true,
+            "enable": false,
             "expr": "abs(time() - kube_pod_start_time) < BOOL 60",
             "hide": true,
             "iconColor": "#e0f9d7",
@@ -43,7 +43,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1547714300003,
+      "iteration": 1548011969240,
       "links": [],
       "panels": [
         {
@@ -230,7 +230,7 @@ data:
             },
             {
               "datasource": "us-east-1 source",
-              "expr": "sum(producer_number_of_topics * producer_number_of_partitions)",
+              "expr": "avg(producer_number_of_topics * producer_number_of_partitions)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "topicsXpartitions",
@@ -410,8 +410,22 @@ data:
               "expr": "max(message_arrival_latency_ms{quantile=\"0.99\"})",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "latency quantile=\"0.99\"",
+              "legendFormat": "latency max  quantile=\"0.99\"",
               "refId": "A"
+            },
+            {
+              "expr": "avg(message_arrival_latency_ms{quantile=\"0.9\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "latency avg quantile=\"0.99\"",
+              "refId": "C"
+            },
+            {
+              "expr": "avg(message_arrival_latency_ms{quantile=\"0.5\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "latency avg quantile=\"0.5\"",
+              "refId": "B"
             }
           ],
           "thresholds": [],
@@ -870,28 +884,21 @@ data:
             {
               "expr": "avg(kube_pod_container_resource_limits_memory_bytes{container=~\"ureplicator-.+\"}) by (container)",
               "format": "time_series",
-              "hide": false,
+              "hide": true,
               "instant": false,
               "intervalFactor": 1,
               "legendFormat": "limit {{container}}",
               "refId": "B"
             },
             {
-              "expr": "container_memory_usage_bytes{pod_name=~\"ureplicator-(worker|controller)-.+\"}",
+              "expr": "sum(container_memory_usage_bytes{pod_name=~\"ureplicator-(worker|controller)-.+\"}) by (pod_name)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "{{container_name}} ",
+              "legendFormat": "{{pod_name}} ",
               "legendLink": null,
               "refId": "A",
               "step": 10
-            },
-            {
-              "expr": "rate(container_memory_failcnt{pod_name=~\"ureplicator-.+\"}[5m]) > 0",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "OOM",
-              "refId": "D"
             }
           ],
           "thresholds": [],
@@ -1319,8 +1326,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "title": "${cluster} cluster",
@@ -1363,8 +1370,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [
@@ -1497,8 +1504,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [
@@ -1612,8 +1619,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -1703,8 +1710,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -1794,8 +1801,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -1892,8 +1899,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -1983,8 +1990,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2076,8 +2083,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2169,8 +2176,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2262,8 +2269,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2355,8 +2362,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2448,8 +2455,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2541,8 +2548,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2634,8 +2641,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             }
           },
           "seriesOverrides": [],
@@ -2694,7 +2701,7 @@ data:
           }
         }
       ],
-      "refresh": "10s",
+      "refresh": "30s",
       "schemaVersion": 16,
       "style": "dark",
       "tags": [
@@ -2705,9 +2712,9 @@ data:
           {
             "allValue": null,
             "current": {
-              "text": "All",
+              "text": "topic4",
               "value": [
-                "$__all"
+                "topic4"
               ]
             },
             "datasource": "us-east-1 source",
@@ -2718,7 +2725,7 @@ data:
             "name": "topic",
             "options": [],
             "query": "label_values(kafka_server_brokertopicmetrics_oneminuterate{name=\"BytesInPerSec\"}, topic)",
-            "refresh": 1,
+            "refresh": 2,
             "regex": "/^[^_].+$/",
             "sort": 0,
             "tagValuesQuery": "",
@@ -2729,8 +2736,10 @@ data:
           },
           {
             "current": {
-              "text": "eu-west-1 destination",
-              "value": "eu-west-1 destination"
+              "selected": true,
+              "tags": [],
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
             },
             "hide": 0,
             "label": null,
