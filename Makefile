@@ -76,7 +76,7 @@ k8s-allow-kubectl-node-access:
 	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-source:default kubectl-node-access  --context us-east-1.k8s.local || echo cluster binding alre exists?
 	kubectl create clusterrolebinding --clusterrole=system:controller:node-controller --serviceaccount=kafka-destination:default kubectl-node-access  --context eu-west-1.k8s.local || echo cluster binding alre exists?
 
-k8s-kafkas-setup: k8s-kafkas-setup-source k8s-kafkas-setup-destination
+k8s-kafkas-setup: k8s-kafkas-setup-source k8s-kafkas-setup-destination k8s-kafkas-setup-source-validate k8s-kafkas-setup-destination-validate
 
 k8s-kafkas-setup-source:
 	kubectl apply -f k8s/kafka-source/ --context us-east-1.k8s.local
@@ -84,12 +84,14 @@ k8s-kafkas-setup-source:
 	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 9093 --cidr 0.0.0.0/0 --region us-east-1 || echo already exists?
 	# Punch another hole to zookeeper
 	aws ec2 authorize-security-group-ingress --group-id $$(aws ec2 describe-security-groups --filters Name=group-name,Values=nodes.us-east-1.k8s.local --region us-east-1 --output text --query 'SecurityGroups[0].GroupId') --protocol tcp --port 2181 --cidr 0.0.0.0/0 --region us-east-1 || echo already exists?
+k8s-kafkas-setup-source-validate:
 	# validate
 	k8s/kafka-source/test.sh
 	kubectl --context us-east-1.k8s.local -n kafka-source get po -o wide
 
 k8s-kafkas-setup-destination:
 	kubectl apply -f k8s/kafka-destination --context eu-west-1.k8s.local
+k8s-kafkas-setup-destination-validate:
 	k8s/kafka-destination/test.sh
 	kubectl --context eu-west-1.k8s.local -n kafka-destination get po -o wide
 
