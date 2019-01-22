@@ -43,7 +43,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1548146521566,
+      "iteration": 1548196727897,
       "links": [],
       "panels": [
         {
@@ -550,12 +550,194 @@ data:
           "valueName": "current"
         },
         {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 22
+          },
+          "id": 82,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum(deriv(in_order_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "in_order_message_count {{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "in_order_message_count",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 22
+          },
+          "id": 84,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum(deriv(same_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "same_message_count {{pod}}",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(deriv(old_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "old_message_count {{pod}}",
+              "refId": "B"
+            },
+            {
+              "expr": "sum(deriv(skipped_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "skipped_message_count {{pod}}",
+              "refId": "C"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Skipped or repeated messages",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
           "collapsed": false,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 22
+            "y": 31
           },
           "id": 71,
           "panels": [],
@@ -573,7 +755,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 0,
-            "y": 23
+            "y": 32
           },
           "id": 4,
           "legend": {
@@ -664,7 +846,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 8,
-            "y": 23
+            "y": 32
           },
           "id": 6,
           "legend": {
@@ -762,7 +944,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 16,
-            "y": 23
+            "y": 32
           },
           "id": 8,
           "legend": {
@@ -854,7 +1036,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 32
+            "y": 41
           },
           "id": 44,
           "legend": {
@@ -967,7 +1149,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 32
+            "y": 41
           },
           "id": 11,
           "legend": {
@@ -1076,7 +1258,7 @@ data:
             "h": 9,
             "w": 6,
             "x": 0,
-            "y": 39
+            "y": 48
           },
           "id": 69,
           "legend": {
@@ -1167,7 +1349,7 @@ data:
             "h": 9,
             "w": 6,
             "x": 6,
-            "y": 39
+            "y": 48
           },
           "id": 72,
           "legend": {
@@ -1260,7 +1442,7 @@ data:
             "h": 9,
             "w": 6,
             "x": 12,
-            "y": 39
+            "y": 48
           },
           "id": 73,
           "legend": {
@@ -1367,7 +1549,7 @@ data:
             "h": 9,
             "w": 6,
             "x": 18,
-            "y": 39
+            "y": 48
           },
           "id": 74,
           "legend": {
@@ -1460,7 +1642,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 48
+            "y": 57
           },
           "id": 51,
           "legend": {
@@ -1544,7 +1726,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 48
+            "y": 57
           },
           "id": 57,
           "legend": {
@@ -1628,7 +1810,7 @@ data:
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 57
+            "y": 66
           },
           "id": 53,
           "legend": {
@@ -1716,7 +1898,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 66
+            "y": 75
           },
           "id": 18,
           "panels": [
@@ -2496,7 +2678,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 67
+            "y": 151
           },
           "id": 80,
           "panels": [
@@ -2531,6 +2713,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2710,6 +2899,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2796,6 +2992,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2882,6 +3085,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2968,6 +3178,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3054,6 +3271,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3140,6 +3364,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "us-east-1 source",
+                  "value": "us-east-1 source"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3241,7 +3472,6 @@ data:
           },
           {
             "current": {
-              "tags": [],
               "text": "us-east-1 source",
               "value": "us-east-1 source"
             },
