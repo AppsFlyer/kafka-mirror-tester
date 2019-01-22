@@ -52,7 +52,17 @@ func ProduceToTopics(
 		wg.Add(1)
 		go func(topic types.Topic, partitions, replicas uint) {
 			admin.MustCreateTopic(ctx, brokers, t, partitions, replicas, retentionMs)
-			ProduceForever(ctx, brokers, t, id, initialSequence, throughput, size, useMessageHeaders, &errorCounter)
+			ProduceForever(
+				ctx,
+				brokers,
+				t,
+				id,
+				initialSequence,
+				numPartitions,
+				throughput,
+				size,
+				useMessageHeaders,
+				&errorCounter)
 			wg.Done()
 		}(t, numPartitions, numReplicas)
 	}
@@ -68,6 +78,7 @@ func ProduceForever(
 	topic types.Topic,
 	id types.ProducerID,
 	initialSequence types.SequenceNumber,
+	numPartitions uint,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
@@ -80,7 +91,17 @@ func ProduceForever(
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
 	defer p.Close()
-	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize, useMessageHeaders, errorCounter)
+	producerForeverWithProducer(
+		ctx,
+		p,
+		topic,
+		id,
+		initialSequence,
+		numPartitions,
+		throughput,
+		messageSize,
+		useMessageHeaders,
+		errorCounter)
 }
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
@@ -89,8 +110,9 @@ func producerForeverWithProducer(
 	ctx context.Context,
 	p *kafka.Producer,
 	topic types.Topic,
-	id types.ProducerID,
+	producerID types.ProducerID,
 	initialSequence types.SequenceNumber,
+	numPartitions uint,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
@@ -112,7 +134,9 @@ func producerForeverWithProducer(
 			log.Errorf("Error waiting %+v", err)
 			continue
 		}
-		produceMessage(ctx, p, tp, id, seq, messageSize, useMessageHeaders)
+		messageKey := types.MessageKey(uint(seq) % numPartitions)
+		scopedSeq := seq / types.SequenceNumber(numPartitions)
+		produceMessage(ctx, p, tp, producerID, messageKey, scopedSeq, messageSize, useMessageHeaders)
 	}
 }
 
@@ -122,12 +146,13 @@ func produceMessage(
 	ctx context.Context,
 	p *kafka.Producer,
 	topicPartition kafka.TopicPartition,
-	id types.ProducerID,
+	producerID types.ProducerID,
+	messageKey types.MessageKey,
 	seq types.SequenceNumber,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 ) {
-	m := message.Create(id, seq, messageSize, useMessageHeaders)
+	m := message.Create(producerID, messageKey, seq, messageSize, useMessageHeaders)
 	m.TopicPartition = topicPartition
 	p.ProduceChannel() <- m
 	log.Tracef("Producing %s...", m)

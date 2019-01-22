@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// Map of producer:topic -> latest sequence number
+	// Map of producer,topic,key -> latest sequence number recieved from this key
 	receivedSequenceNumbers map[string]types.SequenceNumber
 
 	// For each measurement there are two kind of counters, one is a simple counter that
@@ -26,8 +26,6 @@ var (
 	inOrderMessagesCount   uint64
 	skippedMessagesCounter prometheus.Counter
 	skippedMessagesCount   uint64
-
-	measurementIntervals = []string{"1m1s", "15m10s", "1h1m"}
 )
 
 func init() {
@@ -40,13 +38,13 @@ func init() {
 // The function accesses some global varialbe that aren't thread safe (receivedSequenceNumbers) which makes the function not thread safe by itself.
 func validateSequence(data *message.Data) {
 	seq := data.Sequence
-	key := createSeqnenceNumberKey(data.ProducerID, data.Topic)
+	key := createSeqnenceNumberKey(data.ProducerID, data.Topic, data.MessageKey)
 	latestSeq, exists := receivedSequenceNumbers[key]
 	if !exists {
 		// key not found, let's insert it first
 		if seq != 0 {
-			log.Warnf("Received initial sequence number > 0. topic=%s producer=%s number=%d",
-				data.Topic, data.ProducerID, data.Sequence)
+			log.Infof("Received initial sequence number > 0. topic=%s producer=%s key=%d number=%d",
+				data.Topic, data.ProducerID, data.MessageKey, data.Sequence)
 		}
 		receivedSequenceNumbers[key] = seq
 		log.Tracef("Message received first of it's producer-topic: %s", data)
@@ -83,6 +81,6 @@ func validateSequence(data *message.Data) {
 }
 
 // create a key for the sequence number map
-func createSeqnenceNumberKey(pid types.ProducerID, topic types.Topic) string {
-	return fmt.Sprintf("%s:%s", pid, topic)
+func createSeqnenceNumberKey(pid types.ProducerID, topic types.Topic, messageKey types.MessageKey) string {
+	return fmt.Sprintf("%s:%s:%d", pid, topic, messageKey)
 }
