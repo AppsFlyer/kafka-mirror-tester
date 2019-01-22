@@ -38,7 +38,7 @@ spec:
         - --retention
         - "60000"
         - --num-partitions
-        - "32"
+        - "36"
         - --num-replicas
         - "3"
         ports:
