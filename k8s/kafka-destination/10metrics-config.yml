@@ -23,6 +23,12 @@ data:
       - pattern : java.lang<type=OperatingSystem><>SystemCpuLoad
       - pattern : java.lang<type=Memory><HeapMemoryUsage>used
       - pattern : java.lang<type=OperatingSystem><>FreePhysicalMemorySize
+      - pattern: 'java.lang<type=Threading><(.*)>ThreadCount: .*'
+        name: java_lang_threading_threadcount
+      - pattern: 'java.lang<type=OperatingSystem><.*>OpenFileDescriptorCount: .*'
+        name: java_lang_operatingsystem_openfiledescriptorcount
+      - pattern: 'java.lang<type=Memory><NonHeapMemoryUsage>(.+): .*'
+        name: java_lang_memory_nonheapmemoryusage_$1
 
   jmx-zookeeper-prometheus.yaml: |+
     rules:
