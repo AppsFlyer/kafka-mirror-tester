@@ -190,7 +190,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1 || echo Bucket already exists?
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 40 --node-size i3.large --master-size i3.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 40 --node-size i3.large --master-size m4.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:
@@ -198,7 +198,7 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1 || echo Bucket already exists?
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 24 --node-size i3.large --master-size i3.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 24 --node-size i3.large --master-size m4.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:

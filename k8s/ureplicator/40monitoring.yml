@@ -1,0 +1,105 @@
+# Headless service just for the sake of exposing the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: ureplicator-controller
+  namespace: ureplicator
+  labels:
+    app: ureplicator
+    component: controller
+spec:
+  ports:
+  - name: metrics
+    port: 8080
+  clusterIP: None
+  selector:
+    app: ureplicator
+    component: controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ureplicator-worker
+  namespace: ureplicator
+  labels:
+    app: ureplicator
+    component: worker
+spec:
+  ports:
+  - name: metrics
+    port: 8080
+  clusterIP: None
+  selector:
+    app: ureplicator
+    component: worker
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: ureplicator-controller
+  name: ureplicator-controller
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - ureplicator
+  selector:
+    matchLabels:
+      app: ureplicator
+      component: controller
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: ureplicator-worker
+  name: ureplicator-worker
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - ureplicator
+  selector:
+    matchLabels:
+      app: ureplicator
+      component: worker
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus-k8s
+  namespace: ureplicator
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-k8s
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring

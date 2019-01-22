@@ -2,6 +2,8 @@ FROM openjdk:8-jre
 
 ADD https://github.com/kelseyhightower/confd/releases/download/v0.15.0/confd-0.15.0-linux-amd64 /usr/local/bin/confd
 
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.3.1/jmx_prometheus_javaagent-0.3.1.jar /jmx_prometheus_javaagent-0.3.1.jar
+
 COPY tmp/uReplicator-master/uReplicator-Distribution/target/uReplicator-Distribution-pkg /uReplicator
 
 COPY tmp/uReplicator-master/config uReplicator/config

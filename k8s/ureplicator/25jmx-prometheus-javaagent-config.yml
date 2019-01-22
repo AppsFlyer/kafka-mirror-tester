@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ureplicator-jmx-prometheus-javaagent-config
+  namespace: ureplicator
+data:
+  jmx-prometheus-javaagent-config.yml: |+
+    startDelaySeconds: 0
+    lowercaseOutputName: true
+    lowercaseOutputLabelNames: true
+    whitelistObjectNames: ["java.lang:*"]
+    rules:
+      - pattern: 'java.lang<type=Memory><HeapMemoryUsage>(.+): .*'
+        name: java_lang_Memory_HeapMemoryUsage_$1
+      - pattern: 'java.lang<type=Memory><NonHeapMemoryUsage>(.+): .*'
+        name: java_lang_Memory_NonHeapMemoryUsage_$1
+      - pattern: 'java.lang<type=OperatingSystem><.*>OpenFileDescriptorCount: .*'
+        name: java_lang_OperatingSystem_OpenFileDescriptorCount
+      - pattern: 'java.lang<type=OperatingSystem><.*>ProcessCpuLoad: .*'
+        name: java_lang_OperatingSystem_ProcessCpuLoad
+      - pattern: 'java.lang<type=Threading><(.*)>ThreadCount: .*'
+        name: java_lang_Threading_ThreadCount
