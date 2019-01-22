@@ -34,7 +34,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-controller
-        image: rantav/ureplicator:635e7ee
+        image: rantav/ureplicator:d762e04
         env:
         - name: SERVICE_CMD
           value: "start-controller.sh"
@@ -46,6 +46,8 @@ spec:
         ports:
         - name: api-port
           containerPort: 9000
+        - name: metrics
+          containerPort: 8080
         livenessProbe:
           httpGet:
             path: /health
@@ -68,9 +70,14 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /tmp/uReplicator-controller
+        - name: jmx-config
+          mountPath: /etc/jmx-config
       volumes:
       - name: tmp
         emptyDir: {}
+      - name: jmx-config
+        configMap:
+          name: ureplicator-jmx-prometheus-javaagent-config
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -81,7 +88,7 @@ metadata:
     app: ureplicator
     component: worker
 spec:
-  replicas: 8
+  replicas: 6
   selector:
     matchLabels:
       app: ureplicator
@@ -105,7 +112,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-worker
-        image: rantav/ureplicator:635e7ee
+        image: rantav/ureplicator:d762e04
         env:
         - name: SERVICE_TYPE
           value: "worker"
@@ -114,13 +121,23 @@ spec:
         envFrom:
         - configMapRef:
             name: ureplicator-envs
+        ports:
+        - name: metrics
+          containerPort: 8080
         resources:
           requests:
-            cpu: 1200m
-            memory: 6Gi
-          limits:
-            cpu: 1200m
-            memory: 6Gi
+            cpu: 800m
+            memory: 3Gi
+          #limits:
+            #cpu: 1200m
+            #memory: 6Gi
+        volumeMounts:
+        - name: jmx-config
+          mountPath: /etc/jmx-config
+      volumes:
+      - name: jmx-config
+        configMap:
+          name: ureplicator-jmx-prometheus-javaagent-config
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -133,14 +150,14 @@ spec:
             namespaces:
             - kafka-destination
             topologyKey: "kubernetes.io/hostname"
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - ureplicator
-              - key: component
-                operator: In
-                values:
-                - worker
-            topologyKey: "kubernetes.io/hostname"
+          #- labelSelector:
+              #matchExpressions:
+              #- key: app
+                #operator: In
+                #values:
+                #- ureplicator
+              #- key: component
+                #operator: In
+                #values:
+                #- worker
+            #topologyKey: "kubernetes.io/hostname"
