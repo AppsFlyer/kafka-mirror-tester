@@ -27,8 +27,9 @@ const (
 	// This is done in order to conpersate for slow starts.
 	burstRatio = 0.1
 
-	// Number of messages per producer that we allow in-flight before waiting and flushing
-	inFlightThreshold = 1000
+	//// Number of in-flight connections per broker.
+	// We limit this number to make timestams more realistic without lags.
+	maxInFlight = 10
 )
 
 // ProduceToTopics spawms multiple producer threads and produces to all topics
@@ -92,7 +93,11 @@ func ProduceForever(
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": string(brokers),
+		"max.in.flight":     maxInFlight,
+		"acks":              1,
+	})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
@@ -159,16 +164,9 @@ func produceMessage(
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 ) {
-	if p.Len() > inFlightThreshold {
-		// Sending too fast. We don't want messages to get delayed in the producer's buffers so that the consumer
-		// won't think there's a big lag. Or that messages might get lost by overflown buffers. So wait and flush
-		timeoutMs := p.Len() / 100 // timeout is proportional to the number of messages queued.
-		p.Flush(timeoutMs)
-	}
 	m := message.Create(producerID, messageKey, seq, messageSize, useMessageHeaders)
 	m.TopicPartition = topicPartition
 	p.ProduceChannel() <- m
-	//p.Flush(100)
 	log.Tracef("Producing %s...", m)
 }
 
