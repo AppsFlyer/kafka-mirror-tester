@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/deckarep/golang-set"
 	"github.com/dustin/go-humanize"
 	"github.com/paulbellamy/ratecounter"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
@@ -28,6 +30,13 @@ var (
 
 	topicsGauge     prometheus.Gauge
 	partitionsGauge prometheus.Gauge
+
+	// number of messages that are bandwidth throttled or kafka-server throttled.
+	// This is the number of messages that were supposed to be sent but got throttled and are lagging behind.
+	badwidthThrottledMessages prometheus.Counter
+
+	// Number of currently client-side in-flight messages (messages buffered but not yet sent)
+	inflightMessageCount prometheus.GaugeFunc
 )
 
 func init() {
@@ -52,8 +61,9 @@ func monitor(
 	desiredThroughput types.Throughput,
 	id types.ProducerID,
 	numTopics, numPartitions uint,
+	producers mapset.Set,
 ) {
-	initPrometheus(numTopics, numPartitions)
+	initPrometheus(numTopics, numPartitions, producers)
 	ticker := time.Tick(frequency)
 	for {
 		select {
@@ -66,34 +76,51 @@ func monitor(
 	}
 }
 
-func initPrometheus(numTopics, numPartitions uint) {
-	messageCounter = prometheus.NewCounter(prometheus.CounterOpts{
+func initPrometheus(
+	numTopics, numPartitions uint,
+	producers mapset.Set,
+) {
+	messageCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "messages_produced",
 		Help: "Number of messages produced to kafka.",
 	})
-	prometheus.MustRegister(messageCounter)
-	bytesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	bytesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "bytes_produced",
 		Help: "Number of bytes produced to kafka.",
 	})
-	prometheus.MustRegister(bytesCounter)
-
-	topicsGauge = prometheus.NewGauge(prometheus.GaugeOpts{
+	topicsGauge = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "producer_number_of_topics",
 		Help: "Number of topics that the producer writes to.",
 	})
-	prometheus.MustRegister(topicsGauge)
 	topicsGauge.Add(float64(numTopics))
 
-	partitionsGauge = prometheus.NewGauge(prometheus.GaugeOpts{
+	partitionsGauge = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "producer_number_of_partitions",
 		Help: "Number of partitions of each topic that the producer writes to.",
 	})
-	prometheus.MustRegister(partitionsGauge)
 	partitionsGauge.Add(float64(numPartitions))
 
+	badwidthThrottledMessages = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "bandwidth_throttled_messages",
+		Help: "Number of messages throttled after sending.",
+	})
+	inflightMessageCount = promauto.NewGaugeFunc(prometheus.GaugeOpts{
+		Name: "in_flight_message_count",
+		Help: "Number of currently in-flight messages (client side)",
+	}, inFlightMessageCounter(producers))
 	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(":8001", nil)
+}
+
+func inFlightMessageCounter(producers mapset.Set) func() float64 {
+	return func() float64 {
+		sum := 0
+		for p := range producers.Iterator().C {
+			producer := p.(*kafka.Producer)
+			sum += producer.Len()
+		}
+		return float64(sum)
+	}
 }
 
 // Prints some runtime stats such as errors, throughputs etc
@@ -118,5 +145,6 @@ func printStats(
 
 	if float32(messageThroughput) < float32(desiredThroughput)*slack {
 		log.Warnf("Actual throughput is < desired throughput. %d < %d", messageThroughput, desiredThroughput)
+		badwidthThrottledMessages.Add(float64(desiredThroughput) - float64(messageThroughput))
 	}
 }

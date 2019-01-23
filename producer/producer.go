@@ -13,6 +13,7 @@ import (
 	"golang.org/x/time/rate"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/deckarep/golang-set"
 	log "github.com/sirupsen/logrus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/admin"
@@ -25,6 +26,9 @@ const (
 	// We provide a 0.1 burst ratio which means that at times the rate might go up to 10% or the desired rate (but not for log)
 	// This is done in order to conpersate for slow starts.
 	burstRatio = 0.1
+
+	// Number of messages per producer that we allow in-flight before waiting and flushing
+	inFlightThreshold = 1000
 )
 
 // ProduceToTopics spawms multiple producer threads and produces to all topics
@@ -42,9 +46,9 @@ func ProduceToTopics(
 	// Count the total number of errors on this topic
 	errorCounter := uint64(0)
 	topics := strings.Split(topicsString, ",")
-
+	producers := mapset.NewSet()
 	ctx := context.Background()
-	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions)
+	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions, producers)
 
 	var wg sync.WaitGroup
 	for _, topic := range topics {
@@ -62,7 +66,8 @@ func ProduceToTopics(
 				throughput,
 				size,
 				useMessageHeaders,
-				&errorCounter)
+				&errorCounter,
+				producers)
 			wg.Done()
 		}(t, numPartitions, numReplicas)
 	}
@@ -83,6 +88,7 @@ func ProduceForever(
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 	errorCounter *uint64,
+	producers mapset.Set,
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
@@ -91,6 +97,7 @@ func ProduceForever(
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
 	defer p.Close()
+	producers.Add(p)
 	producerForeverWithProducer(
 		ctx,
 		p,
@@ -152,9 +159,16 @@ func produceMessage(
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 ) {
+	if p.Len() > inFlightThreshold {
+		// Sending too fast. We don't want messages to get delayed in the producer's buffers so that the consumer
+		// won't think there's a big lag. Or that messages might get lost by overflown buffers. So wait and flush
+		timeoutMs := p.Len() / 100 // timeout is proportional to the number of messages queued.
+		p.Flush(timeoutMs)
+	}
 	m := message.Create(producerID, messageKey, seq, messageSize, useMessageHeaders)
 	m.TopicPartition = topicPartition
 	p.ProduceChannel() <- m
+	//p.Flush(100)
 	log.Tracef("Producing %s...", m)
 }
 
