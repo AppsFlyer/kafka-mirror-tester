@@ -13,6 +13,7 @@ import (
 	"golang.org/x/time/rate"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/deckarep/golang-set"
 	log "github.com/sirupsen/logrus"
 
 	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/admin"
@@ -25,6 +26,9 @@ const (
 	// We provide a 0.1 burst ratio which means that at times the rate might go up to 10% or the desired rate (but not for log)
 	// This is done in order to conpersate for slow starts.
 	burstRatio = 0.1
+
+	// Number of messages per producer that we allow in-flight before waiting and flushing
+	inFlightThreshold = 10000
 )
 
 // ProduceToTopics spawms multiple producer threads and produces to all topics
@@ -42,9 +46,9 @@ func ProduceToTopics(
 	// Count the total number of errors on this topic
 	errorCounter := uint64(0)
 	topics := strings.Split(topicsString, ",")
-
+	producers := mapset.NewSet()
 	ctx := context.Background()
-	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions)
+	go monitor(ctx, &errorCounter, monitoringFrequency, throughput, id, uint(len(topics)), numPartitions, producers)
 
 	var wg sync.WaitGroup
 	for _, topic := range topics {
@@ -52,7 +56,18 @@ func ProduceToTopics(
 		wg.Add(1)
 		go func(topic types.Topic, partitions, replicas uint) {
 			admin.MustCreateTopic(ctx, brokers, t, partitions, replicas, retentionMs)
-			ProduceForever(ctx, brokers, t, id, initialSequence, throughput, size, useMessageHeaders, &errorCounter)
+			ProduceForever(
+				ctx,
+				brokers,
+				t,
+				id,
+				initialSequence,
+				numPartitions,
+				throughput,
+				size,
+				useMessageHeaders,
+				&errorCounter,
+				producers)
 			wg.Done()
 		}(t, numPartitions, numReplicas)
 	}
@@ -68,10 +83,12 @@ func ProduceForever(
 	topic types.Topic,
 	id types.ProducerID,
 	initialSequence types.SequenceNumber,
+	numPartitions uint,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 	errorCounter *uint64,
+	producers mapset.Set,
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
@@ -80,7 +97,18 @@ func ProduceForever(
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
 	defer p.Close()
-	producerForeverWithProducer(ctx, p, topic, id, initialSequence, throughput, messageSize, useMessageHeaders, errorCounter)
+	producers.Add(p)
+	producerForeverWithProducer(
+		ctx,
+		p,
+		topic,
+		id,
+		initialSequence,
+		numPartitions,
+		throughput,
+		messageSize,
+		useMessageHeaders,
+		errorCounter)
 }
 
 // producerForeverWithWriter produces kafka messages forever or until the context is canceled.
@@ -89,8 +117,9 @@ func producerForeverWithProducer(
 	ctx context.Context,
 	p *kafka.Producer,
 	topic types.Topic,
-	id types.ProducerID,
+	producerID types.ProducerID,
 	initialSequence types.SequenceNumber,
+	numPartitions uint,
 	throughput types.Throughput,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
@@ -112,7 +141,9 @@ func producerForeverWithProducer(
 			log.Errorf("Error waiting %+v", err)
 			continue
 		}
-		produceMessage(ctx, p, tp, id, seq, messageSize, useMessageHeaders)
+		messageKey := types.MessageKey(uint(seq) % numPartitions)
+		scopedSeq := seq / types.SequenceNumber(numPartitions)
+		produceMessage(ctx, p, tp, producerID, messageKey, scopedSeq, messageSize, useMessageHeaders)
 	}
 }
 
@@ -122,12 +153,16 @@ func produceMessage(
 	ctx context.Context,
 	p *kafka.Producer,
 	topicPartition kafka.TopicPartition,
-	id types.ProducerID,
+	producerID types.ProducerID,
+	messageKey types.MessageKey,
 	seq types.SequenceNumber,
 	messageSize types.MessageSize,
 	useMessageHeaders bool,
 ) {
-	m := message.Create(id, seq, messageSize, useMessageHeaders)
+	if p.Len() > inFlightThreshold {
+		p.Flush(1)
+	}
+	m := message.Create(producerID, messageKey, seq, messageSize, useMessageHeaders)
 	m.TopicPartition = topicPartition
 	p.ProduceChannel() <- m
 	log.Tracef("Producing %s...", m)

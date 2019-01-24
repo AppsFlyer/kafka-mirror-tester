@@ -50,9 +50,9 @@ spec:
           name: leader-election
         resources:
           requests:
-            cpu: 20m
-            memory: 200Mi
-            ephemeral-storage: "2Gi"
+            cpu: 200m
+            memory: 2000Mi
+            ephemeral-storage: "4Gi"
         readinessProbe:
           exec:
             command:

@@ -9,6 +9,7 @@ import (
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -30,43 +31,35 @@ func serveConsumerUI() {
 }
 
 func initPrometheus() {
-	latencySummary = prometheus.NewSummary(prometheus.SummaryOpts{
+	latencySummary = promauto.NewSummary(prometheus.SummaryOpts{
 		Name:       "message_arrival_latency_ms",
 		Help:       "Latency in ms for message arrival e2e.",
 		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.005, 0.99: 0.001},
 	})
-	prometheus.MustRegister(latencySummary)
-	sameMessagesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	sameMessagesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "same_message_count",
 		Help: "Number of times the same message was consumed.",
 	})
-	prometheus.MustRegister(sameMessagesCounter)
-	oldMessagesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	oldMessagesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "old_message_count",
 		Help: "Number of times an old message was consumed.",
 	})
-	prometheus.MustRegister(oldMessagesCounter)
-	inOrderMessagesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	inOrderMessagesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "in_order_message_count",
 		Help: "Number of times a message was received in order (this is the happy path).",
 	})
-	prometheus.MustRegister(inOrderMessagesCounter)
-	skippedMessagesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	skippedMessagesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "skipped_message_count",
 		Help: "Number of times a message was skipped.",
 	})
-	prometheus.MustRegister(skippedMessagesCounter)
-	messageCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	messageCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "messages_consumed",
 		Help: "Number of messages consumed from kafka.",
 	})
-	prometheus.MustRegister(messageCounter)
-
-	bytesCounter = prometheus.NewCounter(prometheus.CounterOpts{
+	bytesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "bytes_consumed",
 		Help: "Number of bytes consumed from kafka.",
 	})
-	prometheus.MustRegister(bytesCounter)
 
 	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(":8000", nil)

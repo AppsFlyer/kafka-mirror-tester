@@ -43,7 +43,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1548146521566,
+      "iteration": 1548241114834,
       "links": [],
       "panels": [
         {
@@ -135,7 +135,7 @@ data:
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
@@ -286,7 +286,7 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 12,
+            "w": 6,
             "x": 0,
             "y": 13
           },
@@ -350,6 +350,186 @@ data:
           "yaxes": [
             {
               "format": "decbytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {
+                  "params": [
+                    0
+                  ],
+                  "type": "gt"
+                },
+                "operator": {
+                  "type": "or"
+                },
+                "query": {
+                  "params": [
+                    "C",
+                    "1m",
+                    "now"
+                  ]
+                },
+                "reducer": {
+                  "params": [],
+                  "type": "max"
+                },
+                "type": "query"
+              }
+            ],
+            "executionErrorState": "keep_state",
+            "frequency": "60s",
+            "handler": 1,
+            "name": "skipped_message_count alert",
+            "noDataState": "ok",
+            "notifications": []
+          },
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "-- Mixed --",
+          "fill": 3,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 6,
+            "y": 13
+          },
+          "id": 84,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "bandwidth_throttled_messages",
+              "bars": true,
+              "fill": 6,
+              "stack": false,
+              "transform": "negative-Y"
+            },
+            {
+              "alias": "in_flight_message_count",
+              "bars": true,
+              "stack": false,
+              "transform": "negative-Y"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(deriv(in_order_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "in_order_message_count",
+              "refId": "D"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(deriv(same_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "same_message_count",
+              "refId": "A"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(deriv(old_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "old_message_count",
+              "refId": "B"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(deriv(skipped_message_count[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "skipped_message_count",
+              "refId": "C"
+            },
+            {
+              "datasource": "us-east-1 source",
+              "expr": "sum(deriv(bandwidth_throttled_messages[1m]))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "bandwidth_throttled_messages",
+              "refId": "E"
+            },
+            {
+              "datasource": "us-east-1 source",
+              "expr": "sum(in_flight_message_count)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "in_flight_message_count",
+              "refId": "F"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 0
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Skipped or repeated messages",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -1393,19 +1573,20 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-worker\"}",
+              "expr": "max(java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-worker\"})",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "open files {{pod}}",
+              "legendFormat": "max open files",
               "refId": "C"
             },
             {
-              "expr": "java_lang_threading_threadcount{service=\"ureplicator-worker\"}",
+              "expr": "max(java_lang_threading_threadcount{service=\"ureplicator-worker\"})",
               "format": "time_series",
               "hide": false,
+              "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "threads {{pod}}",
+              "legendFormat": "max threads",
               "refId": "D"
             }
           ],
@@ -1731,7 +1912,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 24
+                "y": 67
               },
               "id": 76,
               "legend": {
@@ -1754,8 +1935,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -1845,7 +2026,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 24
+                "y": 67
               },
               "id": 78,
               "legend": {
@@ -1868,8 +2049,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -1957,7 +2138,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 33
+                "y": 76
               },
               "id": 25,
               "legend": {
@@ -1983,8 +2164,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [
@@ -2094,7 +2275,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 33
+                "y": 76
               },
               "id": 45,
               "legend": {
@@ -2117,8 +2298,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [
@@ -2209,7 +2390,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 40
+                "y": 83
               },
               "id": 49,
               "legend": {
@@ -2232,8 +2413,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -2300,7 +2481,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 40
+                "y": 83
               },
               "id": 47,
               "legend": {
@@ -2323,8 +2504,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -2391,7 +2572,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 49
+                "y": 92
               },
               "id": 22,
               "legend": {
@@ -2414,8 +2595,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -2483,8 +2664,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "title": "${cluster} kafka cluster",
@@ -2496,7 +2677,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 67
+            "y": 727
           },
           "id": 80,
           "panels": [
@@ -2531,6 +2712,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2620,8 +2808,8 @@ data:
               "scopedVars": {
                 "cluster": {
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -2710,6 +2898,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2796,6 +2991,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2882,6 +3084,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -2968,6 +3177,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3054,6 +3270,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3140,6 +3363,13 @@ data:
               "pointradius": 5,
               "points": false,
               "renderer": "flot",
+              "scopedVars": {
+                "cluster": {
+                  "selected": true,
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
+                }
+              },
               "seriesOverrides": [],
               "spaceLength": 10,
               "stack": false,
@@ -3200,8 +3430,8 @@ data:
           "scopedVars": {
             "cluster": {
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "title": "${cluster} nodes",
@@ -3219,8 +3449,13 @@ data:
           {
             "allValue": null,
             "current": {
-              "text": "All",
-              "value": "$__all"
+              "text": "topic3 + topic4 + topic5 + topic6",
+              "value": [
+                "topic3",
+                "topic4",
+                "topic5",
+                "topic6"
+              ]
             },
             "datasource": "us-east-1 source",
             "hide": 0,
@@ -3242,8 +3477,8 @@ data:
           {
             "current": {
               "tags": [],
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             },
             "hide": 0,
             "label": null,
@@ -3257,7 +3492,7 @@ data:
         ]
       },
       "time": {
-        "from": "now-1h",
+        "from": "now-30m",
         "to": "now"
       },
       "timepicker": {

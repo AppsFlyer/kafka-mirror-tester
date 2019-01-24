@@ -1,6 +1,7 @@
 package message
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -21,21 +22,24 @@ const (
 // Create a mew message with headers, timestamp and size.
 // Does not set TopicPartition.
 func Create(
-	id types.ProducerID,
+	producerID types.ProducerID,
+	messageID types.MessageKey,
 	seq types.SequenceNumber,
 	size types.MessageSize,
 	useMessageHeaders bool,
 ) *kafka.Message {
 	ts := time.Now().UTC()
-	msg := &kafka.Message{}
+	msg := &kafka.Message{
+		Key: []byte(fmt.Sprintf("%d", messageID)),
+	}
 	if useMessageHeaders {
-		msg.Timestamp = time.Now().UTC()
+		msg.Timestamp = ts
 		msg.TimestampType = kafka.TimestampCreateTime
 		msg.Value = make([]byte, size)
 		msg.Headers = []kafka.Header{
 			{
 				Key:   KeyProducerID,
-				Value: []byte(id),
+				Value: []byte(producerID),
 			},
 			{
 				Key:   KeySequence,
@@ -43,7 +47,7 @@ func Create(
 			},
 		}
 	} else {
-		msg.Value = []byte(format(id, seq, ts, size))
+		msg.Value = []byte(format(producerID, seq, ts, size))
 	}
 	return msg
 }
@@ -60,10 +64,17 @@ func Extract(
 	} else {
 		topic = types.Topic("")
 	}
+	keyStr := string(msg.Key)
+	ui, err := strconv.ParseUint(keyStr, 10, 64)
+	if err != nil {
+		log.Errorf("Malformed message key %s \t %s", keyStr, err)
+	}
+	key := types.MessageKey(ui)
 	data := &Data{
 		ConsumerTimestamp:  now,
 		Topic:              topic,
 		TotalPayloadLength: uint64(len(msg.Value)),
+		MessageKey:         key,
 	}
 	if useMessageHeaders {
 		data.ProducerID = getProducerID(msg)

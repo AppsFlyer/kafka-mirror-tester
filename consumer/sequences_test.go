@@ -21,6 +21,7 @@ func TestValidateSequence(t *testing.T) {
 	data := &message.Data{
 		ProducerID: "1",
 		Topic:      "t",
+		MessageKey: 1,
 		Sequence:   0,
 	}
 	validateSequence(data)
@@ -40,6 +41,7 @@ func TestValidateSequence(t *testing.T) {
 	data = &message.Data{
 		ProducerID: "1",
 		Topic:      "t",
+		MessageKey: 1,
 		Sequence:   1,
 	}
 	validateSequence(data)
@@ -52,6 +54,7 @@ func TestValidateSequence(t *testing.T) {
 	data = &message.Data{
 		ProducerID: "1",
 		Topic:      "t2",
+		MessageKey: 1,
 		Sequence:   0,
 	}
 	validateSequence(data)
@@ -64,6 +67,7 @@ func TestValidateSequence(t *testing.T) {
 	data = &message.Data{
 		ProducerID: "2",
 		Topic:      "t",
+		MessageKey: 1,
 		Sequence:   0,
 	}
 	validateSequence(data)
@@ -72,27 +76,42 @@ func TestValidateSequence(t *testing.T) {
 	assert.Equal(uint64(4), inOrderMessagesCount)
 	assert.Equal(uint64(0), skippedMessagesCount)
 
+	// Send with a different message key
+	data = &message.Data{
+		ProducerID: "1",
+		Topic:      "t",
+		MessageKey: 2,
+		Sequence:   0,
+	}
+	validateSequence(data)
+	assert.Equal(uint64(1), sameMessagesCount)
+	assert.Equal(uint64(0), oldMessagesCount)
+	assert.Equal(uint64(5), inOrderMessagesCount)
+	assert.Equal(uint64(0), skippedMessagesCount)
+
 	// Skip a few messages
 	data = &message.Data{
 		ProducerID: "1",
 		Topic:      "t",
+		MessageKey: 1,
 		Sequence:   5,
 	}
 	validateSequence(data)
 	assert.Equal(uint64(1), sameMessagesCount)
 	assert.Equal(uint64(0), oldMessagesCount)
-	assert.Equal(uint64(4), inOrderMessagesCount)
+	assert.Equal(uint64(5), inOrderMessagesCount)
 	assert.Equal(uint64(4), skippedMessagesCount)
 
 	// Skip an old message
 	data = &message.Data{
 		ProducerID: "1",
 		Topic:      "t",
+		MessageKey: 1,
 		Sequence:   2,
 	}
 	validateSequence(data)
 	assert.Equal(uint64(1), sameMessagesCount)
 	assert.Equal(uint64(1), oldMessagesCount)
-	assert.Equal(uint64(4), inOrderMessagesCount)
+	assert.Equal(uint64(5), inOrderMessagesCount)
 	assert.Equal(uint64(4), skippedMessagesCount)
 }
