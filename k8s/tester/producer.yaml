@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 6
+  replicas: 10
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -32,13 +32,13 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "25000"
+        - "20000"
         - --topics
-        - topic1
+        - topic2
         - --retention
         - "60000"
         - --num-partitions
-        - "36"
+        - "900"
         - --num-replicas
         - "3"
         ports:

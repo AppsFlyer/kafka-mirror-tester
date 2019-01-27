@@ -34,7 +34,7 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-controller
-        image: rantav/ureplicator:d762e04
+        image: rantav/ureplicator:1c1677d
         env:
         - name: SERVICE_CMD
           value: "start-controller.sh"
@@ -112,7 +112,8 @@ spec:
             name: ureplicator-envs
       containers:
       - name: ureplicator-worker
-        image: rantav/ureplicator:d762e04
+        image: rantav/ureplicator:1c1677d
+        imagePullPolicy: Always
         env:
         - name: SERVICE_TYPE
           value: "worker"
