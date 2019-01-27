@@ -24,6 +24,8 @@ var (
 	// messageRateCounter is used in order to observe the actual throughput
 	messageRateCounter *ratecounter.RateCounter
 	messageCounter     prometheus.Counter
+	messageSendErrors  prometheus.Counter
+
 	// bytesRateCounter measures the actual throughput in bytes
 	bytesRateCounter *ratecounter.RateCounter
 	bytesCounter     prometheus.Counter
@@ -108,6 +110,10 @@ func initPrometheus(
 		Name: "in_flight_message_count",
 		Help: "Number of currently in-flight messages (client side)",
 	}, inFlightMessageCounter(producers))
+	messageSendErrors = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "message_send_errors",
+		Help: "Number of message send errors.",
+	})
 	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(":8001", nil)
 }

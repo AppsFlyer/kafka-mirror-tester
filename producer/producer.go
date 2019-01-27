@@ -28,7 +28,7 @@ const (
 	burstRatio = 0.1
 
 	// Number of messages per producer that we allow in-flight before waiting and flushing
-	inFlightThreshold = 10000
+	inFlightThreshold = 100000000
 )
 
 // ProduceToTopics spawms multiple producer threads and produces to all topics
@@ -92,7 +92,10 @@ func ProduceForever(
 ) {
 	log.Infof("Starting the producer. brokers=%s, topic=%s id=%s throughput=%d size=%d initialSequence=%d",
 		brokers, topic, id, throughput, messageSize, initialSequence)
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": string(brokers)})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers":      string(brokers),
+		"queue.buffering.max.ms": "1000",
+	})
 	if err != nil {
 		log.Fatalf("Failed to create producer: %s\n", err)
 	}
@@ -181,6 +184,7 @@ func eventsProcessor(
 			if m.TopicPartition.Error != nil {
 				log.Errorf("Delivery failed: %v", m.TopicPartition.Error)
 				atomic.AddUint64(errorCounter, 1)
+				messageSendErrors.Inc()
 			} else {
 				reportMessageSent(m)
 			}
