@@ -25,26 +25,36 @@ client.id={{ getenv "CONSUMER_GROUP_ID" }}
 #partitioner.class=
 
 # specifies whether the messages are sent asynchronously (async) or synchronously (sync)
-producer.type=async
+# NOT SUPPORTED
+#producer.type=async
 
 # specify the compression codec for all data generated: none, gzip, snappy, lz4.
 # the old config values work as well: 0, 1, 2, 3 for none, gzip, snappy, lz4, respectively
-compression.codec=snappy
+# NOT SUPPORTED
+#compression.codec=snappy
+# CORRECT PROPERT?Y
+compression.type={{ getenv "PROD_COMPRESSION_TYPE" }}
 
 # message encoder
-serializer.class=kafka.serializer.DefaultEncoder
+# NOT SUPPORTED
+# serializer.class=kafka.serializer.DefaultEncoder
 key.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
 value.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
 
 # allow topic level compression
 #compressed.topics=
 
+# Alias for queue.buffering.max.ms: Delay in milliseconds to wait for messages in the producer queue to accumulate before constructing message batches (MessageSets) to transmit to brokers. A higher value allows larger and more effective (less overhead, improved compression) batches of messages to accumulate at the expense of increased message delivery latency.
+linger.ms={{ getenv "PROD_LINGER_MS" }}
+
 ############################# Async Producer #############################
 # maximum time, in milliseconds, for buffering data on the producer queue
-queue.buffering.max.ms={{ getenv "PROD_QUEUE_BUFFERING_MAX_MS" }}
+# NOT SUPPORTED
+#queue.buffering.max.ms={{ getenv "PROD_QUEUE_BUFFERING_MAX_MS" }}
 
 # the maximum size of the blocking queue for buffering on the producer
-queue.buffering.max.messages={{ getenv "PROD_QUEUE_BUFFERING_MAX_MESSAGES" }}
+# NOT SUPPORTED
+#queue.buffering.max.messages={{ getenv "PROD_QUEUE_BUFFERING_MAX_MESSAGES" }}
 
 # Timeout for event enqueue:
 # 0: events will be enqueued immediately or dropped if the queue is full
@@ -53,4 +63,11 @@ queue.buffering.max.messages={{ getenv "PROD_QUEUE_BUFFERING_MAX_MESSAGES" }}
 #queue.enqueue.timeout.ms=
 
 # the number of messages batched at the producer
-batch.num.messages={{ getenv "PROD_BATCH_NUM_MESSAGES" }}
+# NOT SUPPORTED
+#batch.num.messages={{ getenv "PROD_BATCH_NUM_MESSAGES" }}
+
+send.buffer.bytes={{ getenv "PROD_SEND_BUFFER_BYTES" }}
+
+max.in.flight.requests.per.connection={{ getenv "PROD_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION" }}
+
+max.request.size={{ getenv "PROD_MAX_REQUEST_SIZE" }}
