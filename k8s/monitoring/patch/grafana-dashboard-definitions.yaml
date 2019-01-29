@@ -43,7 +43,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1548756239301,
+      "iteration": 1548761429722,
       "links": [],
       "panels": [
         {
@@ -2448,7 +2448,7 @@ data:
           "fill": 0,
           "gridPos": {
             "h": 7,
-            "w": 12,
+            "w": 8,
             "x": 0,
             "y": 4
           },
@@ -2586,9 +2586,9 @@ data:
           "datasource": "$cluster",
           "fill": 1,
           "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
+            "h": 7,
+            "w": 8,
+            "x": 8,
             "y": 4
           },
           "id": 78,
@@ -2683,6 +2683,97 @@ data:
               "max": null,
               "min": null,
               "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 0,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 4
+          },
+          "id": 102,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "selected": true,
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
+            }
+          },
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "container_fs_usage_bytes{pod_name=~\"kafka-(source|destination)-.+\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Kafka disk usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "decbytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
             }
           ],
           "yaxis": {
@@ -2799,7 +2890,7 @@ data:
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 13
+            "y": 11
           },
           "id": 45,
           "legend": {
@@ -2912,6 +3003,97 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 18
+          },
+          "id": 47,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "selected": true,
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
+            }
+          },
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "container_memory_failcnt",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
             "w": 6,
             "x": 0,
             "y": 20
@@ -2934,6 +3116,13 @@ data:
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "selected": true,
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
+            }
+          },
           "seriesOverrides": [],
           "spaceLength": 10,
           "stack": false,
@@ -3025,6 +3214,13 @@ data:
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "selected": true,
+              "text": "us-east-1 source",
+              "value": "us-east-1 source"
+            }
+          },
           "seriesOverrides": [],
           "spaceLength": 10,
           "stack": false,
@@ -3086,103 +3282,12 @@ data:
           }
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$cluster",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 20
-          },
-          "id": 47,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "scopedVars": {
-            "cluster": {
-              "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
-            }
-          },
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "container_memory_failcnt",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
           "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 29
+            "y": 58
           },
           "id": 80,
           "panels": [
@@ -3197,7 +3302,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 5
               },
               "id": 29,
               "legend": {
@@ -3290,7 +3395,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 5
               },
               "id": 31,
               "legend": {
@@ -3383,7 +3488,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 12
               },
               "id": 35,
               "legend": {
@@ -3476,7 +3581,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 12
               },
               "id": 39,
               "legend": {
@@ -3569,7 +3674,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 36
+                "y": 19
               },
               "id": 37,
               "legend": {
@@ -3662,7 +3767,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 36
+                "y": 19
               },
               "id": 41,
               "legend": {
@@ -3755,7 +3860,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 43
+                "y": 26
               },
               "id": 33,
               "legend": {
@@ -3848,7 +3953,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 43
+                "y": 26
               },
               "id": 43,
               "legend": {
