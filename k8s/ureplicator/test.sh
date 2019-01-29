@@ -2,26 +2,11 @@
 
 set -x
 # Test Kafka to see if a topic had been replicated
-until POD=$(kubectl --context eu-west-1.k8s.local -n kafka-destination get po kafka-destination-0 | grep Running)
-do
-  echo "KAFKA on destination isn't ready yet"
-  sleep 20
-  FIRST_TIME=1
-done
-if [ $FIRST_TIME ]; then
-    sleep 60
-fi
+kubectl --context eu-west-1.k8s.local -n kafka-destination wait --for=condition=Ready pod/kafka-destination-0 --timeout=-1s
+kubectl --context us-east-1.k8s.local -n kafka-source wait --for=condition=Ready pod/kafka-source-0 --timeout=-1s
 
-until POD=$(kubectl --context us-east-1.k8s.local -n kafka-source get po kafka-source-0 | grep Running)
-do
-  echo "KAFKA on source isn't ready yet"
-  sleep 20
-  FIRST_TIME=1
-done
-if [ $FIRST_TIME ]; then
-    sleep 60
-fi
-
+kubectl --context eu-west-1.k8s.local -n ureplicator wait --for=condition=Available deployment/ureplicator-worker --timeout=-1s
+kubectl --context eu-west-1.k8s.local -n ureplicator wait --for=condition=Available deployment/ureplicator-controller --timeout=-1s
 
 # Run end to end tests. Produce to the source cluster, consume from the destination cluster
 TOPIC="_test_replicator_$(date +%s)"
