@@ -209,6 +209,8 @@ k8s-delete-cluster-eu-west-1:
 k8s-wait-for-cluster-eu-west-1:
 	kops validate cluster --name eu-west-1.k8s.local --state s3://eu-west-1.k8s.local; if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-cluster-eu-west-1; fi
 
+k8s-delete-all:
+	make k8s-delete-cluster-eu-west-1& make k8s-delete-cluster-us-east-1
 
 ####################
 # uReplicator docker
