@@ -72,7 +72,13 @@ spec:
             memory: 12Gi
         readinessProbe:
           tcpSocket:
-            port: 9092
+            port: broker-internal
+          timeoutSeconds: 1
+        livenessProbe:
+          tcpSocket:
+            port: broker-internal
+          initialDelaySeconds: 60
+          periodSeconds: 20
           timeoutSeconds: 1
         volumeMounts:
         - name: config
