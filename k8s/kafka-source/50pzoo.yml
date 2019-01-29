@@ -37,6 +37,8 @@ spec:
         env:
         - name: KAFKA_LOG4J_OPTS
           value: -Dlog4j.configuration=file:/etc/kafka/log4j.properties
+        - name: JMX_PORT
+          value: "5555"
         command:
         - ./bin/zookeeper-server-start.sh
         - /etc/kafka-writable/zookeeper.properties
@@ -48,6 +50,8 @@ spec:
           name: peer
         - containerPort: 3888
           name: leader-election
+        - name: jmx
+          containerPort: 5555
         resources:
           requests:
             cpu: 200m
@@ -66,6 +70,28 @@ spec:
           mountPath: /etc/kafka-writable
         - name: data
           mountPath: /var/lib/zookeeper/data
+      - name: metrics
+        image: solsson/kafka-prometheus-jmx-exporter@sha256:a23062396cd5af1acdf76512632c20ea6be76885dfc20cd9ff40fb23846557e8
+        command:
+        - java
+        - -XX:+UnlockExperimentalVMOptions
+        - -XX:+UseCGroupMemoryLimitForHeap
+        - -XX:MaxRAMFraction=1
+        - -XshowSettings:vm
+        - -jar
+        - jmx_prometheus_httpserver.jar
+        - "5556"
+        - /etc/jmx-config/jmx-zookeeper-prometheus.yaml
+        ports:
+        - name: prometheus
+          containerPort: 5556
+        resources:
+          requests:
+            cpu: 100m
+            memory: 500Mi
+        volumeMounts:
+        - name: jmx-config
+          mountPath: /etc/jmx-config
       volumes:
       - name: config
         configMap:
@@ -74,6 +100,9 @@ spec:
         emptyDir: {}
       - name: data
         emptyDir: {}
+      - name: jmx-config
+        configMap:
+          name: jmx-config
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

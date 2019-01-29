@@ -1,3 +1,4 @@
+# Monitor kafka
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -16,6 +17,28 @@ spec:
     matchLabels:
       app: kafka-destination
 ---
+
+# Monitor zookeeper
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: zookeeper
+  name: zookeeper
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: prometheus
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - kafka-destination
+  selector:
+    matchLabels:
+      app: zookeeper
+---
+
+# set permissions
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
