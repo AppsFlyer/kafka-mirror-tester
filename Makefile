@@ -51,8 +51,7 @@ release: docker-push
 #######################
 # Kubernetes
 #######################
-k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup
-	make k8s-run-tests k8s-help-monitoring
+k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
 kops-check-version:
 	kops version | grep "Version 1.10.0" || (echo "Sorry, this was tested with kops Version 1.10.0"; exit 1)
@@ -105,6 +104,12 @@ k8s-replicator-setup:
 	kubectl --context eu-west-1.k8s.local -n ureplicator get po -o wide
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
+
+k8s-wait-for-kafkas:
+	[ $$(kubectl --context us-east-1.k8s.local -n kafka-source get statefulset kafka-source -o jsonpath='{.spec.replicas}') -eq $$(kubectl --context us-east-1.k8s.local -n kafka-source get pod | grep kafka-source | grep Running | wc -l) ]; \
+  if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	kafka-source NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-kafkas; fi
+	[ $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get statefulset kafka-destination -o jsonpath='{.spec.replicas}') -eq $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get pod | grep kafka-destination | grep Running | wc -l) ]; \
+  if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	kafka-destination NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-kafkas; fi
 
 k8s-monitoring-graphite-exporter:
 	kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
