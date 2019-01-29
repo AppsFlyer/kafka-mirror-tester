@@ -3,9 +3,13 @@ kind: Service
 metadata:
   name: zookeeper
   namespace: kafka-source
+  labels:
+    app: zookeeper
 spec:
   ports:
   - port: 2181
     name: client
+  - port: 5556
+    name: prometheus
   selector:
     app: zookeeper
