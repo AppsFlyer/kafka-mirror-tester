@@ -107,9 +107,9 @@ k8s-replicator-setup:
 
 k8s-wait-for-kafkas:
 	[ $$(kubectl --context us-east-1.k8s.local -n kafka-source get statefulset kafka-source -o jsonpath='{.spec.replicas}') -eq $$(kubectl --context us-east-1.k8s.local -n kafka-source get pod | grep kafka-source | grep Running | wc -l) ]; \
-  if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	kafka-source NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-kafkas; fi
+  if [ $$? -ne 0 ]; then echo "	>	kafka-source NOT READY YET"; 	sleep 10; make k8s-wait-for-kafkas; fi
 	[ $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get statefulset kafka-destination -o jsonpath='{.spec.replicas}') -eq $$(kubectl --context eu-west-1.k8s.local -n kafka-destination get pod | grep kafka-destination | grep Running | wc -l) ]; \
-  if [ $$? -ne 0 ]; then echo "\n\n	>>>>>	kafka-destination NOT READY YET	\n\n"; 	sleep 10; make k8s-wait-for-kafkas; fi
+  if [ $$? -ne 0 ]; then echo "	>	kafka-destination NOT READY YET"; 	sleep 10; make k8s-wait-for-kafkas; fi
 
 k8s-monitoring-graphite-exporter:
 	kubectl apply -f k8s/monitoring/graphite-exporter --context us-east-1.k8s.local
