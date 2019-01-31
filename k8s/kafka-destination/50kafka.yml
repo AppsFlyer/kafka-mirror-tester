@@ -65,7 +65,13 @@ spec:
             memory: 12Gi
         readinessProbe:
           tcpSocket:
-            port: 9092
+            port: inside
+          timeoutSeconds: 1
+        livenessProbe:
+          tcpSocket:
+            port: inside
+          initialDelaySeconds: 60
+          periodSeconds: 20
           timeoutSeconds: 1
         volumeMounts:
         - name: config

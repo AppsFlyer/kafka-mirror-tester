@@ -34,7 +34,7 @@ spec:
         - --throughput
         - "20000"
         - --topics
-        - topic2
+        - topic0
         - --retention
         - "60000"
         - --num-partitions

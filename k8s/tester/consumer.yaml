@@ -25,7 +25,7 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic2
+        - topic0
         - --retention
         - "300000"
         - --num-partitions
