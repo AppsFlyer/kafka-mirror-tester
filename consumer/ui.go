@@ -31,10 +31,10 @@ func serveConsumerUI() {
 }
 
 func initPrometheus() {
-	latencySummary = promauto.NewSummary(prometheus.SummaryOpts{
-		Name:       "message_arrival_latency_ms",
-		Help:       "Latency in ms for message arrival e2e.",
-		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.005, 0.99: 0.001},
+	latencyHistogram = promauto.NewHistogram(prometheus.HistogramOpts{
+		Name:    "message_arrival_latency_hist_ms",
+		Help:    "Latency in ms for message arrival e2e (histogram).",
+		Buckets: prometheus.ExponentialBuckets(1000, 2, 9), // 9 buckets: 1sec,2sec,4,8,16...
 	})
 	sameMessagesCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "same_message_count",
