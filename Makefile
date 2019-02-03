@@ -167,6 +167,7 @@ k8s-kafka-shell-destination:
 	# ./bin/kafka-topics.sh --zookeeper  zookeeper:2181 --list
 	# ./bin/kafka-topics.sh --zookeeper  zookeeper:2181 --describe
 	# ./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test_topic_1
+	# bin/kafka-topics.sh --zookeeper  zookeeper:2181 --alter --topic topic5 --partitions 300
 	kubectl --context eu-west-1.k8s.local -n kafka-destination exec  kafka-destination-0 -it /bin/bash
 
 k8s-kafka-shell-source:
@@ -178,6 +179,7 @@ k8s-kafka-shell-source:
 	#
 	# Purge messages in topic:
 	# bin/kafka-configs.sh --zookeeper zookeeper:2181 --entity-type topics --alter --add-config retention.ms=1000 --entity-name topic1
+	# bin/kafka-topics.sh --zookeeper  zookeeper:2181 --alter --topic topic5 --partitions 300
 	kubectl --context us-east-1.k8s.local -n kafka-source exec  kafka-source-0 -it /bin/bash
 
 k8s-redeploy-tests: k8s-delete-tests k8s-run-tests
