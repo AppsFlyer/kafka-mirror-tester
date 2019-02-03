@@ -105,6 +105,10 @@ k8s-replicator-setup:
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
 
+k8s-ureplicator-visit-controller:
+	kubectl --context eu-west-1.k8s.local -n ureplicator port-forward $$(kubectl --context eu-west-1.k8s.local get -n ureplicator pod -l app=ureplicator -l component=controller -o jsonpath='{.items[0].metadata.name}') 9000 &
+	open http://localhost:9000/instances/
+
 k8s-setup-weave-scope:
 	kubectl --context eu-west-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context eu-west-1.k8s.local version | base64 | tr -d '\n')"
 	kubectl --context eu-west-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
@@ -223,7 +227,7 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1 || echo Bucket already exists?
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 45 --node-size i3.large --master-size m4.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 48 --node-size i3.large --master-size m4.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:
