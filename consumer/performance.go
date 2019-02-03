@@ -14,11 +14,11 @@ const (
 )
 
 var (
-	// We use two tools to measure the time performance. One is useful due to
-	// it's web interface and the other is useful as a CLI interface.
+	// We use two tools to measure the time performance.
+	// One is useful due to it's interface with prometheus and the other is useful as a CLI interface.
 
-	// This one has a nice web UI
-	latencySummary prometheus.Summary
+	// Prometheus
+	latencyHistogram prometheus.Histogram
 
 	// And this one has a mice text UI.
 	tachymeterHistogram *tachymeter.Tachymeter
@@ -35,6 +35,6 @@ func init() {
 
 // Collect the latency stats from the data into the various counters.
 func collectLatencyStats(data *message.Data) {
-	latencySummary.Observe(float64(data.LatencyMS()))
+	latencyHistogram.Observe(float64(data.LatencyMS()))
 	tachymeterHistogram.AddTime(data.Latency)
 }
