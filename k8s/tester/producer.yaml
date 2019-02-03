@@ -36,9 +36,9 @@ spec:
         - --topics
         - topic0
         - --retention
-        - "60000"
+        - "300000"
         - --num-partitions
-        - "900"
+        - "150"
         - --num-replicas
         - "3"
         ports:
