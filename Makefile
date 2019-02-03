@@ -51,7 +51,7 @@ release: docker-push
 #######################
 # Kubernetes
 #######################
-k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
+k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-setup-weave-scope k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
 kops-check-version:
 	kops version | grep "Version 1.10.0" || (echo "Sorry, this was tested with kops Version 1.10.0"; exit 1)
@@ -105,6 +105,17 @@ k8s-replicator-setup:
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
 
+k8s-setup-weave-scope:
+	kubectl --context eu-west-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context eu-west-1.k8s.local version | base64 | tr -d '\n')"
+	kubectl --context eu-west-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
+	kubectl --context us-east-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context us-east-1.k8s.local version | base64 | tr -d '\n')"
+	kubectl --context us-east-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
+	# Set up traffic control so that we can manage package loss or others
+	kubectl --context eu-west-1.k8s.local apply -f https://raw.githubusercontent.com/weaveworks-plugins/scope-traffic-control/master/deployments/k8s-traffic-control.yaml
+	kubectl --context us-east-1.k8s.local apply -f https://raw.githubusercontent.com/weaveworks-plugins/scope-traffic-control/master/deployments/k8s-traffic-control.yaml
+	@echo " 🍭 Weave Scope us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
+	@echo " 🍭 Weave Scope eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
+
 k8s-wait-for-kafkas:
 	[ $$(kubectl --context us-east-1.k8s.local -n kafka-source get statefulset kafka-source -o jsonpath='{.spec.replicas}') -eq $$(kubectl --context us-east-1.k8s.local -n kafka-source get pod | grep kafka-source | grep Running | wc -l) ]; \
   if [ $$? -ne 0 ]; then echo "	>	kafka-source NOT READY YET"; 	sleep 30; make k8s-wait-for-kafkas; fi
@@ -130,6 +141,7 @@ k8s-help-monitoring:
 	@kubectl --context us-east-1.k8s.local -n kube-system describe secret $$(kubectl --context us-east-1.k8s.local -n kube-system get secret | grep eks-admin | awk '{print $$1}')
 	@echo "	Now run: kubectl --context us-east-1.k8s.local proxy"
 	@echo "	And then open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/"
+	@echo "	🍭 Weave Scope us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
 	@echo "	✅ Prometheus us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context us-east-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
 	@echo
 	@echo "Monitor low level cluster events:"
@@ -145,6 +157,7 @@ k8s-help-monitoring:
 	@echo "Monitor low level cluster events:"
 	@echo "	kubectl --context eu-west-1.k8s.local get events --watch --all-namespaces -o wide"
 	@echo
+	@echo "	🍭 Weave Scope eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
 	@echo "	✅ Prometheus eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring prometheus-k8s -o jsonpath="{.spec.ports[0].port}")"
 	@echo "	✅ Grafana (user/pass: admin/admin): http://$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"):$$(kubectl --context eu-west-1.k8s.local get svc --namespace monitoring grafana -o jsonpath="{.spec.ports[0].port}")"
 
