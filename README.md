@@ -121,7 +121,9 @@ Command line arguments:
 
 The consumer would read the messages from each of the topics and calculate correctness and performance.
 
-Correctness is determined by the combination of `topic`, `producer-id` and `sequence-number` (e.g. if a specific producer has gaps that means we'rea missing messages)
+Correctness is determined by the combination of `topic`, `producer-id` and `sequence-number` (e.g. if a specific producer has gaps that means we'rea missing messages).  
+There is a fine point to mention in that respect. When operating with multiple partitions we utilize Kafka's message `key` in order to ensure message routing correctness. When multiple consumenrs read (naturally from muliple partitions) we want a consumer to be able to read *all* sequential messages *in the order* they were sent. To achive that we use kafka's message routing abilities such that messages with the same key always routed to the same partition. What matters is the number of partitions in the destination cluster. To achieve lineatity we sequence the messages modulo the numner of partitions in the destination cluster. This way all ascending sequence numbners are sent to the same partition in the same order and clients are then able to easily verify that all messages arrived in the order they were sent.
+
 
 Performance is determined by the time gap between the `timestamp` and the current local consumer time. The consumer then emits a histogram of latency buckets.
 
