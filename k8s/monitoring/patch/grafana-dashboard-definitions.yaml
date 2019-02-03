@@ -43,7 +43,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1549182868211,
+      "iteration": 1549182868213,
       "links": [],
       "panels": [
         {
@@ -68,7 +68,7 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 12,
+            "w": 8,
             "x": 0,
             "y": 1
           },
@@ -153,53 +153,19 @@ data:
           }
         },
         {
-          "alert": {
-            "conditions": [
-              {
-                "evaluator": {
-                  "params": [
-                    30000
-                  ],
-                  "type": "gt"
-                },
-                "operator": {
-                  "type": "and"
-                },
-                "query": {
-                  "params": [
-                    "E",
-                    "1m",
-                    "now"
-                  ]
-                },
-                "reducer": {
-                  "params": [],
-                  "type": "max"
-                },
-                "type": "query"
-              }
-            ],
-            "executionErrorState": "keep_state",
-            "frequency": "60s",
-            "handler": 1,
-            "message": "notification from grafana 111",
-            "name": "Message arrival latency alert",
-            "noDataState": "ok",
-            "notifications": []
-          },
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "eu-west-1 destination",
+          "datasource": "-- Mixed --",
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 6,
-            "x": 12,
+            "w": 10,
+            "x": 8,
             "y": 1
           },
-          "id": 63,
+          "id": 61,
           "legend": {
             "avg": false,
             "current": false,
@@ -223,39 +189,26 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "histogram_quantile(0.5, avg(message_arrival_latency_hist_ms_bucket) by (le))",
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(rate(bytes_consumed[1m]))",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "latency avg quantile=\"0.5\" new",
+              "legendFormat": "bytes consumed / sec",
               "refId": "B"
             },
             {
-              "expr": "histogram_quantile(0.9, avg(message_arrival_latency_hist_ms_bucket) by (le))",
+              "datasource": "us-east-1 source",
+              "expr": "sum(rate(bytes_produced[1m]))",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "latency avg quantile=\"0.9\" new",
-              "refId": "E"
-            },
-            {
-              "expr": "histogram_quantile(0.99, avg(message_arrival_latency_hist_ms_bucket) by (le))",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "latency avg quantile=\"0.99\" new",
-              "refId": "F"
+              "legendFormat": "bytes produced / sec",
+              "refId": "C"
             }
           ],
-          "thresholds": [
-            {
-              "colorMode": "critical",
-              "fill": true,
-              "line": true,
-              "op": "gt",
-              "value": 30000
-            }
-          ],
+          "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Message arrival latency",
+          "title": "Producer and consumer",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -272,7 +225,7 @@ data:
           "yaxes": [
             {
               "decimals": null,
-              "format": "ms",
+              "format": "decbytes",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -352,6 +305,14 @@ data:
               "intervalFactor": 1,
               "legendFormat": "ureplicator workers",
               "refId": "C"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "count(kube_pod_info{pod=~\"ureplicator-controller-.+\", node!=\"\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "ureplicator controllers",
+              "refId": "H"
             },
             {
               "datasource": "us-east-1 source",
@@ -470,8 +431,8 @@ data:
           "datasource": "-- Mixed --",
           "fill": 3,
           "gridPos": {
-            "h": 8,
-            "w": 12,
+            "h": 7,
+            "w": 8,
             "x": 0,
             "y": 10
           },
@@ -642,9 +603,9 @@ data:
             "thresholdMarkers": true
           },
           "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 12,
+            "h": 7,
+            "w": 5,
+            "x": 8,
             "y": 10
           },
           "id": 67,
@@ -703,6 +664,117 @@ data:
             }
           ],
           "valueName": "current"
+        },
+        {
+          "columns": [
+            {
+              "text": "Current",
+              "value": "current"
+            }
+          ],
+          "datasource": "-- Mixed --",
+          "fontSize": "100%",
+          "gridPos": {
+            "h": 7,
+            "w": 5,
+            "x": 13,
+            "y": 10
+          },
+          "id": 109,
+          "links": [],
+          "pageSize": null,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
+          "styles": [
+            {
+              "alias": "Time",
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "pattern": "Time",
+              "type": "date"
+            },
+            {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "rgba(50, 172, 45, 0.97)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(245, 54, 54, 0.9)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 0,
+              "link": false,
+              "mappingType": 1,
+              "pattern": "Current",
+              "thresholds": [
+                "1"
+              ],
+              "type": "number",
+              "unit": "short"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals": 2,
+              "pattern": "/.*/",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            }
+          ],
+          "targets": [
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(skipped_message_count)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "skipped_message_count",
+              "refId": "B"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(in_order_message_count)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "in_order_message_count",
+              "refId": "A"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(same_message_count)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "same_message_count",
+              "refId": "C"
+            },
+            {
+              "datasource": "eu-west-1 destination",
+              "expr": "sum(old_message_count)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "old_message_count",
+              "refId": "D"
+            },
+            {
+              "datasource": "us-east-1 source",
+              "expr": "sum(message_send_errors)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "message_send_errors",
+              "refId": "E"
+            }
+          ],
+          "title": "Total message counts",
+          "transform": "timeseries_aggregations",
+          "type": "table"
         },
         {
           "columns": [
@@ -777,6 +849,14 @@ data:
               "refId": "C"
             },
             {
+              "datasource": "eu-west-1 destination",
+              "expr": "count(up{pod=~\"ureplicator-controller-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "uReplicator controller",
+              "refId": "J"
+            },
+            {
               "datasource": "us-east-1 source",
               "expr": "count(up{pod=~\"kafka-source-.+\"})",
               "format": "time_series",
@@ -832,19 +912,53 @@ data:
           "type": "table"
         },
         {
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {
+                  "params": [
+                    30000
+                  ],
+                  "type": "gt"
+                },
+                "operator": {
+                  "type": "and"
+                },
+                "query": {
+                  "params": [
+                    "E",
+                    "1m",
+                    "now"
+                  ]
+                },
+                "reducer": {
+                  "params": [],
+                  "type": "max"
+                },
+                "type": "query"
+              }
+            ],
+            "executionErrorState": "keep_state",
+            "frequency": "60s",
+            "handler": 1,
+            "message": "notification from grafana 111",
+            "name": "Message arrival latency alert",
+            "noDataState": "ok",
+            "notifications": []
+          },
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "-- Mixed --",
+          "datasource": "eu-west-1 destination",
           "fill": 1,
           "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 12,
-            "y": 14
+            "h": 6,
+            "w": 5,
+            "x": 8,
+            "y": 17
           },
-          "id": 61,
+          "id": 63,
           "legend": {
             "avg": false,
             "current": false,
@@ -868,26 +982,39 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "datasource": "eu-west-1 destination",
-              "expr": "sum(rate(bytes_consumed[1m]))",
+              "expr": "histogram_quantile(0.5, avg(message_arrival_latency_hist_ms_bucket) by (le))",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "bytes consumed / sec",
+              "legendFormat": "50 %il",
               "refId": "B"
             },
             {
-              "datasource": "us-east-1 source",
-              "expr": "sum(rate(bytes_produced[1m]))",
+              "expr": "histogram_quantile(0.9, avg(message_arrival_latency_hist_ms_bucket) by (le))",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "bytes produced / sec",
-              "refId": "C"
+              "legendFormat": "90 %il",
+              "refId": "E"
+            },
+            {
+              "expr": "histogram_quantile(0.99, avg(message_arrival_latency_hist_ms_bucket) by (le))",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "99 %il",
+              "refId": "F"
             }
           ],
-          "thresholds": [],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 30000
+            }
+          ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Producer and consumer",
+          "title": "Message arrival latency",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -904,7 +1031,7 @@ data:
           "yaxes": [
             {
               "decimals": null,
-              "format": "decbytes",
+              "format": "ms",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -926,174 +1053,12 @@ data:
           }
         },
         {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "#299c46",
-            "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
-          ],
-          "datasource": "eu-west-1 destination",
-          "format": "locale",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 12,
-            "x": 0,
-            "y": 18
-          },
-          "id": 104,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": true,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(skipped_message_count)",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "refId": "A"
-            }
-          ],
-          "thresholds": "",
-          "title": "skipped_message_count",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
-            "#299c46",
-            "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
-          ],
-          "datasource": "eu-west-1 destination",
-          "format": "locale",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "gridPos": {
-            "h": 2,
-            "w": 12,
-            "x": 0,
-            "y": 20
-          },
-          "id": 105,
-          "interval": null,
-          "links": [],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": true,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(in_order_message_count)",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "",
-              "refId": "A"
-            }
-          ],
-          "thresholds": "",
-          "title": "in_order_message_count",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
           "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 22
+            "y": 23
           },
           "id": 86,
           "panels": [
@@ -1616,1098 +1581,1097 @@ data:
           "type": "row"
         },
         {
-          "collapsed": true,
+          "collapsed": false,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 23
+            "y": 24
           },
           "id": 71,
-          "panels": [
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 0,
-                "y": 3
-              },
-              "id": 4,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "Destination topics count",
-                  "refId": "A"
-                },
-                {
-                  "expr": "ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "Source topics count",
-                  "refId": "B"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator Metadata",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 8,
-                "y": 3
-              },
-              "id": 6,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "max(ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"refreshLatency\"})",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "Source refresh latency ",
-                  "refId": "A"
-                },
-                {
-                  "expr": "max(ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"refreshLatency\"})",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "Destination refresh latency",
-                  "refId": "B"
-                },
-                {
-                  "expr": "max(ureplicator_worker_rebalance)",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "Worker rebalance latency",
-                  "refId": "C"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator Timing",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "ms",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": true,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 16,
-                "y": 3
-              },
-              "id": 8,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": false,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "ureplicator_topic_errors{component=\"controller\",metric_type=\"count\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "topic errors",
-                  "refId": "A"
-                },
-                {
-                  "expr": "ureplicator_topic_whitelist_manager{metric=\"numErrorTopics\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "whitelist manager numErrorTopics",
-                  "refId": "B"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator errors",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "decimals": 1,
-                  "format": "short",
-                  "label": "",
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": false
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 6,
-                "x": 0,
-                "y": 12
-              },
-              "id": 69,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "java_lang_memory_heapmemoryusage_used{service=\"ureplicator-controller\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "jvm heap {{pod}}",
-                  "refId": "A"
-                },
-                {
-                  "expr": "java_lang_memory_nonheapmemoryusage_used{service=\"ureplicator-controller\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "jvm non heap  {{pod}}",
-                  "refId": "B"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Controller memory",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "bytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 6,
-                "x": 6,
-                "y": 12
-              },
-              "id": 72,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "avg(java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-controller\"})",
-                  "format": "time_series",
-                  "hide": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "open files",
-                  "refId": "C"
-                },
-                {
-                  "expr": "avg(java_lang_threading_threadcount{service=\"ureplicator-controller\"})",
-                  "format": "time_series",
-                  "hide": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "threads",
-                  "refId": "D"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Controller threads and FDs",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 4,
-              "gridPos": {
-                "h": 9,
-                "w": 6,
-                "x": 12,
-                "y": 12
-              },
-              "id": 73,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": true,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "java_lang_memory_heapmemoryusage_used{service=\"ureplicator-worker\"}",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "jvm heap memory usage {{pod}}",
-                  "refId": "A"
-                },
-                {
-                  "expr": "java_lang_memory_nonheapmemoryusage_used{service=\"ureplicator-worker\"}",
-                  "format": "time_series",
-                  "hide": true,
-                  "intervalFactor": 1,
-                  "legendFormat": "jvm non heap memory usage {{pod}}",
-                  "refId": "B"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Workers memory",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "bytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 6,
-                "x": 18,
-                "y": 12
-              },
-              "id": 74,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "max(java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-worker\"})",
-                  "format": "time_series",
-                  "hide": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "max open files",
-                  "refId": "C"
-                },
-                {
-                  "expr": "max(java_lang_threading_threadcount{service=\"ureplicator-worker\"})",
-                  "format": "time_series",
-                  "hide": false,
-                  "interval": "",
-                  "intervalFactor": 1,
-                  "legendFormat": "max threads",
-                  "refId": "D"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "Workers threads and FDs",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "none",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 12,
-                "x": 0,
-                "y": 21
-              },
-              "id": 51,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "sum(container_fs_usage_bytes{pod_name=~\"ureplicator-.+\"}) by (pod_name)",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{pod_name}}",
-                  "refId": "A"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator filesystem usage",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "decbytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 12,
-                "x": 12,
-                "y": 21
-              },
-              "id": 57,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "max(ureplicator_worker_rebalance)",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "rebalance time",
-                  "refId": "A"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator rebalance",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "ms",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 5,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 0,
-                "y": 30
-              },
-              "id": 95,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 0,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": true,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-worker-.+\"}[1m])",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{pod_name}}",
-                  "refId": "A"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "ureplicator-worker received bytes",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "bytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 5,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 8,
-                "y": 30
-              },
-              "id": 96,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 0,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": true,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-worker-.+\"}[1m])",
-                  "format": "time_series",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{pod_name}}",
-                  "refId": "A"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "ureplicator-worker transmitted  bytes",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "bytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            },
-            {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "eu-west-1 destination",
-              "fill": 1,
-              "gridPos": {
-                "h": 9,
-                "w": 8,
-                "x": 16,
-                "y": 30
-              },
-              "id": 53,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
-              "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
-              "targets": [
-                {
-                  "expr": "sum(rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
-                  "format": "time_series",
-                  "hide": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "incoming",
-                  "refId": "A"
-                },
-                {
-                  "expr": "sum(rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
-                  "format": "time_series",
-                  "hide": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "outgoing",
-                  "refId": "B"
-                }
-              ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
-              "title": "uReplicator Network bytes / sec",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "decbytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
-            }
-          ],
+          "panels": [],
           "title": "uReplicator",
           "type": "row"
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 0,
+            "y": 25
+          },
+          "id": 4,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "Destination topics count",
+              "refId": "A"
+            },
+            {
+              "expr": "ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"kafkaTopicsCounter\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "Source topics count",
+              "refId": "B"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator Metadata",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 8,
+            "y": 25
+          },
+          "id": 6,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "max(ureplicator_topic_observer{direction=\"srcKafkaCluster\",metric=\"refreshLatency\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "Source refresh latency ",
+              "refId": "A"
+            },
+            {
+              "expr": "max(ureplicator_topic_observer{direction=\"destKafkaCluster\",metric=\"refreshLatency\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "Destination refresh latency",
+              "refId": "B"
+            },
+            {
+              "expr": "max(ureplicator_worker_rebalance)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "Worker rebalance latency",
+              "refId": "C"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator Timing",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 16,
+            "y": 25
+          },
+          "id": 8,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "ureplicator_topic_errors{component=\"controller\",metric_type=\"count\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "topic errors",
+              "refId": "A"
+            },
+            {
+              "expr": "ureplicator_topic_whitelist_manager{metric=\"numErrorTopics\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "whitelist manager numErrorTopics",
+              "refId": "B"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator errors",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "decimals": 1,
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 0,
+            "y": 34
+          },
+          "id": 69,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "java_lang_memory_heapmemoryusage_used{service=\"ureplicator-controller\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "jvm heap {{pod}}",
+              "refId": "A"
+            },
+            {
+              "expr": "java_lang_memory_nonheapmemoryusage_used{service=\"ureplicator-controller\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "jvm non heap  {{pod}}",
+              "refId": "B"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Controller memory",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 6,
+            "y": 34
+          },
+          "id": 72,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "avg(java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-controller\"})",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 1,
+              "legendFormat": "open files",
+              "refId": "C"
+            },
+            {
+              "expr": "avg(java_lang_threading_threadcount{service=\"ureplicator-controller\"})",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 1,
+              "legendFormat": "threads",
+              "refId": "D"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Controller threads and FDs",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 4,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 12,
+            "y": 34
+          },
+          "id": 73,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "java_lang_memory_heapmemoryusage_used{service=\"ureplicator-worker\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "jvm heap memory usage {{pod}}",
+              "refId": "A"
+            },
+            {
+              "expr": "java_lang_memory_nonheapmemoryusage_used{service=\"ureplicator-worker\"}",
+              "format": "time_series",
+              "hide": true,
+              "intervalFactor": 1,
+              "legendFormat": "jvm non heap memory usage {{pod}}",
+              "refId": "B"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Workers memory",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 18,
+            "y": 34
+          },
+          "id": 74,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "max(java_lang_operatingsystem_openfiledescriptorcount{service=\"ureplicator-worker\"})",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 1,
+              "legendFormat": "max open files",
+              "refId": "C"
+            },
+            {
+              "expr": "max(java_lang_threading_threadcount{service=\"ureplicator-worker\"})",
+              "format": "time_series",
+              "hide": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "max threads",
+              "refId": "D"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Workers threads and FDs",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 43
+          },
+          "id": 51,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum(container_fs_usage_bytes{pod_name=~\"ureplicator-.+\"}) by (pod_name)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator filesystem usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "decbytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 43
+          },
+          "id": 57,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "max(ureplicator_worker_rebalance)",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "rebalance time",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator rebalance",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "ms",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 5,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 0,
+            "y": 52
+          },
+          "id": 95,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 0,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-worker-.+\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "ureplicator-worker received bytes",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 5,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 8,
+            "y": 52
+          },
+          "id": 96,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 0,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-worker-.+\"}[1m])",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "ureplicator-worker transmitted  bytes",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 8,
+            "x": 16,
+            "y": 52
+          },
+          "id": 53,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "sum(rate(container_network_receive_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 1,
+              "legendFormat": "incoming",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate(container_network_transmit_bytes_total{pod_name=~\"ureplicator-.+\"}[5m])) by (container_name)",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 1,
+              "legendFormat": "outgoing",
+              "refId": "B"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "uReplicator Network bytes / sec",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "decbytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
         },
         {
           "collapsed": true,
@@ -2715,7 +2679,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 24
+            "y": 61
           },
           "id": 18,
           "panels": [
@@ -3579,7 +3543,7 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 25
+            "y": 62
           },
           "id": 80,
           "panels": [
@@ -4390,7 +4354,7 @@ data:
         ]
       },
       "time": {
-        "from": "now-1h",
+        "from": "now-30m",
         "to": "now"
       },
       "timepicker": {
