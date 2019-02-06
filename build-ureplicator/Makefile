@@ -8,7 +8,7 @@ U_WORK_DIR := tmp
 U_BIN := ureplicator
 U_IMAGE := rantav/$(U_BIN)
 
-release: clean build image deploy clean
+release: clean build deploy clean
 
 build:
 	mkdir -p $(U_WORK_DIR)
@@ -19,7 +19,7 @@ build:
 image:
 	docker build -t $(U_IMAGE):$(REV) .
 
-deploy: ureplicator-image
+deploy: image
 	docker push $(U_IMAGE):$(REV)
 
 clean:
