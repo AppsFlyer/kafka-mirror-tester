@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
 )
 
 func TestCreateAndExtractWithHeaders(t *testing.T) {

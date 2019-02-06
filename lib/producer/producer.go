@@ -16,9 +16,9 @@ import (
 	"github.com/deckarep/golang-set"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/admin"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/message"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/admin"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/message"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
 )
 
 const (
