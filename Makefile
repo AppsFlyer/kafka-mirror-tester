@@ -248,24 +248,5 @@ k8s-delete-all:
 ####################
 # uReplicator docker
 ####################
-U_HOME := ureplicator
-U_WORK_DIR := $(U_HOME)/tmp
-U_BIN := ureplicator
-U_IMAGE := rantav/$(U_BIN)
-
-ureplicator-all: ureplicator-clean ureplicator-build ureplicator-image ureplicator-deploy ureplicator-clean
-
-ureplicator-build:
-	mkdir -p $(U_WORK_DIR)
-	curl -sL https://github.com/uber/uReplicator/archive/master.tar.gz | tar xz -C $(U_WORK_DIR)
-	cd $(U_WORK_DIR)/uReplicator-master && mvn package -DskipTests
-	chmod u+x $(U_WORK_DIR)/uReplicator-master/bin/pkg/*.sh
-
-ureplicator-image:
-	cd $(U_HOME); docker build -t $(U_IMAGE):$(REV) .
-
-ureplicator-deploy: ureplicator-image
-	docker push $(U_IMAGE):$(REV)
-
-ureplicator-clean:
-	@/bin/rm -rf $(U_WORK_DIR)
+ureplicator-release:
+	cd build-ureplicator; make release
