@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/types"
+	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
 )
 
-//go:generate go run ../code-gen.go
+//go:generate go run ../gen/main/code-gen.go
 
 // Format a message based on the parameters
 func format(
