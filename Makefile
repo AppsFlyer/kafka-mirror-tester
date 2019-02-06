@@ -53,19 +53,23 @@ release: docker-push
 #######################
 k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-setup-weave-scope k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
+k8s-single-cluster: kops-check-version k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access k8s-monitoring-eu-west-1 k8s-setup-weave-scope-eu-west-1
+
+helm-unsafe:
+	kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --user=admin --user=kubelet --group=system:serviceaccounts
+
 kops-check-version:
 	kops version | grep "Version 1.10.0" || (echo "Sorry, this was tested with kops Version 1.10.0"; exit 1)
 
-k8s-monitoring:
-	# This is a hack to get monitoring set up in both clusters
+k8s-monitoring: k8s-monitoring-us-east-1 k8s-monitoring-eu-west-1 k8s-monitoring-graphite-exporter k8s-grafana-configure
 
+k8s-monitoring-us-east-1:
 	kubectl config set current-context us-east-1.k8s.local
 	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
 
+k8s-monitoring-eu-west-1:
 	kubectl config set current-context eu-west-1.k8s.local
 	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
-	make k8s-monitoring-graphite-exporter
-	make k8s-grafana-configure
 
 
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
@@ -109,15 +113,20 @@ k8s-ureplicator-visit-controller:
 	kubectl --context eu-west-1.k8s.local -n ureplicator port-forward $$(kubectl --context eu-west-1.k8s.local get -n ureplicator pod -l app=ureplicator -l component=controller -o jsonpath='{.items[0].metadata.name}') 9000 &
 	open http://localhost:9000/instances/
 
-k8s-setup-weave-scope:
-	kubectl --context eu-west-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context eu-west-1.k8s.local version | base64 | tr -d '\n')"
-	kubectl --context eu-west-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
+k8s-setup-weave-scope: k8s-setup-weave-scope-us-east-1 k8s-setup-weave-scope-eu-west-1
+
+k8s-setup-weave-scope-us-east-1:
 	kubectl --context us-east-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context us-east-1.k8s.local version | base64 | tr -d '\n')"
 	kubectl --context us-east-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
 	# Set up traffic control so that we can manage package loss or others
-	kubectl --context eu-west-1.k8s.local apply -f https://raw.githubusercontent.com/weaveworks-plugins/scope-traffic-control/master/deployments/k8s-traffic-control.yaml
 	kubectl --context us-east-1.k8s.local apply -f https://raw.githubusercontent.com/weaveworks-plugins/scope-traffic-control/master/deployments/k8s-traffic-control.yaml
 	@echo " 🍭 Weave Scope us-east-1: http://$$(kubectl --context us-east-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
+
+k8s-setup-weave-scope-eu-west-1:
+	kubectl --context eu-west-1.k8s.local apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$$(kubectl --context eu-west-1.k8s.local version | base64 | tr -d '\n')"
+	kubectl --context eu-west-1.k8s.local -n weave patch svc/weave-scope-app --patch '{"spec": {"type": "LoadBalancer"}}'
+	# Set up traffic control so that we can manage package loss or others
+	kubectl --context eu-west-1.k8s.local apply -f https://raw.githubusercontent.com/weaveworks-plugins/scope-traffic-control/master/deployments/k8s-traffic-control.yaml
 	@echo " 🍭 Weave Scope eu-west-1: http://$$(kubectl --context eu-west-1.k8s.local get svc -n weave weave-scope-app -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")"
 
 k8s-wait-for-kafkas:
