@@ -16,7 +16,7 @@ We tested various and different configurations but most of the tests were run wi
 * Kubernetest node types: `i3-large`
 * Kubernetest cluster sizes: in us-east-1: 40 nodes, in eu-west-1 48 nodes
 * Kafka cluster sizes: 30 brokers in each cluster. Single zookeeper pod. Storage on ephemeral local disks
-* uReplicator: 8 workers, 3 controllers
+* uReplicator: 8 workers, 3 controllers (1 controller in some tests)
 * Producer: 10 pods
 * Consumer: 4 pods
 * Produced messages: 1kB (1000 bytes) each message
