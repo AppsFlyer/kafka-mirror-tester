@@ -12,12 +12,52 @@ k8s-monitoring: k8s-monitoring-us-east-1 k8s-monitoring-eu-west-1 k8s-monitoring
 
 k8s-monitoring-us-east-1:
 	kubectl config set current-context us-east-1.k8s.local
-	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
+	make k8s-monitoring-create k8s-monitoring-create-dashboard
 
 k8s-monitoring-eu-west-1:
 	kubectl config set current-context eu-west-1.k8s.local
-	cd ../domain-stack; make monitoring-create monitoring-create-dashboard
+	make k8s-monitoring-create k8s-monitoring-create-dashboard
 
+k8s-monitoring-create: k8s-monitoring-create-node-problem-detector k8s-monitoring-install-metrics-server k8s-monitoring-install-kube-state-metrics k8s-monitoring-expose-k8s-services
+	# Reference:
+	# 	https://www.sumologic.com/blog/cloud/how-to-monitor-kubernetes/
+	#	https://coreos.com/operators/prometheus/docs/latest/user-guides/cluster-monitoring.html
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/prometheus-operator/v0.19.0.yaml || echo aleady exists?
+
+	# Create load balancers for easier access to promethous and graphana
+	kubectl --namespace monitoring patch svc/grafana --patch '{"spec": {"type": "LoadBalancer"}}'
+	kubectl --namespace monitoring patch svc/prometheus-k8s --patch '{"spec": {"type": "LoadBalancer"}}'
+
+k8s-monitoring-create-dashboard:
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/heapster.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/influxdb.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/rbac/heapster-rbac.yaml
+	kubectl apply -f k8s/monitoring/admin-service-account.yaml
+	kubectl apply -f k8s/monitoring/admin-cluster-role-binding.yaml
+
+k8s-monitoring-create-node-problem-detector:
+	# See more here https://kubernetes.io/docs/tasks/debug-application-cluster/monitor-node-health/
+	kubectl apply -f https://k8s.io/examples/debug/node-problem-detector.yaml
+
+k8s-monitoring-install-metrics-server:
+	# allows for kubectl top as well as the metrics API at: http://127.0.0.1:8001/apis/metrics.k8s.io/
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/metrics-server/v1.8.x.yaml
+
+
+k8s-monitoring-install-kube-state-metrics:
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-service.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-service-account.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-role.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-role-binding.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-deployment.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-cluster-role.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-cluster-role-binding.yaml
+
+
+k8s-monitoring-expose-k8s-services:
+	kubectl apply -f k8s/monitoring/monitoring-expose-kube-scheduler.yaml
+	kubectl apply -f k8s/monitoring/monitoring-expose-kube-controller-manager.yaml
 
 k8s-create-clusters: k8s-create-cluster-us-east-1 k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-us-east-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access
 

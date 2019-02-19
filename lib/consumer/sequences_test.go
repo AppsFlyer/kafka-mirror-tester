@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/message"
+	"github.com/appsflyer/kafka-mirror-tester/lib/message"
 )
 
 func TestValidateSequence(t *testing.T) {

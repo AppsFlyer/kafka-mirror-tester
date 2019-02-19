@@ -15,7 +15,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
+	"github.com/appsflyer/kafka-mirror-tester/lib/types"
 )
 
 const monitoringFrequency = 5 * time.Second

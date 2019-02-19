@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/admin"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/consumer"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
+	"github.com/appsflyer/kafka-mirror-tester/lib/admin"
+	"github.com/appsflyer/kafka-mirror-tester/lib/consumer"
+	"github.com/appsflyer/kafka-mirror-tester/lib/types"
 )
 
 var (

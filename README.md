@@ -9,6 +9,8 @@ Mirroring is not one of kafka's built in properties, but there are 3rd party too
 
 This test tool is indiferent to the underlying mirroring tool so it is able to test all the above mentioned replicators.
 
+*The current implementation supports only Uber's uReplicator but it can (and might) be extended in the future for other replication tools.*
+
 ## High level design
 
 Mirroring typically takes place between two datacenters as described below:
@@ -127,7 +129,11 @@ There is a fine point to mention in that respect. When operating with multiple p
 
 Performance is determined by the time gap between the `timestamp` and the current local consumer time. The consumer then emits a histogram of latency buckets.
 
-
 ## Open for discussion
-1. Open question: can we implement multiple consumers in order to increase the consumption throughput? (and at the same time maintain correct bookeeping for correctness and performance)
-1. If the last message from a producer got lost we don't know about it. If all messages from a specific producer got lost, we won't know about it either (although it's possible to manually audit that)
+1. If the last message from a producer got lost we don't know about it. If all messages from a specific producer got lost, we won't know about it either (alth
+  ough it's possible to manually audit that)
+
+# Using it. 
+The tools in this project expect some familiarity with 3rd party tools, namely Kubernetes and AWS. We don't expect expert level but some familiarity with the tools is very helpful. 
+For details how to run it see [Running it](running.md)
+

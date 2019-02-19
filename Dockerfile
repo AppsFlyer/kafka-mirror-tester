@@ -15,7 +15,7 @@ RUN apt-get update
 RUN apt-get install -y golang-1.11-go
 
 # build the library
-WORKDIR /go/src/gitlab.appsflyer.com/rantav/kafka-mirror-tester
+WORKDIR /go/src/github.com/appsflyer/kafka-mirror-tester
 COPY *.go ./
 COPY lib lib
 COPY vendor vendor

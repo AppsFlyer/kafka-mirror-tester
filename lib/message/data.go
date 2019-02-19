@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
+	"github.com/appsflyer/kafka-mirror-tester/lib/types"
 )
 
 // Data represent the data sent in a message.
