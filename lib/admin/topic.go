@@ -8,7 +8,7 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
+	"github.com/appsflyer/kafka-mirror-tester/lib/types"
 )
 
 // MustCreateTopic creates a new topic with the specified number of partitions.

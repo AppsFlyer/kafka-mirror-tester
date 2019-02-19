@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/cmd"
+	"github.com/appsflyer/kafka-mirror-tester/lib/cmd"
 )
 
 func main() {

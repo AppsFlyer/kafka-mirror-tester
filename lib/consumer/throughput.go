@@ -5,7 +5,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/message"
+	"github.com/appsflyer/kafka-mirror-tester/lib/message"
 )
 
 var (

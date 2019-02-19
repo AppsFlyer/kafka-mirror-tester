@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/producer"
-	"gitlab.appsflyer.com/rantav/kafka-mirror-tester/lib/types"
+	"github.com/appsflyer/kafka-mirror-tester/lib/producer"
+	"github.com/appsflyer/kafka-mirror-tester/lib/types"
 )
 
 var (
