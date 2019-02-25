@@ -11,6 +11,10 @@ This test tool is indiferent to the underlying mirroring tool so it is able to t
 
 *The current implementation supports only Uber's uReplicator but it can (and might) be extended in the future for other replication tools.*
 
+
+Presentation on this project: https://speakerdeck.com/rantav/infrastructure-testing-using-kubernetes
+
+
 ## High level design
 
 Mirroring typically takes place between two datacenters as described below:
