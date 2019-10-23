@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 10
+  replicas: 1
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
