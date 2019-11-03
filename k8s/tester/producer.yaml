@@ -32,7 +32,7 @@ spec:
         - --message-size
         - "1000"
         - --throughput
-        - "20000"
+        - "10000"
         - --topics
         - topic0
         - --retention
@@ -40,7 +40,7 @@ spec:
         - --num-partitions
         - "150"
         - --num-replicas
-        - "3"
+        - "1"
         ports:
         - name: metrics
           containerPort: 8001

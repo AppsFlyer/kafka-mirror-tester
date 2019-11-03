@@ -1,3 +1,6 @@
+USE_UREPLICATOR := false
+USE_BROOKLIN := true
+
 k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-setup-weave-scope k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
 k8s-single-cluster: kops-check-version k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access k8s-monitoring-eu-west-1 k8s-setup-weave-scope-eu-west-1
@@ -89,12 +92,22 @@ k8s-kafkas-setup-destination-validate:
 	# Logs:
 	# stern --context eu-west-1.k8s.local -n kafka-destination -l app=kafka-destination
 k8s-replicator-setup:
+ifeq ($(USE_UREPLICATOR),true)
 	k8s/ureplicator/template.sh
 	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
 	k8s/ureplicator/test.sh
 	kubectl --context eu-west-1.k8s.local -n ureplicator get po -o wide
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
+endif
+ifeq ($(USE_BROOKLIN),true)
+	kubectl apply -f k8s/brooklin --context eu-west-1.k8s.local
+	k8s/brooklin/test.sh
+	k8s/brooklin/replicate-topic.sh 'topic.*' # Start replicting all topics that start with "topic" (regex)
+	kubectl --context eu-west-1.k8s.local -n brooklin get po -o wide
+	# View logs:
+	# stern --context eu-west-1.k8s.local -n brooklin -l app=brooklin
+endif
 
 k8s-ureplicator-visit-controller:
 	kubectl --context eu-west-1.k8s.local -n ureplicator port-forward $$(kubectl --context eu-west-1.k8s.local get -n ureplicator pod -l app=ureplicator -l component=controller -o jsonpath='{.items[0].metadata.name}') 9000 &
@@ -200,7 +213,12 @@ k8s-redeploy-tests: k8s-delete-tests k8s-run-tests
 k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 
 k8s-delete-replicator:
+ifeq ($(USE_UREPLICATOR),true)
 	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local || echo already deleted?
+endif
+ifeq ($(USE_BROOKLIN),true)
+	kubectl delete -f k8s/brooklin --context eu-west-1.k8s.local || echo already deleted?
+endif
 
 k8s-redeploy-replicator: k8s-delete-replicator k8s-replicator-setup
 
@@ -215,7 +233,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1 || echo Bucket already exists?
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 4 --node-size i3.large --master-size m4.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 6 --node-size i3.large --master-size m4.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:

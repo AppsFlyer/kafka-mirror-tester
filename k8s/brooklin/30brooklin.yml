@@ -1,0 +1,97 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: brooklin
+  name: brooklin
+  labels:
+    app: brooklin
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: brooklin
+  template:
+    metadata:
+      labels:
+        app: brooklin
+    spec:
+      terminationGracePeriodSeconds: 10
+      initContainers:
+      - name: init-zk
+        image: busybox
+        command:
+          - /bin/sh
+          - -c
+          - 'until [ "imok" = "$(echo ruok | nc -w 1 $(echo $BROOKLIN_ZOOKEEPER_CONNECT | cut -d: -f1) $(echo $BROOKLIN_ZOOKEEPER_CONNECT | cut -d: -f2))" ] ; do echo waiting ; sleep 10 ; done'
+        envFrom:
+        - configMapRef:
+            name: brooklin-envs
+      - name: init-config
+        image: busybox
+        envFrom:
+        - configMapRef:
+            name: brooklin-envs
+        command: ['sh', '/etc/brooklin/configure.sh']
+        volumeMounts:
+        - name: config
+          mountPath: /etc/brooklin
+        - name: config-writable
+          mountPath: /etc/brooklin-writable
+      containers:
+      - name: brooklin
+        image: dongjinleekr/brooklin:1.0.0-2
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: brooklin-envs
+        ports:
+        - name: service
+          containerPort: 32311
+        - name: metrics
+          containerPort: 8080
+        resources:
+          requests:
+            cpu: 800m
+            memory: 1.1Gi
+          #limits:
+            #cpu: 1200m
+            #memory: 6Gi
+        volumeMounts:
+        - name: jmx-config
+          mountPath: /etc/jmx-config
+        - name: config
+          mountPath: /etc/brooklin
+        - name: config-writable
+          mountPath: /etc/brooklin-writable
+      volumes:
+      - name: jmx-config
+        configMap:
+          name: brooklin-jmx-prometheus-javaagent-config
+      - name: config
+        configMap:
+          name: brooklin-envs
+      - name: config-writable
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka-destination
+            namespaces:
+            - kafka-destination
+            topologyKey: "kubernetes.io/hostname"
+          #- labelSelector:
+              #matchExpressions:
+              #- key: app
+                #operator: In
+                #values:
+                #- brooklin
+              #- key: component
+                #operator: In
+                #values:
+                #- worker
+            #topologyKey: "kubernetes.io/hostname"
