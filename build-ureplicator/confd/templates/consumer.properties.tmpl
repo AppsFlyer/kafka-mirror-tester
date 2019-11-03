@@ -28,7 +28,7 @@ group.id={{ getenv "CONSUMER_GROUP_ID" }}
 
 consumer.id={{ getenv "HOSTNAME" }}
 partition.assignment.strategy=roundrobin
-socket.receive.buffer.bytes={{ getenv "SOCKER_RECEIVE_BUFFER_BYTES" }}
+socket.receive.buffer.bytes={{ getenv "SOCKET_RECEIVE_BUFFER_BYTES" }}
 fetch.message.max.bytes={{ getenv "FETCH_MESSAGE_MAX_BYTES" }}
 queued.max.message.chunks=5
 

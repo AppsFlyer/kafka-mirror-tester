@@ -1,3 +1,6 @@
+USE_UREPLICATOR := false
+USE_BROOKLIN := true
+
 k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-setup-weave-scope k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
 k8s-single-cluster: kops-check-version k8s-create-cluster-eu-west-1 k8s-wait-for-cluster-eu-west-1 k8s-allow-kubectl-node-access k8s-monitoring-eu-west-1 k8s-setup-weave-scope-eu-west-1
@@ -22,14 +25,14 @@ k8s-monitoring-create: k8s-monitoring-create-node-problem-detector k8s-monitorin
 	# Reference:
 	# 	https://www.sumologic.com/blog/cloud/how-to-monitor-kubernetes/
 	#	https://coreos.com/operators/prometheus/docs/latest/user-guides/cluster-monitoring.html
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/prometheus-operator/v0.19.0.yaml || echo aleady exists?
+	kubectl apply --validate=false -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/prometheus-operator/v0.19.0.yaml || echo aleady exists?
 
 	# Create load balancers for easier access to promethous and graphana
 	kubectl --namespace monitoring patch svc/grafana --patch '{"spec": {"type": "LoadBalancer"}}'
 	kubectl --namespace monitoring patch svc/prometheus-k8s --patch '{"spec": {"type": "LoadBalancer"}}'
 
 k8s-monitoring-create-dashboard:
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/heapster.yaml
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/influxdb.yaml
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/rbac/heapster-rbac.yaml
@@ -46,13 +49,13 @@ k8s-monitoring-install-metrics-server:
 
 
 k8s-monitoring-install-kube-state-metrics:
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-service.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-service-account.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-role.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-role-binding.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-deployment.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-cluster-role.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kube-state-metrics/master/kubernetes/kube-state-metrics-cluster-role-binding.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-service.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-service-account.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-role.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-role-binding.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-deployment.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-cluster-role.yaml
+	kubectl apply -f k8s/monitoring/kube-state-metrics-cluster-role-binding.yaml
 
 
 k8s-monitoring-expose-k8s-services:
@@ -78,7 +81,7 @@ k8s-kafkas-setup-source-validate:
 	# validate
 	k8s/kafka-source/test.sh
 	kubectl --context us-east-1.k8s.local -n kafka-source get po -o wide
-	# Logs: 
+	# Logs:
 	# stern --context us-east-1.k8s.local -n kafka-source -l app=kafka-source
 
 k8s-kafkas-setup-destination:
@@ -86,15 +89,25 @@ k8s-kafkas-setup-destination:
 k8s-kafkas-setup-destination-validate:
 	k8s/kafka-destination/test.sh
 	kubectl --context eu-west-1.k8s.local -n kafka-destination get po -o wide
-	# Logs: 
+	# Logs:
 	# stern --context eu-west-1.k8s.local -n kafka-destination -l app=kafka-destination
 k8s-replicator-setup:
+ifeq ($(USE_UREPLICATOR),true)
 	k8s/ureplicator/template.sh
 	kubectl apply -f k8s/ureplicator --context eu-west-1.k8s.local
 	k8s/ureplicator/test.sh
 	kubectl --context eu-west-1.k8s.local -n ureplicator get po -o wide
 	# View logs:
 	# stern --context eu-west-1.k8s.local -n ureplicator -l app=ureplicator
+endif
+ifeq ($(USE_BROOKLIN),true)
+	kubectl apply -f k8s/brooklin --context eu-west-1.k8s.local
+	k8s/brooklin/test.sh
+	k8s/brooklin/replicate-topic.sh 'topic.*' # Start replicting all topics that start with "topic" (regex)
+	kubectl --context eu-west-1.k8s.local -n brooklin get po -o wide
+	# View logs:
+	# stern --context eu-west-1.k8s.local -n brooklin -l app=brooklin
+endif
 
 k8s-ureplicator-visit-controller:
 	kubectl --context eu-west-1.k8s.local -n ureplicator port-forward $$(kubectl --context eu-west-1.k8s.local get -n ureplicator pod -l app=ureplicator -l component=controller -o jsonpath='{.items[0].metadata.name}') 9000 &
@@ -200,7 +213,12 @@ k8s-redeploy-tests: k8s-delete-tests k8s-run-tests
 k8s-delete-all-apps: k8s-delete-tests k8s-delete-replicator k8s-delete-kafkas
 
 k8s-delete-replicator:
+ifeq ($(USE_UREPLICATOR),true)
 	kubectl delete -f k8s/ureplicator --context eu-west-1.k8s.local || echo already deleted?
+endif
+ifeq ($(USE_BROOKLIN),true)
+	kubectl delete -f k8s/brooklin --context eu-west-1.k8s.local || echo already deleted?
+endif
 
 k8s-redeploy-replicator: k8s-delete-replicator k8s-replicator-setup
 
@@ -215,7 +233,7 @@ k8s-delete-tests:
 
 k8s-create-cluster-us-east-1:
 	aws s3api create-bucket  --bucket us-east-1.k8s.local  --region us-east-1 || echo Bucket already exists?
-	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 40 --node-size i3.large --master-size m4.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones us-east-1a,us-east-1b,us-east-1c --node-count 6 --node-size i3.large --master-size m4.large --master-zones us-east-1a --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-us-east-1:
 	kops delete cluster --state s3://us-east-1.k8s.local  us-east-1.k8s.local --yes
 k8s-wait-for-cluster-us-east-1:
@@ -223,7 +241,7 @@ k8s-wait-for-cluster-us-east-1:
 
 k8s-create-cluster-eu-west-1:
 	aws s3api create-bucket  --bucket eu-west-1.k8s.local --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1 || echo Bucket already exists?
-	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 48 --node-size i3.large --master-size m4.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
+	kops create cluster --zones eu-west-1a,eu-west-1b,eu-west-1c --node-count 6 --node-size i3.large --master-size m4.large --master-zones eu-west-1c --networking calico --cloud aws --cloud-labels "Owner=rantav" --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes || echo Aready exists?
 k8s-delete-cluster-eu-west-1:
 	kops delete cluster --state s3://eu-west-1.k8s.local  eu-west-1.k8s.local --yes
 k8s-wait-for-cluster-eu-west-1:

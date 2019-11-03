@@ -1,0 +1,66 @@
+# Headless service just for the sake of exposing the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: brooklin
+  namespace: brooklin
+  labels:
+    app: brooklin
+spec:
+  ports:
+  - name: metrics
+    port: 8080
+  clusterIP: None
+  selector:
+    app: brooklin
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: brooklin
+  name: brooklin
+  namespace: monitoring
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - brooklin
+  selector:
+    matchLabels:
+      app: brooklin
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus-k8s
+  namespace: brooklin
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-k8s
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring
