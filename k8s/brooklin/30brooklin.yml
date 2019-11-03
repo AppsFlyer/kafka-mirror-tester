@@ -6,7 +6,7 @@ metadata:
   labels:
     app: brooklin
 spec:
-  replicas: 2
+  replicas: 32
   selector:
     matchLabels:
       app: brooklin
@@ -51,7 +51,7 @@ spec:
           containerPort: 8080
         resources:
           requests:
-            cpu: 800m
+            cpu: 400m
             memory: 1.1Gi
           #limits:
             #cpu: 1200m

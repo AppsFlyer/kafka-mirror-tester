@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-consumer
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: kafka-mirror-tester-consumer
@@ -25,9 +25,9 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic0
+        - topic1
         - --retention
-        - "300000"
+        - "120000"
         - --num-partitions
         - "150"
         - --num-replicas

@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-source
   serviceName: "broker"
-  replicas: 2
+  replicas: 12
   updateStrategy:
     type: OnDelete
   template:
@@ -51,6 +51,8 @@ spec:
           value: -Dlog4j.configuration=file:/etc/kafka/log4j.properties
         - name: JMX_PORT
           value: "5555"
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xmx11G -Xms11G"
         ports:
         - name: broker-internal
           containerPort: 9092
@@ -64,11 +66,10 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 1200m
+            cpu: 1100m
             memory: 12Gi
             ephemeral-storage: "80Gi"
           limits:
-            cpu: 1200m
             memory: 12Gi
         readinessProbe:
           tcpSocket:
