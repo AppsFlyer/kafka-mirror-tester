@@ -13,7 +13,7 @@ import (
 	"golang.org/x/time/rate"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/appsflyer/kafka-mirror-tester/lib/admin"
@@ -62,7 +62,7 @@ func ProduceToTopics(
 				t,
 				id,
 				initialSequence,
-				numPartitions,
+				partitions,
 				throughput,
 				size,
 				useMessageHeaders,
