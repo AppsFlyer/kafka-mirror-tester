@@ -144,8 +144,9 @@ func producerForeverWithProducer(
 			log.Errorf("Error waiting %+v", err)
 			continue
 		}
-		messageKey := types.MessageKey(uint(seq) % numPartitions)
-		scopedSeq := seq / types.SequenceNumber(numPartitions)
+		numPartitionsXprime := numPartitions * 17 // TO increase the likelihood of even partitioning
+		messageKey := types.MessageKey(uint(seq) % numPartitionsXprime)
+		scopedSeq := seq / types.SequenceNumber(numPartitionsXprime)
 		produceMessage(ctx, p, tp, producerID, messageKey, scopedSeq, messageSize, useMessageHeaders)
 	}
 }
