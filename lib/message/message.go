@@ -1,7 +1,6 @@
 package message
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -30,7 +29,7 @@ func Create(
 ) *kafka.Message {
 	ts := time.Now().UTC()
 	msg := &kafka.Message{
-		Key: []byte(fmt.Sprintf("%d", messageID)),
+		Key: []byte(strconv.FormatUint(uint64(messageID), 10)),
 	}
 	if useMessageHeaders {
 		msg.Timestamp = ts

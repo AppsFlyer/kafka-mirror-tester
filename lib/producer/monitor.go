@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/dustin/go-humanize"
 	"github.com/paulbellamy/ratecounter"
 	"github.com/prometheus/client_golang/prometheus"
