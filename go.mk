@@ -7,10 +7,7 @@ go-setup:
 	@echo For mac:  brew install librdkafka
 	@echo For linux install librdkafka-dev
 
-go-dep-ensure:
-	dep ensure
-
-go-build: go-dep-ensure go-generate go-test
+go-build: go-generate go-test
 	go build ./...
 
 go-run-producer:
@@ -30,7 +27,7 @@ go-generate:
 #########################
 # Docker
 #########################
-go-docker-build: go-dep-ensure go-test
+go-docker-build: go-test
 	docker build . -t rantav/kafka-mirror-tester:latest
 
 go-docker-push: go-docker-build
