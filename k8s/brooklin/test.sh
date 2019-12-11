@@ -15,3 +15,5 @@ kubectl --context us-east-1.k8s.local exec -n kafka-source kafka-source-0 -- bas
 $(dirname "$0")/replicate-topic.sh $TOPIC
 
 kubectl --context eu-west-1.k8s.local exec -n kafka-destination kafka-destination-0 -- bash -c "unset JMX_PORT; /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --topic $TOPIC --max-messages 1"
+
+$(dirname "$0")/delete-replicate-topic.sh $TOPIC

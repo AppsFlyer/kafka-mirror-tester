@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: kafka-source
   serviceName: "broker"
-  replicas: 12
+  replicas: 16
   updateStrategy:
     type: OnDelete
   template:
@@ -66,7 +66,7 @@ spec:
         - /etc/kafka-writable/server.properties
         resources:
           requests:
-            cpu: 1100m
+            cpu: 1200m
             memory: 12Gi
             ephemeral-storage: "80Gi"
           limits:

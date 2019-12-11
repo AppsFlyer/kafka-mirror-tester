@@ -39,8 +39,11 @@ spec:
           mountPath: /etc/brooklin-writable
       containers:
       - name: brooklin
-        image: dongjinleekr/brooklin:1.0.0-2
+        image: rantav/brooklin:1.0.2-0
         imagePullPolicy: IfNotPresent
+        env:
+        - name: HEAP_OPTS
+          value: "-Xmx2G -Xms2G -server -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35  -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
         envFrom:
         - configMapRef:
             name: brooklin-envs
@@ -51,11 +54,10 @@ spec:
           containerPort: 8080
         resources:
           requests:
-            cpu: 400m
-            memory: 1.1Gi
-          #limits:
-            #cpu: 1200m
-            #memory: 6Gi
+            cpu: 700m
+            memory: 2Gi
+          limits:
+            cpu: 700m
         volumeMounts:
         - name: jmx-config
           mountPath: /etc/jmx-config

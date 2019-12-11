@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-consumer
 spec:
-  replicas: 4
+  replicas: 8
   selector:
     matchLabels:
       app: kafka-mirror-tester-consumer
@@ -25,48 +25,48 @@ spec:
         - --consumer-group
         - group-1
         - --topics
-        - topic1
+        - topic0
         - --retention
-        - "120000"
+        - "300000"
         - --num-partitions
-        - "150"
+        - "64"
         - --num-replicas
         - "2"
         ports:
         - name: metrics
           containerPort: 8000
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - kafka-mirror-tester-consumer
-            topologyKey: "kubernetes.io/hostname"
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - kafka-destination
-            namespaces:
-            - kafka-destination
-            topologyKey: "kubernetes.io/hostname"
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - ureplicator
-              - key: component
-                operator: In
-                values:
-                - worker
-            namespaces:
-            - ureplicator
-            topologyKey: "kubernetes.io/hostname"
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchExpressions:
+      #         - key: app
+      #           operator: In
+      #           values:
+      #           - kafka-mirror-tester-consumer
+      #       topologyKey: "kubernetes.io/hostname"
+      #     - labelSelector:
+      #         matchExpressions:
+      #         - key: app
+      #           operator: In
+      #           values:
+      #           - kafka-destination
+      #       namespaces:
+      #       - kafka-destination
+      #       topologyKey: "kubernetes.io/hostname"
+      #     - labelSelector:
+      #         matchExpressions:
+      #         - key: app
+      #           operator: In
+      #           values:
+      #           - ureplicator
+      #         - key: component
+      #           operator: In
+      #           values:
+      #           - worker
+      #       namespaces:
+      #       - ureplicator
+      #       topologyKey: "kubernetes.io/hostname"
 ---
 # Headless service just for the sake of exposing the metrics
 apiVersion: v1

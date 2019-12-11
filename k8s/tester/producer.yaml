@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kafka-mirror-tester-producer
 spec:
-  replicas: 5
+  replicas: 8
   selector:
     matchLabels:
       app: kafka-mirror-tester-producer
@@ -34,13 +34,13 @@ spec:
         - --throughput
         - "20000"
         - --topics
-        - topic1
+        - topic0
         - --retention
-        - "120000"
+        - "300000"
         - --num-partitions
-        - "150"
+        - "64"
         - --num-replicas
-        - "3"
+        - "2"
         ports:
         - name: metrics
           containerPort: 8001

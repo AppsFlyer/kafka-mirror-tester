@@ -46,7 +46,7 @@ data:
       "editable": true,
       "gnetId": null,
       "graphTooltip": 0,
-      "iteration": 1572788571016,
+      "iteration": 1574586599750,
       "links": [],
       "panels": [
         {
@@ -68,7 +68,7 @@ data:
           "dashLength": 10,
           "dashes": false,
           "datasource": "-- Mixed --",
-          "fill": 1,
+          "fill": 0,
           "gridPos": {
             "h": 9,
             "w": 8,
@@ -86,7 +86,7 @@ data:
             "values": false
           },
           "lines": true,
-          "linewidth": 1,
+          "linewidth": 2,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -99,6 +99,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "$$hashKey": "object:1480",
               "datasource": "eu-west-1 destination",
               "expr": "sum(kafka_server_brokertopicmetrics_oneminuterate{topic=~\"${topic}\", name=~\"BytesInPerSec|BytesOutPerSec\"}) by (topic, name)",
               "format": "time_series",
@@ -107,6 +108,7 @@ data:
               "refId": "D"
             },
             {
+              "$$hashKey": "object:1481",
               "datasource": "us-east-1 source",
               "expr": "sum(kafka_server_brokertopicmetrics_oneminuterate{topic=~\"${topic}\", name=~\"BytesInPerSec|BytesOutPerSec\"}) by (topic, name)",
               "format": "time_series",
@@ -830,7 +832,7 @@ data:
           "scroll": true,
           "showHeader": true,
           "sort": {
-            "col": 0,
+            "col": 1,
             "desc": true
           },
           "styles": [
@@ -964,6 +966,228 @@ data:
           "type": "table"
         },
         {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "-- Mixed --",
+          "fill": 0,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 17
+          },
+          "id": 128,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 3,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "repeat": null,
+          "repeatDirection": "h",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:3495",
+              "datasource": "$cluster",
+              "expr": "100 * kafka_server_kafkarequesthandlerpool_oneminuterate{name=\"RequestHandlerAvgIdlePercent\"}",
+              "format": "time_series",
+              "hide": true,
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            },
+            {
+              "$$hashKey": "object:595",
+              "datasource": "eu-west-1 destination",
+              "expr": "100 * kafka_server_kafkarequesthandlerpool_oneminuterate{name=\"RequestHandlerAvgIdlePercent\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "B"
+            },
+            {
+              "$$hashKey": "object:627",
+              "datasource": "us-east-1 source",
+              "expr": "100 * kafka_server_kafkarequesthandlerpool_oneminuterate{name=\"RequestHandlerAvgIdlePercent\"} ",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "C"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 20
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "RequestHandlerAvgIdlePercent",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:3465",
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:3466",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "-- Mixed --",
+          "fill": 0,
+          "gridPos": {
+            "h": 7,
+            "w": 10,
+            "x": 8,
+            "y": 17
+          },
+          "id": 129,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 2,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:828",
+              "datasource": "eu-west-1 destination",
+              "expr": "kafka_server_replicamanager_value{name=\"UnderReplicatedPartitions\"} ",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "B"
+            },
+            {
+              "$$hashKey": "object:860",
+              "datasource": "us-east-1 source",
+              "expr": "kafka_server_replicamanager_value{name=\"UnderReplicatedPartitions\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "C"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "UnderReplicatedPartitions",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:3465",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:3466",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
           "alert": {
             "conditions": [
               {
@@ -1007,8 +1231,8 @@ data:
           "gridPos": {
             "h": 6,
             "w": 5,
-            "x": 8,
-            "y": 17
+            "x": 19,
+            "y": 18
           },
           "id": 63,
           "legend": {
@@ -1034,6 +1258,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "$$hashKey": "object:3547",
               "expr": "histogram_quantile(0.5, avg(message_arrival_latency_hist_ms_bucket) by (le))",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1041,6 +1266,7 @@ data:
               "refId": "B"
             },
             {
+              "$$hashKey": "object:3548",
               "expr": "histogram_quantile(0.9, avg(message_arrival_latency_hist_ms_bucket) by (le))",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1048,6 +1274,7 @@ data:
               "refId": "E"
             },
             {
+              "$$hashKey": "object:3549",
               "expr": "histogram_quantile(0.99, avg(message_arrival_latency_hist_ms_bucket) by (le))",
               "format": "time_series",
               "intervalFactor": 1,
@@ -1105,539 +1332,540 @@ data:
           }
         },
         {
-          "collapsed": false,
+          "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 23
+            "y": 24
           },
           "id": 86,
-          "panels": [],
+          "panels": [
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "us-east-1 source",
+              "fill": 4,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 24
+              },
+              "id": 87,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [
+                {
+                  "alias": "/requests|limits .+/",
+                  "stack": false
+                }
+              ],
+              "spaceLength": 10,
+              "stack": true,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-mirror-tester-producer-.+\"}[1m])",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "D"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Producer Pods CPU Usage (cores)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "eu-west-1 destination",
+              "fill": 4,
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 24
+              },
+              "id": 88,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null as zero",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [
+                {
+                  "alias": "/requests|limits .+/",
+                  "stack": false
+                }
+              ],
+              "spaceLength": 10,
+              "stack": true,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-mirror-tester-consumer-.+\"}[1m])",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "D"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Consumer Pods CPU Usage (cores)",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": 0,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "us-east-1 source",
+              "fill": 4,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 31
+              },
+              "id": 91,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": true,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"kafka-mirror-tester-.*\"}[1m])",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "container_network_transmit_bytes_total",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Producer networking",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "us-east-1 source",
+              "fill": 4,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 31
+              },
+              "id": 92,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": true,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"kafka-mirror-tester-.*\"}[1m])",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "container_network_transmit_bytes_total",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Consumer networking",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "us-east-1 source",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 40
+              },
+              "id": 93,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "topk(3, container_memory_usage_bytes{pod_name=~\"kafka-mirror-tester-.*\"})",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Producer memory",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "eu-west-1 destination",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 12,
+                "y": 40
+              },
+              "id": 90,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "links": [],
+              "nullPointMode": "null",
+              "percentage": false,
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "targets": [
+                {
+                  "expr": "container_memory_usage_bytes{pod_name=~\"kafka-mirror-tester-.*\"}",
+                  "format": "time_series",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{pod_name}}",
+                  "refId": "A"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": null,
+              "timeShift": null,
+              "title": "Consumer memory",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            }
+          ],
           "title": "Producer / Consumer metrics",
           "type": "row"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "us-east-1 source",
-          "fill": 4,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 24
-          },
-          "id": 87,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "/requests|limits .+/",
-              "stack": false
-            }
-          ],
-          "spaceLength": 10,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-mirror-tester-producer-.+\"}[1m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "D"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Producer Pods CPU Usage (cores)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "eu-west-1 destination",
-          "fill": 4,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 24
-          },
-          "id": 88,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null as zero",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "/requests|limits .+/",
-              "stack": false
-            }
-          ],
-          "spaceLength": 10,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-mirror-tester-consumer-.+\"}[1m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "D"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Consumer Pods CPU Usage (cores)",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": false
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "us-east-1 source",
-          "fill": 4,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 0,
-            "y": 31
-          },
-          "id": 91,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"kafka-mirror-tester-.*\"}[1m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "container_network_transmit_bytes_total",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Producer networking",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "us-east-1 source",
-          "fill": 4,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 31
-          },
-          "id": 92,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(container_network_transmit_bytes_total{pod_name=~\"kafka-mirror-tester-.*\"}[1m])",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "container_network_transmit_bytes_total",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Consumer networking",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "us-east-1 source",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 0,
-            "y": 40
-          },
-          "id": 93,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "topk(3, container_memory_usage_bytes{pod_name=~\"kafka-mirror-tester-.*\"})",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Producer memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "eu-west-1 destination",
-          "fill": 1,
-          "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 40
-          },
-          "id": 90,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "container_memory_usage_bytes{pod_name=~\"kafka-mirror-tester-.*\"}",
-              "format": "time_series",
-              "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Consumer memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false,
-            "alignLevel": null
-          }
-        },
-        {
           "collapsed": false,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 49
+            "y": 25
           },
           "id": 111,
           "panels": [],
@@ -1655,7 +1883,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 0,
-            "y": 50
+            "y": 26
           },
           "id": 112,
           "legend": {
@@ -1740,7 +1968,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 8,
-            "y": 50
+            "y": 26
           },
           "id": 113,
           "legend": {
@@ -1825,7 +2053,7 @@ data:
             "h": 9,
             "w": 8,
             "x": 16,
-            "y": 50
+            "y": 26
           },
           "id": 114,
           "legend": {
@@ -1910,12 +2138,580 @@ data:
           }
         },
         {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 0,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 35
+          },
+          "id": 115,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "minSpan": 11,
+          "nullPointMode": "null as zero",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "repeatDirection": "v",
+          "seriesOverrides": [
+            {
+              "alias": "/(requests|limit|java heap) .+/",
+              "stack": false
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:2046",
+              "expr": "container_memory_usage_bytes{pod_name=~\"brooklin-.+-.+\"}",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}} memory usage",
+              "legendLink": null,
+              "refId": "A",
+              "step": 10
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Brooklin Pods Memory Usage",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "transparent": false,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "bytes",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": 0,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": false
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 35
+          },
+          "id": 117,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:707",
+              "expr": "java_lang_garbagecollector_lastgcinfo_duration{service=\"brooklin\", name=\"G1 Young Generation\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "GC duration G1 Young Generation {{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Garbage Collection",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 35
+          },
+          "id": 126,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:1001",
+              "expr": "java_lang_operatingsystem_systemcpuload{service=\"brooklin\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "CPU Load",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:2215",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:2216",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 2,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 42
+          },
+          "id": 119,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:1001",
+              "expr": "metrics_eventproducer_aggregate_eventproducerate_oneminuterate",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "eventproducerate {{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Event production rate",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 1,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 8,
+            "y": 42
+          },
+          "id": 123,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:1001",
+              "expr": "metrics_eventproducer_aggregate_eventproducerate_oneminuterate",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "eventproducerate {{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Event production rate",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "alert": {
+            "conditions": [
+              {
+                "evaluator": {
+                  "params": [
+                    2
+                  ],
+                  "type": "gt"
+                },
+                "operator": {
+                  "type": "and"
+                },
+                "query": {
+                  "params": [
+                    "A",
+                    "5m",
+                    "now"
+                  ]
+                },
+                "reducer": {
+                  "params": [],
+                  "type": "avg"
+                },
+                "type": "query"
+              }
+            ],
+            "executionErrorState": "alerting",
+            "frequency": "60s",
+            "handler": 1,
+            "name": "Producer errors alert",
+            "noDataState": "no_data",
+            "notifications": []
+          },
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "eu-west-1 destination",
+          "fill": 2,
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 16,
+            "y": 42
+          },
+          "id": 122,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:1001",
+              "expr": "metrics_kafkaproducerwrapper_aggregate_producererror_oneminuterate",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "producererror  {{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Producer errors",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:2379",
+              "format": "short",
+              "label": "Errors/Sec 1 minute rate",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:2380",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
           "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 59
+            "y": 49
           },
           "id": 71,
           "panels": [
@@ -1930,7 +2726,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 0,
-                "y": 35
+                "y": 42
               },
               "id": 4,
               "legend": {
@@ -2021,7 +2817,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 8,
-                "y": 35
+                "y": 42
               },
               "id": 6,
               "legend": {
@@ -2119,7 +2915,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 16,
-                "y": 35
+                "y": 42
               },
               "id": 8,
               "legend": {
@@ -2211,7 +3007,7 @@ data:
                 "h": 9,
                 "w": 6,
                 "x": 0,
-                "y": 44
+                "y": 51
               },
               "id": 69,
               "legend": {
@@ -2302,7 +3098,7 @@ data:
                 "h": 9,
                 "w": 6,
                 "x": 6,
-                "y": 44
+                "y": 51
               },
               "id": 72,
               "legend": {
@@ -2395,7 +3191,7 @@ data:
                 "h": 9,
                 "w": 6,
                 "x": 12,
-                "y": 44
+                "y": 51
               },
               "id": 73,
               "legend": {
@@ -2487,7 +3283,7 @@ data:
                 "h": 9,
                 "w": 6,
                 "x": 18,
-                "y": 44
+                "y": 51
               },
               "id": 74,
               "legend": {
@@ -2581,7 +3377,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 53
+                "y": 60
               },
               "id": 51,
               "legend": {
@@ -2665,7 +3461,7 @@ data:
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 53
+                "y": 60
               },
               "id": 57,
               "legend": {
@@ -2749,7 +3545,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 0,
-                "y": 62
+                "y": 69
               },
               "id": 95,
               "legend": {
@@ -2833,7 +3629,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 8,
-                "y": 62
+                "y": 69
               },
               "id": 96,
               "legend": {
@@ -2917,7 +3713,7 @@ data:
                 "h": 9,
                 "w": 8,
                 "x": 16,
-                "y": 62
+                "y": 69
               },
               "id": 53,
               "legend": {
@@ -3009,17 +3805,17 @@ data:
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 60
+            "y": 50
           },
           "id": 18,
           "panels": [],
           "repeat": "cluster",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "title": "${cluster} kafka cluster",
@@ -3036,7 +3832,7 @@ data:
             "h": 7,
             "w": 8,
             "x": 0,
-            "y": 61
+            "y": 51
           },
           "id": 25,
           "legend": {
@@ -3061,10 +3857,10 @@ data:
           "repeatDirection": "v",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [
@@ -3078,6 +3874,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "$$hashKey": "object:2044",
               "expr": "kube_pod_container_resource_requests_memory_bytes{pod=~\"kafka-.+-.+\", container=\"broker\"}",
               "format": "time_series",
               "hide": true,
@@ -3087,6 +3884,7 @@ data:
               "refId": "C"
             },
             {
+              "$$hashKey": "object:2045",
               "expr": "kube_pod_container_resource_limits_memory_bytes{pod=~\"kafka-.+-.+\"}",
               "format": "time_series",
               "hide": true,
@@ -3096,6 +3894,7 @@ data:
               "refId": "B"
             },
             {
+              "$$hashKey": "object:2046",
               "expr": "container_memory_usage_bytes{pod_name=~\"kafka-.+-.+\", container_name=\"broker\"}",
               "format": "time_series",
               "hide": false,
@@ -3108,6 +3907,7 @@ data:
               "step": 10
             },
             {
+              "$$hashKey": "object:2047",
               "expr": "java_lang_memory_heapmemoryusage_used{pod=~\"kafka-.+-.+\",service=\"broker\"}\t",
               "format": "time_series",
               "hide": true,
@@ -3116,6 +3916,7 @@ data:
               "refId": "D"
             },
             {
+              "$$hashKey": "object:2048",
               "expr": "java_lang_operatingsystem_freephysicalmemorysize{pod=~\"kafka-.+\", service=\"broker\"}",
               "format": "time_series",
               "hide": true,
@@ -3176,7 +3977,7 @@ data:
             "h": 7,
             "w": 8,
             "x": 8,
-            "y": 61
+            "y": 51
           },
           "id": 78,
           "legend": {
@@ -3198,10 +3999,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3289,7 +4090,7 @@ data:
             "h": 7,
             "w": 8,
             "x": 16,
-            "y": 61
+            "y": 51
           },
           "id": 102,
           "legend": {
@@ -3311,10 +4112,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3323,6 +4124,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "$$hashKey": "object:2639",
               "expr": "container_fs_usage_bytes{pod_name=~\"kafka-(source|destination)-.+\"}",
               "format": "time_series",
               "intervalFactor": 1,
@@ -3330,7 +4132,15 @@ data:
               "refId": "A"
             }
           ],
-          "thresholds": [],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 80000000000
+            }
+          ],
           "timeFrom": null,
           "timeShift": null,
           "title": "Kafka disk usage",
@@ -3349,6 +4159,7 @@ data:
           },
           "yaxes": [
             {
+              "$$hashKey": "object:328",
               "format": "decbytes",
               "label": null,
               "logBase": 1,
@@ -3357,6 +4168,7 @@ data:
               "show": true
             },
             {
+              "$$hashKey": "object:329",
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -3378,10 +4190,10 @@ data:
           "datasource": "$cluster",
           "fill": 1,
           "gridPos": {
-            "h": 9,
-            "w": 12,
+            "h": 7,
+            "w": 8,
             "x": 0,
-            "y": 68
+            "y": 58
           },
           "id": 22,
           "legend": {
@@ -3403,10 +4215,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3478,9 +4290,9 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 68
+            "w": 6,
+            "x": 8,
+            "y": 58
           },
           "id": 45,
           "legend": {
@@ -3502,10 +4314,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [
@@ -3520,12 +4332,12 @@ data:
           "targets": [
             {
               "$$hashKey": "object:1421",
-              "expr": "kube_pod_container_resource_requests_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"}",
+              "expr": "min(kube_pod_container_resource_requests_cpu_cores{pod=~\"kafka-.+-.+\", container=\"broker\"})",
               "format": "time_series",
-              "hide": true,
+              "hide": false,
               "instant": false,
               "intervalFactor": 1,
-              "legendFormat": "requests {{pod}}",
+              "legendFormat": "requests (broker)",
               "refId": "B"
             },
             {
@@ -3534,15 +4346,16 @@ data:
               "format": "time_series",
               "hide": true,
               "intervalFactor": 1,
-              "legendFormat": "limits {{pod}}",
+              "legendFormat": "limits (broker)",
               "refId": "C"
             },
             {
               "$$hashKey": "object:1423",
               "expr": "sum(irate(container_cpu_usage_seconds_total{pod_name=~\"kafka-.+-[0-9]+\"}[1m])) by (container_name)",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{{container_name}}",
+              "legendFormat": "usage {{container_name}}",
               "legendLink": null,
               "refId": "A",
               "step": 10
@@ -3596,12 +4409,12 @@ data:
           "datasource": "$cluster",
           "fill": 1,
           "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 75
+            "h": 7,
+            "w": 5,
+            "x": 14,
+            "y": 58
           },
-          "id": 47,
+          "id": 125,
           "legend": {
             "avg": false,
             "current": false,
@@ -3621,10 +4434,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3633,17 +4446,18 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
+              "$$hashKey": "object:3495",
+              "expr": "java_lang_operatingsystem_systemcpuload{service=\"broker\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "{{pod_name}}",
+              "legendFormat": "{{pod}}",
               "refId": "A"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "container_memory_failcnt",
+          "title": "CPU Load",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -3659,14 +4473,16 @@ data:
           },
           "yaxes": [
             {
-              "format": "short",
+              "$$hashKey": "object:3465",
+              "format": "percent",
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
+              "$$hashKey": "object:3466",
               "format": "short",
               "label": null,
               "logBase": 1,
@@ -3689,9 +4505,9 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 6,
+            "w": 3,
             "x": 0,
-            "y": 77
+            "y": 65
           },
           "id": 98,
           "legend": {
@@ -3713,10 +4529,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3788,9 +4604,9 @@ data:
           "fill": 1,
           "gridPos": {
             "h": 9,
-            "w": 6,
-            "x": 6,
-            "y": 77
+            "w": 4,
+            "x": 3,
+            "y": 65
           },
           "id": 100,
           "legend": {
@@ -3812,10 +4628,10 @@ data:
           "renderer": "flot",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "seriesOverrides": [],
@@ -3879,12 +4695,313 @@ data:
           }
         },
         {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 1,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 7,
+            "y": 65
+          },
+          "id": 47,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "$$hashKey": "object:1941",
+              "selected": true,
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
+            }
+          },
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:3495",
+              "expr": "rate(container_memory_failcnt{pod_name!=\"\"}[5m]) > 0",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod_name}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "container_memory_failcnt",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:3465",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "$$hashKey": "object:3466",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 0,
+          "gridPos": {
+            "h": 9,
+            "w": 5,
+            "x": 13,
+            "y": 65
+          },
+          "id": 127,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 2,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "$$hashKey": "object:1941",
+              "selected": true,
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
+            }
+          },
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:3495",
+              "expr": "kafka_server_replicamanager_value{name=\"UnderReplicatedPartitions\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "UnderReplicatedPartitions",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:3465",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:3466",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "$cluster",
+          "fill": 0,
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 18,
+            "y": 65
+          },
+          "id": 124,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 3,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "scopedVars": {
+            "cluster": {
+              "$$hashKey": "object:1941",
+              "selected": true,
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
+            }
+          },
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "$$hashKey": "object:3495",
+              "expr": "100 * kafka_server_kafkarequesthandlerpool_oneminuterate{name=\"RequestHandlerAvgIdlePercent\"}",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "thresholds": [
+            {
+              "colorMode": "critical",
+              "fill": true,
+              "line": true,
+              "op": "gt",
+              "value": 20
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "RequestHandlerAvgIdlePercent",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "$$hashKey": "object:3465",
+              "format": "percent",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "$$hashKey": "object:3466",
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false,
+            "alignLevel": null
+          }
+        },
+        {
           "collapsed": true,
           "gridPos": {
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 344
+            "y": 222
           },
           "id": 80,
           "panels": [
@@ -3899,7 +5016,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 37
+                "y": 74
               },
               "id": 29,
               "legend": {
@@ -3921,10 +5038,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -3993,7 +5110,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 37
+                "y": 74
               },
               "id": 31,
               "legend": {
@@ -4015,10 +5132,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4087,7 +5204,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 44
+                "y": 81
               },
               "id": 35,
               "legend": {
@@ -4109,10 +5226,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4181,7 +5298,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 44
+                "y": 81
               },
               "id": 39,
               "legend": {
@@ -4203,10 +5320,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4275,7 +5392,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 51
+                "y": 88
               },
               "id": 37,
               "legend": {
@@ -4297,10 +5414,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4369,7 +5486,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 51
+                "y": 88
               },
               "id": 41,
               "legend": {
@@ -4391,10 +5508,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4463,7 +5580,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 58
+                "y": 95
               },
               "id": 33,
               "legend": {
@@ -4485,10 +5602,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4509,7 +5626,7 @@ data:
               "thresholds": [],
               "timeFrom": null,
               "timeShift": null,
-              "title": "Memory Utilisation",
+              "title": "Memory Utilization",
               "tooltip": {
                 "shared": true,
                 "sort": 0,
@@ -4557,7 +5674,7 @@ data:
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 58
+                "y": 95
               },
               "id": 43,
               "legend": {
@@ -4579,10 +5696,10 @@ data:
               "renderer": "flot",
               "scopedVars": {
                 "cluster": {
-                  "$$hashKey": "object:1128",
+                  "$$hashKey": "object:1941",
                   "selected": true,
-                  "text": "us-east-1 source",
-                  "value": "us-east-1 source"
+                  "text": "eu-west-1 destination",
+                  "value": "eu-west-1 destination"
                 }
               },
               "seriesOverrides": [],
@@ -4644,10 +5761,10 @@ data:
           "repeat": "cluster",
           "scopedVars": {
             "cluster": {
-              "$$hashKey": "object:1128",
+              "$$hashKey": "object:1941",
               "selected": true,
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             }
           },
           "title": "${cluster} nodes",
@@ -4666,9 +5783,7 @@ data:
             "allValue": null,
             "current": {
               "text": "All",
-              "value": [
-                "$__all"
-              ]
+              "value": "$__all"
             },
             "datasource": "us-east-1 source",
             "hide": 0,
@@ -4690,8 +5805,8 @@ data:
           {
             "current": {
               "tags": [],
-              "text": "us-east-1 source",
-              "value": "us-east-1 source"
+              "text": "eu-west-1 destination",
+              "value": "eu-west-1 destination"
             },
             "hide": 0,
             "label": null,
