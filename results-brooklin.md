@@ -119,6 +119,36 @@ But aftershock 2 is actually even stranger. We see a *significant dip in replica
 
 ![Kill a broker in kafka-destination take 2 aftershock 2](doc/media/brooklin-kill-kafka-destination-pod-take2-aftershock2.png "Kill a broker in kafka-destination take 2 aftreshock 2")
 
+### Experiment: Kill a broker in kafka-destination (aka kafka destination node flapping, take 2)
+
+This time, after consulting with Brooklin's dev team, we've made a few configuration adjustments and rerun the same experiment.
+
+The configuration adjustments are as follows:
+
+```
+    brooklin.server.connector.kafkaMirroringC.pausePartitionOnError=true
+    brooklin.server.connector.kafkaMirroringC.pauseErrorPartitionDurationMs=30000
+```
+
+This would effectively stop partition replication (on the first error? not sure) and then restart it after 30 seconds. Previously, the default values of these were `pausePartitionOnError=true` and `pauseErrorPartitionDurationMs=600000` (10 minutes)
+
+We first run this experiment with 100mb/s replication. Things are looking better, although not perfect. We see less errors in the logs and on our dashboard so it indeed seems that the configuration was effective. But then brooklin starts a cycle of rebalance, which takes several minutes to complete and during that time it seems that replication gets to a halt as before. After that single cycle of rebalance things are back to normal.
+
+In future versions of brooklin we hope to see that such a broker-flapping scenario would get resolved faster and with smaller aftershock.
+
+![Kill a broker in kafka-destination take 4](doc/media/brooklin-kill-kafka-destination-pod-take4.png)
+
+We run this experiment again, this time with the full amount of traffic (200mb/s) and we see a simialr result.
+
+Indeed `pausePartitionOnError=true` is effective and replication stops on the first (or perhaps close to the first) error.
+
+But still there's about 5 minutes as before to recover (rebalance we assume), during that time brooklin completely stops replication.
+
+See below the same experiment, this time with 200mb/s.
+
+![Kill a broker in kafka-destination take 5](doc/media/brooklin-kill-kafka-destination-pod-take5.png)
+
+
 ### Experiment: Downsize source cluster permanently to 15
 
 The baseline of the source cluster is 16 brokers. In this experiment we reduce the size to 15 permanently. Unlike the previous experiment in this case k8s will not automatically re-provision the killed pod so the cluster size will remain 15 permanently. This is supposed to be OK since the replication factor is 2.

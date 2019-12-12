@@ -59,6 +59,8 @@ data:
     # receive.buffer.bytes = 65536
     brooklin.server.connector.kafkaMirroringC.consumer.receive.buffer.bytes=524288
     brooklin.server.connector.kafkaMirroringC.consumer.max.partition.fetch.bytes=262144
+    brooklin.server.connector.kafkaMirroringC.pausePartitionOnError=true
+    brooklin.server.connector.kafkaMirroringC.pauseErrorPartitionDurationMs=30000
 
     ########################### Directory transport provider configs ######################
     brooklin.server.transportProvider.dirTP.factoryClassName=com.linkedin.datastream.server.DirectoryTransportProviderAdminFactory
@@ -68,14 +70,9 @@ data:
     brooklin.server.transportProvider.kafkaTP.bootstrap.servers=localhost:9092
     brooklin.server.transportProvider.kafkaTP.zookeeper.connect=localhost:2181
     brooklin.server.transportProvider.kafkaTP.client.id=datastream-producer
-    # batch.size = 16384
-    # buffer.memory = 33554432
-    # linger.ms = 0
-    # max.request.size = 1048576
-    # receive.buffer.bytes = 32768
-    # send.buffer.bytes = 131072
     # brooklin.server.transportProvider.kafkaTP.producer.linger.ms=1000
     # brooklin.server.transportProvider.kafkaTP.producer.batch.size=32768
     # brooklin.server.transportProvider.kafkaTP.producer.send.buffer.bytes=262144
     # brooklin.server.transportProvider.kafkaTP.producer.max.request.size=262144
     # brooklin.server.transportProvider.kafkaTP.producer.max.in.flight.requests.per.connection=1
+

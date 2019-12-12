@@ -1,7 +1,7 @@
 USE_UREPLICATOR := false
 USE_BROOKLIN := true
 US_EAST_NODE_COUNT := 20
-EU_WEST_NODE_COUNT := 35
+EU_WEST_NODE_COUNT := 38
 
 k8s-all: kops-check-version k8s-create-clusters k8s-monitoring k8s-kafkas-setup k8s-replicator-setup k8s-setup-weave-scope k8s-wait-for-kafkas k8s-run-tests k8s-help-monitoring
 
